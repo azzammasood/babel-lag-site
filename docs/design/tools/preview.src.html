@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Babel Lag design preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;800;900&family=Inter:wght@400;600&family=Space+Mono:wght@400;700&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&family=Unbounded:wght@400;700&family=Anton&family=Archivo:wght@400;700&family=Fraunces:opsz,wght@9..144,400;9..144,800&family=Work+Sans:wght@400;600&family=Noto+Sans:wght@500;800&family=Noto+Sans+Devanagari:wght@500;800&family=Noto+Sans+Bengali:wght@500;800&family=Noto+Sans+Ethiopic:wght@500;800&family=Noto+Sans+Gurmukhi:wght@500;800&family=Noto+Sans+Tamil:wght@500;800&family=Noto+Sans+Telugu:wght@500;800&family=Noto+Naskh+Arabic:wght@500;700&display=swap">
+<style>
+/* ---------- preview chrome (neutral; not part of any concept) ---------- */
+:root{--cb:#f4f4f5;--cf:#18181b;--cm:#52525b;--ca:#1d4ed8;color-scheme:light dark}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--cb:#18181b;--cf:#f4f4f5;--cm:#a1a1aa;--ca:#93c5fd}}
+:root[data-theme="dark"]{--cb:#18181b;--cf:#f4f4f5;--cm:#a1a1aa;--ca:#93c5fd}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--cb);color:var(--cf);font:14px/1.45 system-ui,"Segoe UI",sans-serif}
+#chrome{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;padding:8px 16px;background:var(--cb);border-bottom:1px solid color-mix(in srgb,var(--cf) 18%,transparent)}
+#chrome b{font-size:13px}
+#chrome .grp{display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+#chrome .grp>span{color:var(--cm);font-size:12px;margin-right:2px}
+#chrome button{font:inherit;font-size:12.5px;padding:4px 9px;border-radius:6px;border:1px solid color-mix(in srgb,var(--cf) 30%,transparent);background:transparent;color:var(--cf);cursor:pointer}
+#chrome button[aria-pressed="true"]{background:var(--cf);color:var(--cb);border-color:var(--cf)}
+#chrome button:focus-visible,#site :focus-visible{outline:3px solid var(--ca);outline-offset:2px}
+#chrome .note{color:var(--cm);font-size:12px;flex-basis:100%}
+body.shot #chrome{display:none}
+
+/* ---------- shared skeleton, themed by concept tokens ---------- */
+#site{--bg:#fff;--surface:#fff;--text:#000;--muted:#444;--accent:#00f;--data:#00f;--dim:#ccc;
+  background:var(--bg);color:var(--text);min-height:100vh;font-family:var(--font-body);overflow-x:hidden}
+#site a{color:var(--accent)}
+#site .wrap{max-width:1180px;margin:0 auto;padding:0 16px}
+#site header.top{display:flex;align-items:center;gap:10px 18px;padding:14px 16px;flex-wrap:wrap;max-width:1180px;margin:0 auto}
+#site .brand{display:flex;align-items:center;gap:10px;font-family:var(--font-head);font-weight:800;font-size:21px;text-decoration:none;color:var(--text);letter-spacing:var(--brand-ls,0)}
+#site .brand svg{width:34px;height:34px}
+#site nav ul{display:flex;flex-wrap:wrap;gap:2px 14px;list-style:none;margin:0;padding:0;font-size:13px}
+#site nav a{color:var(--muted);text-decoration:none}
+#site nav a[aria-current]{color:var(--text);font-weight:600;border-bottom:2px solid var(--accent)}
+#site .ink{fill:var(--text)} #site .lit{fill:var(--accent)} #site .off{fill:var(--text);opacity:.22}
+#site .st{stroke:var(--text)} #site .stl{stroke:var(--accent)}
+#site h1,#site h2{font-family:var(--font-head);line-height:1.02;margin:0 0 .35em}
+#site h2{font-size:clamp(20px,2.6vw,30px)}
+#site .lede{font-size:clamp(15px,1.6vw,19px);color:var(--muted);max-width:60ch}
+#site .muted{color:var(--muted)} #site .small{font-size:12.5px}
+#site .src{font-family:ui-monospace,Consolas,monospace;font-size:11px;color:var(--muted)}
+#site section{padding:22px 0}
+#site .key{font-size:12.5px;color:var(--muted);margin-top:8px}
+#site .empty{border:1.5px dashed var(--muted);padding:14px 16px;color:var(--muted);font-size:13.5px}
+#site .empty b{color:var(--text)}
+#site .row2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+#site footer{border-top:1px solid var(--dim);margin-top:24px;padding:18px 0 34px;font-size:12.5px;color:var(--muted)}
+#site svg text{fill:var(--muted);font-size:11px;font-family:var(--font-body)}
+#site svg .tx{fill:var(--text)}
+#site .replay{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:12.5px;color:var(--muted)}
+#site .replay button{font:inherit;padding:3px 10px;border:1px solid var(--muted);background:transparent;color:var(--text);cursor:pointer;border-radius:4px}
+#site .scroll{overflow-x:auto}
+#site .nat{font-family:"Noto Sans","Noto Sans Devanagari","Noto Sans Bengali","Noto Sans Ethiopic","Noto Sans Gurmukhi","Noto Sans Tamil","Noto Sans Telugu","Noto Naskh Arabic","Nirmala UI","Ebrima",sans-serif}
+#site .engines{list-style:none;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px}
+#site .engines .on{color:var(--text);font-weight:600} #site .engines .no{color:var(--muted)}
+
+/* ===== 1 Blackout ===== */
+.c-blackout{--font-head:"Big Shoulders Display",Impact,sans-serif;--font-body:"Inter",system-ui,sans-serif;--brand-ls:.02em}
+.c-blackout h1{font-size:clamp(44px,9vw,128px);font-weight:900;text-transform:uppercase;letter-spacing:-.01em}
+.c-blackout h1 em{font-style:normal;color:var(--accent)}
+.c-blackout .wall{display:flex;flex-direction:column;gap:0}
+.c-blackout .wl{display:flex;align-items:baseline;justify-content:space-between;gap:8px 18px;flex-wrap:wrap;border-top:1px solid var(--dim);padding:2px 0}
+.c-blackout .word{font-size:clamp(38px,8.4vw,112px);font-weight:800;line-height:1.12;color:transparent;-webkit-background-clip:text;background-clip:text;white-space:nowrap}
+.c-blackout .wl .m{font-family:var(--font-head);font-size:clamp(14px,1.6vw,19px);font-weight:500;color:var(--muted);text-align:right;letter-spacing:.03em;text-transform:uppercase}
+.c-blackout .wl .m b{color:var(--accent);font-weight:800}
+.c-blackout .board{display:grid;grid-template-columns:repeat(auto-fill,minmax(11px,1fr));gap:3px;padding:14px;background:var(--surface);border:1px solid var(--dim)}
+.c-blackout .board i{display:block;aspect-ratio:1;border-radius:50%;background:var(--dim)}
+.c-blackout .giant{font-family:var(--font-head);font-weight:900;font-size:clamp(56px,11vw,150px);line-height:.9;color:var(--accent)}
+.c-blackout .giant{margin-bottom:18px}
+.c-blackout .giant small{display:block;font-size:clamp(14px,1.6vw,19px);font-weight:500;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;margin-top:6px}
+
+/* ===== 2 Departures ===== */
+.c-departures{--font-head:"Space Mono",ui-monospace,monospace;--font-body:"Inter",system-ui,sans-serif;--flap-bg:#18181B;--flap-fg:#F4F4F4;--flap-hi:#FFC400}
+.c-departures h1{font-size:clamp(28px,4.6vw,56px);font-weight:700;letter-spacing:-.03em}
+.c-departures .boardw{background:#0A0A0B;border-radius:10px;padding:14px;box-shadow:0 14px 40px rgba(0,0,0,.35);overflow-x:auto}
+.c-departures .bh{display:grid;grid-template-columns:var(--cols);gap:12px;color:#FFC400;font:700 11px/1 var(--font-head);letter-spacing:.12em;text-transform:uppercase;padding:0 0 8px}
+.c-departures .br{display:grid;grid-template-columns:var(--cols);gap:12px;align-items:center;padding:3px 0}
+.c-departures .fl{display:flex;gap:2px}
+.c-departures .fl span{position:relative;display:inline-block;width:1.05em;height:1.55em;line-height:1.55em;text-align:center;background:var(--flap-bg);color:var(--flap-fg);font:700 clamp(12px,1.35vw,17px)/1.55em var(--font-head);border-radius:3px;text-transform:uppercase;animation:flip .5s cubic-bezier(.3,1.6,.6,1) both;animation-delay:calc(var(--i)*18ms)}
+.c-departures .fl span::after{content:"";position:absolute;left:0;right:0;top:50%;height:1px;background:#000}
+.c-departures .fl.hi span{color:var(--flap-hi)}
+.c-departures .fl.nat span{width:auto;min-width:1.05em;padding:0 .3em;text-transform:none;font-family:"Noto Sans","Noto Sans Devanagari","Noto Sans Bengali","Noto Sans Ethiopic","Noto Sans Gurmukhi","Noto Sans Tamil","Noto Sans Telugu","Noto Naskh Arabic","Nirmala UI",sans-serif}
+@keyframes flip{0%{transform:perspective(200px) rotateX(-90deg);opacity:.2}100%{transform:none;opacity:1}}
+.c-departures .clock{display:flex;gap:18px;flex-wrap:wrap}
+.c-departures .clock>div{background:#0A0A0B;border-radius:10px;padding:12px 14px}
+.c-departures .clock .k{color:#C9C9CF;font:700 11px var(--font-head);letter-spacing:.1em;text-transform:uppercase;margin-top:6px}
+
+/* ===== 3 Seismograph ===== */
+.c-seismograph{--font-head:"IBM Plex Serif",Georgia,serif;--font-body:"IBM Plex Mono",ui-monospace,monospace}
+.c-seismograph h1{font-size:clamp(32px,5.6vw,72px);font-weight:400;font-style:italic;max-width:16ch}
+.c-seismograph .paper{background-color:var(--surface);background-image:linear-gradient(var(--dim) 1px,transparent 1px),linear-gradient(90deg,var(--dim) 1px,transparent 1px);background-size:24px 24px;border:1px solid var(--dim)}
+.c-seismograph .trace{fill:none;stroke:var(--data);stroke-width:1.6;stroke-linejoin:round;stroke-dasharray:var(--len);stroke-dashoffset:var(--len);animation:draw 2.2s ease-out forwards;animation-delay:calc(var(--i)*70ms)}
+@keyframes draw{to{stroke-dashoffset:0}}
+.c-seismograph .mag{font-family:var(--font-head);font-size:clamp(48px,8vw,104px);line-height:1;color:var(--data)}
+.c-seismograph[data-t="dark"] .trace{filter:drop-shadow(0 0 3px var(--data))}
+
+/* ===== 4 Light-years ===== */
+.c-lightyears{--font-head:"Unbounded",system-ui,sans-serif;--font-body:"Inter",system-ui,sans-serif}
+.c-lightyears h1{font-size:clamp(28px,4.8vw,62px);font-weight:700;letter-spacing:-.02em;max-width:18ch}
+.c-lightyears h1 em{font-style:normal;color:var(--accent)}
+.c-lightyears .space{background:radial-gradient(ellipse at 0% 50%,color-mix(in srgb,var(--accent) 22%,transparent),transparent 55%),var(--surface);border:1px solid var(--dim);border-radius:18px}
+
+/* ===== 5 Riso ===== */
+.c-riso{--font-head:"Anton",Impact,sans-serif;--font-body:"Archivo",system-ui,sans-serif;--ink1:#FF48B0;--ink2:#0078BF;--blend:multiply}
+.c-riso[data-t="dark"]{--blend:screen}
+.c-riso h1{font-size:clamp(40px,7vw,96px);font-weight:400;text-transform:uppercase;line-height:.92}
+.c-riso .poster{position:relative;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:18px;align-items:center}
+.c-riso .huge{position:relative;font-family:var(--font-head);font-size:clamp(120px,26vw,340px);line-height:.8;letter-spacing:-.02em}
+.c-riso .huge span{display:block;mix-blend-mode:var(--blend)}
+.c-riso .huge .a{color:var(--ink1)}
+.c-riso .huge .b{position:absolute;inset:0;color:var(--ink2);transform:translate(7px,5px)}
+.c-riso .stamps{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:12px}
+.c-riso .stamp{border:2px solid var(--text);padding:8px;background:var(--surface)}
+.c-riso .stamp .code{font-family:var(--font-head);font-size:34px;line-height:1;text-transform:uppercase}
+.c-riso .stamp svg{display:block;width:100%;height:auto}
+.c-riso .stamp svg g{mix-blend-mode:var(--blend)}
+.c-riso h2{margin-top:14px}
+.c-riso .tag{display:inline-block;font-family:var(--font-head);text-transform:uppercase;border:2.5px solid currentColor;padding:2px 8px;transform:rotate(-3deg);margin:4px 6px 4px 0}
+.c-riso .tag.on{color:var(--accent)} .c-riso .tag.no{color:var(--muted);transform:rotate(2deg);border-style:dashed}
+@media (max-width:700px){.c-riso .poster{grid-template-columns:1fr}}
+
+/* ===== 6 Babel Tower ===== */
+.c-tower{--font-head:"Fraunces",Georgia,serif;--font-body:"Work Sans",system-ui,sans-serif}
+.c-tower h1{font-size:clamp(34px,6vw,80px);font-weight:800;letter-spacing:-.02em;max-width:14ch}
+.c-tower .sky{background:linear-gradient(180deg,color-mix(in srgb,var(--data) 14%,var(--bg)),var(--bg) 70%);border-radius:4px}
+
+@media (prefers-reduced-motion:reduce){#site *{animation:none!important;transition:none!important;stroke-dashoffset:0!important}}
+</style>
+</head>
+<body>
+<div id="chrome" role="toolbar" aria-label="Preview controls">
+  <b>Babel Lag design gate</b>
+  <div class="grp" id="g-c"><span>Concept</span></div>
+  <div class="grp" id="g-v"><span>Page</span></div>
+  <div class="grp" id="g-t"><span>Theme</span></div>
+  <div class="grp" id="g-l"><span>Logo</span></div>
+  <div class="note" id="chrome-note"></div>
+</div>
+<main id="site"></main>
+<script>
+"use strict";
+const D=/*__DATA__*/null, PAL=/*__PALETTES__*/null, LOGOS=/*__LOGOS__*/null;
+const CONCEPTS=[
+ {id:"blackout",name:"Blackout",tag:"Each language's own name, lit only as far as its coverage reaches. Most of the wall stays dark."},
+ {id:"departures",name:"Departures",tag:"A split-flap station board: knowledge is the train, the median lag is the delay."},
+ {id:"seismograph",name:"Seismograph",tag:"New knowledge is a tremor; each language's needle twitches only when it finally arrives."},
+ {id:"lightyears",name:"Light-years",tag:"Knowledge as starlight: each language is a planet whose lit phase is its coverage."},
+ {id:"riso",name:"Riso Manifesto",tag:"A two-ink protest poster: giant numbers, halftone stamps, misregistered overprint."},
+ {id:"tower",name:"Babel Tower",tag:"An isometric tower of languages, each floor as wide as its coverage, tapering into the dark."}];
+const NAMES={am:["Amharic","አማርኛ"],bn:["Bengali","বাংলা"],cy:["Welsh","Cymraeg"],el:["Greek","Ελληνικά"],eo:["Esperanto","Esperanto"],ha:["Hausa","Hausa"],hi:["Hindi","हिन्दी"],ig:["Igbo","Igbo"],mr:["Marathi","मराठी"],ms:["Malay","Melayu"],ne:["Nepali","नेपाली"],pa:["Punjabi","ਪੰਜਾਬੀ"],so:["Somali","Soomaali"],sw:["Swahili","Kiswahili"],ta:["Tamil","தமிழ்"],te:["Telugu","తెలుగు"],tl:["Tagalog","Tagalog"],ur:["Urdu","اردو"],yo:["Yoruba","Yorùbá"],zu:["Zulu","isiZulu"]};
+const RTL=new Set(["ur"]);
+const NAV=["Now","Languages","Topics","Backtests","Pipeline Live","Lineage","Catalog","Method and data","How it's built","The maker","Corrections"];
+const LOGO_KEYS=Object.keys(LOGOS);
+const st={c:"blackout",v:"home",t:"dark",l:LOGO_KEYS[0],paused:false,shot:0};
+location.hash.slice(1).split("&").forEach(p=>{const [k,v]=p.split("=");if(k in st&&v)st[k]=decodeURIComponent(v)});
+if(+st.shot)document.body.classList.add("shot");
+const reduced=matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+// ---------- display helpers (formatting only; no new numbers) ----------
+const fmt=n=>n==null?"not measured":Number(n).toLocaleString("en-US");
+const fmt1=n=>n==null?"not measured":Number(n).toLocaleString("en-US",{maximumFractionDigits:1});
+const yrs=d=>(d/365.25).toLocaleString("en-US",{maximumFractionDigits:1});
+const day=s=>s?s.slice(0,16).replace("T"," ")+" UTC":"n/a";
+const hr=s=>s.slice(5,13).replace("T"," ")+"h";
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const src=p=>`<span class="src">${esc(p)}</span>`;
+const L=D.languages.rows.slice(), P=D.pipeline, LV=D.live, H=LV.hourly, M=LV.matrix;
+const byCov=L.slice().sort((a,b)=>b.coverage_pct-a.coverage_pct), byLag=L.slice().sort((a,b)=>a.median_lag_days-b.median_lag_days);
+const maxCov=Math.max(...L.map(r=>r.coverage_pct)), maxLag=Math.max(...L.map(r=>r.median_lag_days));
+const fastest=byLag[0], slowest=byLag[byLag.length-1], darkest=byCov[byCov.length-1];
+const maxH=Math.max(...H.map(h=>h.events)), maxCell=Math.max(...M.events.flat());
+const nm=c=>NAMES[c]?NAMES[c][0]:c, nat=c=>NAMES[c]?NAMES[c][1]:c;
+const ranEng=P.engines.filter(e=>e.active);
+let HOOK=null; // per-view replay hook: called with a measured hour index
+
+function logo(){return LOGOS[st.l].replace(/<style>[\s\S]*?<\/style>/,"").replace(/<title[^>]*>[\s\S]*?<\/title>/,"").replace(/ aria-labelledby="t"/,' aria-hidden="true"')}
+function header(cur){return `<header class="top"><a class="brand" href="#" aria-label="Babel Lag home">${logo()}<span>Babel Lag</span></a>
+ <nav aria-label="Main"><ul>${NAV.map(n=>`<li><a href="#" ${n===cur?'aria-current="page"':""}>${n}</a></li>`).join("")}</ul></nav></header>`}
+function prov(){const m=D.languages.meta;return `<p class="small muted">Profile <b>${esc(m.produced_by.profile)}</b>${m.produced_by.fallback?" (fallback)":""} · generated ${day(m.generated_at)} · slice of ${L.length} languages · ${src("languages.json")}</p>`}
+function footer(){const s=[...D.languages.meta.sources,...D.live.meta.sources];return `<footer><div class="wrap"><p><b>Data:</b> Wikimedia Foundation: ${s.map(x=>`<a href="${esc(x.url)}">${esc(x.name)}</a>`).join(" · ")}. Wikidata and the Wikimedia dumps are CC0. Babel Lag is independent and non-commercial, not affiliated with or endorsed by the Wikimedia Foundation.</p>
+ <p>Lag is measured on Wikipedia only; it says nothing about other media in a language. Aggregates only: no editor is named, ranked or profiled. <a href="#">Method and limits</a> · <a href="${esc(D.languages.meta.corrections||"#")}">Corrections</a> · Code MIT.</p></div></footer>`}
+function empties(){return `<div class="row2"><div class="empty" role="note"><b>Topics: nothing tracked yet.</b> Live topic tracking arrives in milestone 3. Until a topic is measured, this stays empty.</div>
+ <div class="empty" role="note"><b>Backtests: none yet.</b> Backtests of past events arrive in milestone 3. No numbers until they are measured.</div></div>`}
+function engines(){return `<ul class="engines">${P.engines.map(e=>`<li class="${e.active?"on":"no"}" title="${esc(e.role)}">${e.active?"●":"○"} ${esc(e.name)} ${esc(e.version)} <span class="small">${e.active?"ran in last run":"not in last run"}</span></li>`).join("")}</ul>`}
+function replayCtl(){return `<div class="replay">${reduced?"<span>Motion off (reduced-motion preference): showing the last measured hour.</span>":`<button type="button" id="pp">${st.paused?"Play":"Pause"}</button>`}<span>Replay of ${H.length} measured hours from live.json, not a live feed.</span> <b id="rp" style="color:var(--text)"></b></div>`}
+
+const R={};
+/* ===== 1 Blackout ===== */
+R.blackout={home(){return `<section class="wrap"><h1>Who sits in<br>the <em>dark</em><br>for knowledge?</h1>
+ <p class="lede">Each language's own name, lit exactly as far as its Wikipedia covers the shared reference set of topics. Roshni asked who sits in the dark for electricity. This asks the same of knowledge.</p>${prov()}</section>
+ <section class="wrap"><div class="wall" role="list">${byCov.map(r=>{const p=r.coverage_pct,rtl=RTL.has(r.language);
+  return `<div class="wl" role="listitem"><span class="word nat" lang="${r.language}" dir="${rtl?"rtl":"ltr"}" aria-label="${nm(r.language)}" style="background-image:linear-gradient(${rtl?270:90}deg,var(--accent) ${p}%,var(--dim) ${p}%)">${nat(r.language)}</span>
+  <span class="m">${nm(r.language)} · <b>${p}% lit</b><br>median lag ${yrs(r.median_lag_days)} yrs</span></div>`}).join("")}</div>
+ <p class="key">Lit share of each word = coverage_pct, printed beside it. Sorted brightest first. The darkest: ${nm(darkest.language)}, ${darkest.coverage_pct}%.</p></section>
+ <section class="wrap">${empties()}</section>`},
+ pipe(){HOOK=i=>{const b=document.querySelectorAll("#sb i"),lg=Math.log1p(maxCell);M.events.forEach((row,w)=>{const e=row[i];b[w].style.background=e?`color-mix(in srgb,var(--accent) ${Math.round(18+82*Math.log1p(e)/lg)}%,var(--dim))`:"";b[w].style.boxShadow=e>500?"0 0 6px var(--accent)":""});
+  const n=M.events.filter(r=>r[i]>0).length;document.getElementById("rp").textContent=`${hr(H[i].hour)} UTC: ${n} of ${M.wikis.length} wikis lit, ${fmt(H[i].events)} events`};
+ return `<section class="wrap"><h1>The <em>switchboard</em></h1><p class="lede">One bulb for each of the ${M.wikis.length} wikis the collector heard from. A bulb lights only in an hour when that wiki produced measured events; brightness follows the event count.</p>${replayCtl()}</section>
+ <section class="wrap"><div class="board" id="sb" role="img" aria-label="${M.wikis.length} bulbs, one per wiki, lit by measured events per hour.">${M.wikis.map(w=>`<i title="${esc(w)}"></i>`).join("")}</div><p class="key">Ordered by events over the window, busiest first (${esc(M.wikis[0])}, ${esc(M.wikis[1])}, ${esc(M.wikis[2])}…). ${src("live.json rows: hour × wiki × events")}</p></section>
+ <section class="wrap"><div class="row2"><div class="giant">${fmt1(P.live.events_per_second)}<small>events per second, last window ${src("live.events_per_second")}</small></div><div class="giant">${fmt1(P.live.end_to_end_latency_s)}s<small>from event to published table ${src("live.end_to_end_latency_s")}</small></div></div></section>
+ <section class="wrap"><h2>Engines</h2>${engines()}</section>`}};
+
+/* ===== 2 Departures ===== */
+function flap(s,n,cls=""){s=String(s);if(cls==="nat")return `<span class="fl nat" aria-hidden="true"><span style="--i:0">${esc(s)}</span></span>`;if(n)s=s.padEnd(n).slice(0,n);return `<span class="fl ${cls}" aria-hidden="true">${[...s].map((c,i)=>`<span style="--i:${i}">${c===" "?"&nbsp;":esc(c)}</span>`).join("")}</span>`}
+R.departures={home(){const cols="minmax(150px,1.3fr) minmax(120px,1fr) minmax(140px,1fr) minmax(90px,.7fr)";
+ return `<section class="wrap"><h1>Knowledge departs. Some languages wait years.</h1><p class="lede">Every topic departs from its first Wikipedia. The board shows the median delay before it arrives in each language.</p>${prov()}</section>
+ <section class="wrap"><div class="boardw" style="--cols:${cols}"><div class="bh"><span>Destination</span><span>Native</span><span>Median delay</span><span>Arrived</span></div>
+ ${byLag.slice().reverse().map(r=>`<div class="br" role="row" aria-label="${nm(r.language)}: median delay ${yrs(r.median_lag_days)} years, ${r.coverage_pct}% of topics arrived">${flap(nm(r.language),10)}${flap(nat(r.language),0,"nat")}${flap(yrs(r.median_lag_days)+" YRS",9,"hi")}${flap(r.coverage_pct+"%",6)}</div>`).join("")}
+ <div class="bh" style="padding-top:14px"><span>Topics now</span></div><div class="br">${flap("NO SERVICE",10,"hi")}<span style="color:#C9C9CF;font-size:13px">Live topic tracking starts in milestone 3; no departures are tracked yet.</span></div></div>
+ <p class="key">Longest delays first. Delay = median_lag_days in years; Arrived = coverage_pct. Flaps flip only when a value is (re)loaded.</p></section>
+ <section class="wrap">${empties()}</section>`},
+ pipe(){const stages=[["Stream","eventstreams-collector"],["Bronze","delta-rs"],["Silver","duckdb"],["Checks","soda-core"],["Contracts","datacontract-cli"],["Gold","dbt-duckdb"],["Catalog","openmetadata"],["Export","babel-export"]];
+ const cols="minmax(90px,.8fr) minmax(200px,1.6fr) minmax(70px,.5fr) minmax(130px,1fr)";
+ HOOK=i=>{const el=document.getElementById("hc");if(el)el.innerHTML=flap(fmt(H[i].events),9,"hi");document.getElementById("rp").textContent=`${hr(H[i].hour)} UTC`};
+ return `<section class="wrap"><h1>Platform board</h1><p class="lede">Every stage is a service on the board. Its status is what the last measured run recorded, nothing more.</p></section>
+ <section class="wrap"><div class="clock"><div>${flap(fmt1(P.live.events_per_second),5,"hi")}<div class="k">events / s, last window</div></div><div>${flap(fmt1(P.live.end_to_end_latency_s)+"s",7)}<div class="k">event to table</div></div><div><span id="hc"></span><div class="k">events this hour (replay)</div></div><div>${flap("$"+P.cost.usd,3)}<div class="k">cost</div></div></div>
+ <div style="margin-top:10px">${replayCtl()}</div></section>
+ <section class="wrap"><div class="boardw" style="--cols:${cols}"><div class="bh"><span>Stage</span><span>Service</span><span>Ver</span><span>Status</span></div>
+ ${stages.map(([s,e])=>{const g=P.engines.find(x=>x.name===e);return `<div class="br">${flap(s,9)}${flap(e,22)}${flap(g?g.version:"",6)}${flap(g&&g.active?"RAN":"NOT RUN",8,g&&g.active?"hi":"")}</div>`}).join("")}</div>
+ <p class="key">Status from pipeline_metrics.engines[].active for run ${esc(P.last_run.run_id.slice(0,8))}… (${esc(P.last_run.status)}).</p></section>`}};
+
+/* ===== 3 Seismograph ===== */
+R.seismograph={home(){const w=900,rh=30,top=26,x0=110,x1=w-20,h=top+L.length*rh+8,xs=d=>x0+(d/(Math.ceil(maxLag/365.25)*365.25))*(x1-x0),yrMax=Math.ceil(maxLag/365.25);
+ const tr=byLag.map((r,i)=>{const y=top+i*rh+rh/2,x=xs(r.median_lag_days),a=4+11*r.coverage_pct/maxCov;
+  const d=`M${x0},${y} L${(x-6).toFixed(1)},${y} L${(x-3).toFixed(1)},${(y-a).toFixed(1)} L${x.toFixed(1)},${(y+a*.8).toFixed(1)} L${(x+3).toFixed(1)},${(y-a*.45).toFixed(1)} L${(x+6).toFixed(1)},${(y+a*.2).toFixed(1)} L${(x+9).toFixed(1)},${y} L${x1},${y}`;
+  return `<text class="tx" x="${x0-10}" y="${y+4}" text-anchor="end">${nm(r.language)}</text><path class="trace" style="--i:${i};--len:${Math.round(x1-x0+4*a+40)}" d="${d}"><title>${nm(r.language)}: ${yrs(r.median_lag_days)} years, ${r.coverage_pct}%</title></path>`}).join("");
+ return `<section class="wrap"><h1>Every new thing is a tremor. Some needles never move.</h1><p class="lede">A topic's first Wikipedia article is the quake. Each language's needle stays flat until the median topic arrives there.</p>${prov()}</section>
+ <section class="wrap"><div class="paper scroll"><svg viewBox="0 0 ${w} ${h}" style="width:100%;min-width:640px;display:block" role="img" aria-label="Seismograph traces, one per language; the spike sits at the median coverage lag, from ${nm(fastest.language)} ${yrs(fastest.median_lag_days)} years to ${nm(slowest.language)} ${yrs(slowest.median_lag_days)} years.">
+ ${Array.from({length:yrMax+1},(_,y)=>`<text x="${xs(y*365.25)}" y="14" text-anchor="middle">${y}y</text>`).join("")}${tr}</svg></div>
+ <p class="key">Spike position = median_lag_days (years after the first article anywhere). Spike height = coverage_pct. The wiggle shape is a marker, not data.</p></section>
+ <section class="wrap">${empties()}</section>`},
+ pipe(){const w=900,h=200,bw=(w-20)/H.length;
+ HOOK=i=>{document.querySelectorAll("#drum rect.b").forEach((r,j)=>r.setAttribute("opacity",j===i?1:j<i?.75:.18));const n=document.getElementById("needle");n.setAttribute("x",10+i*bw+bw/2-1);
+  document.getElementById("mag").textContent=fmt(H[i].events);document.getElementById("rp").textContent=`${hr(H[i].hour)} UTC`};
+ return `<section class="wrap"><h1>The drum never stops turning.</h1><p class="lede">The live stream, as a seismogram: one stroke per measured hour across ${LV.wikis} wikis.</p>${replayCtl()}</section>
+ <section class="wrap"><div class="paper"><svg id="drum" viewBox="0 0 ${w} ${h}" style="width:100%;display:block" role="img" aria-label="Events per measured hour; peak ${fmt(maxH)}.">
+ ${H.map((d,i)=>{const bh=(h-40)*d.events/maxH;return `<rect class="b" x="${(10+i*bw+1).toFixed(1)}" y="${((h-20)/2-bh/2+10).toFixed(1)}" width="${(bw-2).toFixed(1)}" height="${Math.max(1,bh).toFixed(1)}" fill="var(--data)"/>`}).join("")}
+ <rect id="needle" x="0" y="4" width="2" height="${h-8}" fill="var(--text)"/><text x="10" y="${h-4}">${hr(H[0].hour)}</text><text x="${w-10}" y="${h-4}" text-anchor="end">${hr(H[H.length-1].hour)} UTC</text></svg></div></section>
+ <section class="wrap"><div class="row2"><div><div class="mag" id="mag"></div><div class="key">events in the replayed hour ${src("Σ live.json events by hour")}</div></div>
+ <div><div class="mag">${fmt1(P.live.end_to_end_latency_s)}s</div><div class="key">event time to published table ${src("live.end_to_end_latency_s")}</div></div></div></section>
+ <section class="wrap"><h2>Instruments</h2>${engines()}</section>`}};
+
+/* ===== 4 Light-years ===== */
+function phase(cx,cy,r,f){const k=Math.abs(1-2*f)*r,sw=f<.5?0:1;return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="var(--dim)" stroke="var(--muted)" stroke-width=".6"/>${f>0?`<path d="M${cx},${cy-r} A${r},${r} 0 0 1 ${cx},${cy+r} A${k.toFixed(2)},${r} 0 0 ${sw} ${cx},${cy-r}Z" fill="var(--accent)"/>`:""}`}
+R.lightyears={home(){const w=980,h=470,x0=90,x1=w-40,yrMax=Math.ceil(maxLag/365.25),xs=d=>x0+d/(yrMax*365.25)*(x1-x0);
+ const pts=byLag.map((r,i)=>{const x=xs(r.median_lag_days),y=60+((i*7)%10)*36+((i%2)*14),rad=13;return `<g tabindex="0" role="img" aria-label="${nm(r.language)}: ${yrs(r.median_lag_days)} years away, ${r.coverage_pct}% lit"><line x1="${x}" x2="${x}" y1="${y+rad}" y2="${h-34}" stroke="var(--dim)" stroke-dasharray="2 4"/>${phase(x.toFixed(1),y,rad,r.coverage_pct/100)}<text class="tx" x="${(x+rad+5).toFixed(1)}" y="${y+4}">${nm(r.language)}</text></g>`}).join("");
+ return `<section class="wrap"><h1>In ${nm(slowest.language)}, new knowledge arrives <em>${yrs(slowest.median_lag_days)} years</em> after it is born.</h1>
+ <p class="lede">Light from the first article travels outward. Each planet sits at its median coverage lag; its lit crescent is the share of topics that have reached it.</p>${prov()}</section>
+ <section class="wrap"><div class="space scroll"><svg viewBox="0 0 ${w} ${h}" style="width:100%;min-width:700px;display:block" role="img" aria-label="Planets placed by median coverage lag; lit phase equals coverage percent.">
+ <defs><radialGradient id="sun"><stop offset="0" stop-color="var(--accent)"/><stop offset="1" stop-color="var(--accent)" stop-opacity="0"/></radialGradient></defs>
+ <circle cx="${x0-40}" cy="${h/2}" r="70" fill="url(#sun)"/><circle cx="${x0-40}" cy="${h/2}" r="14" fill="var(--accent)"/><text class="tx" x="${x0-40}" y="${h/2+34}" text-anchor="middle">first article</text>
+ ${Array.from({length:yrMax+1},(_,y)=>`<text x="${xs(y*365.25)}" y="${h-14}" text-anchor="middle">${y} yr</text>`).join("")}${pts}</svg></div>
+ <p class="key">Distance = median_lag_days. Lit phase = coverage_pct of a full disc (${nm(byCov[0].language)}: ${byCov[0].coverage_pct}%, the brightest; ${nm(darkest.language)}: ${darkest.coverage_pct}%). Most planets are nearly new moons; that is the finding.</p></section>
+ <section class="wrap">${empties()}</section>`},
+ pipe(){const cols=Math.min(48,M.wikis.length),w=980,cw=(w-120)/cols,rh=9,h=H.length*rh+40,lg=Math.log1p(maxCell);
+ HOOK=i=>{const s=document.getElementById("scan");s.setAttribute("y",24+i*rh-1);document.getElementById("rp").textContent=`${hr(H[i].hour)} UTC · ${fmt(H[i].events)} events`};
+ return `<section class="wrap"><h1>Listening to <em>${LV.wikis}</em> wikis.</h1><p class="lede">A radio-telescope waterfall: each column a wiki, each row a measured hour, brightness the event count. The scan line replays the hours.</p>${replayCtl()}</section>
+ <section class="wrap"><div class="space scroll"><svg viewBox="0 0 ${w} ${h}" style="width:100%;min-width:720px;display:block" role="img" aria-label="Waterfall of events per hour for the ${cols} busiest wikis.">
+ ${M.wikis.slice(0,cols).map((wk,c)=>`<text x="${(110+c*cw+cw/2).toFixed(1)}" y="16" text-anchor="middle" style="font-size:8px" transform="rotate(-50 ${(110+c*cw+cw/2).toFixed(1)} 16)">${esc(wk.replace(/wiki$/,""))}</text>`).join("")}
+ ${H.map((d,i)=>`<text x="100" y="${24+i*rh+7}" text-anchor="end" style="font-size:8px">${i%4===0?hr(d.hour):""}</text>`+M.events.slice(0,cols).map((row,c)=>row[i]?`<rect x="${(110+c*cw).toFixed(1)}" y="${24+i*rh}" width="${(cw-1).toFixed(1)}" height="${rh-1}" fill="var(--data)" opacity="${(0.12+0.88*Math.log1p(row[i])/lg).toFixed(2)}"/>`:"").join("")).join("")}
+ <rect id="scan" x="108" y="24" width="${w-116}" height="${rh+1}" fill="none" stroke="var(--accent)" stroke-width="2"/></svg></div>
+ <p class="key">Brightness = log of events per wiki per hour. ${src("live.json")}</p></section>
+ <section class="wrap"><div class="row2"><div><h2 style="color:var(--accent)">${fmt1(P.live.events_per_second)} events/s</h2><span class="key">last window ${src("live.events_per_second")}</span></div><div><h2>${fmt1(P.live.end_to_end_latency_s)} s</h2><span class="key">light-time from event to table ${src("live.end_to_end_latency_s")}</span></div></div></section>
+ <section class="wrap"><h2>Instruments</h2>${engines()}</section>`}};
+
+/* ===== 5 Riso ===== */
+function halftone(f){const n=7,c=100/n;let a="",b="";for(let i=0;i<n;i++)for(let j=0;j<n;j++){const r=(c/2-.6)*Math.sqrt(f);a+=`<circle cx="${(i*c+c/2).toFixed(1)}" cy="${(j*c+c/2).toFixed(1)}" r="${r.toFixed(2)}"/>`;b+=`<circle cx="${(i*c+c/2+2).toFixed(1)}" cy="${(j*c+c/2+1.5).toFixed(1)}" r="${(r*.9).toFixed(2)}"/>`}
+ return `<svg viewBox="0 0 100 100" aria-hidden="true"><rect width="100" height="100" fill="none" stroke="var(--dim)"/><g fill="var(--ink2)">${b}</g><g fill="var(--ink1)">${a}</g></svg>`}
+R.riso={home(){const z=slowest;return `<section class="wrap"><div class="poster"><div class="huge" aria-hidden="true"><span class="a">${yrs(z.median_lag_days)}</span><span class="b">${yrs(z.median_lag_days)}</span></div>
+ <div><h1>Years. That is how long ${nm(z.language)} waits for the median new topic.</h1><p class="lede">${nm(fastest.language)} waits ${yrs(fastest.median_lag_days)}. Lag is not fate; it is a gap you can measure, and close.</p>${prov()}</div></div></section>
+ <section class="wrap"><h2>Twenty languages, printed by coverage</h2><div class="stamps" role="list">${byCov.map(r=>`<div class="stamp" role="listitem" aria-label="${nm(r.language)}: ${r.coverage_pct}% covered, median lag ${yrs(r.median_lag_days)} years"><div class="code">${r.language}</div>${halftone(r.coverage_pct/maxCov)}<div class="small"><b>${r.coverage_pct}%</b> · ${yrs(r.median_lag_days)} yrs<br><span class="nat" lang="${r.language}">${nat(r.language)}</span></div></div>`).join("")}</div>
+ <p class="key">Dot size = coverage_pct relative to the highest (${maxCov}%). Values printed on every stamp.</p></section>
+ <section class="wrap">${empties()}</section>`},
+ pipe(){const w=900,h=220,bw=(w-20)/H.length;
+ HOOK=i=>{document.querySelectorAll("#hb g.col").forEach((g,j)=>g.setAttribute("opacity",j===i?1:.45));document.getElementById("rp").textContent=`${hr(H[i].hour)} UTC · ${fmt(H[i].events)} events`};
+ return `<section class="wrap"><div class="poster"><div class="huge" aria-hidden="true"><span class="a">${LV.wikis}</span><span class="b">${LV.wikis}</span></div><div><h1>Wikis heard. Live. For $${P.cost.usd}.</h1><p class="lede">${fmt1(P.live.events_per_second)} events per second in the last window; ${fmt1(P.live.end_to_end_latency_s)} seconds from event to published table.</p>${replayCtl()}</div></div></section>
+ <section class="wrap"><svg id="hb" viewBox="0 0 ${w} ${h}" style="width:100%;display:block" role="img" aria-label="Halftone columns of events per measured hour; peak ${fmt(maxH)}.">
+ ${H.map((d,i)=>{const n=Math.round(18*d.events/maxH);let s="";for(let k=0;k<n;k++)s+=`<circle cx="${(10+i*bw+bw/2).toFixed(1)}" cy="${h-16-k*10}" r="${(bw/2-1.5).toFixed(1)}"/>`;return `<g class="col" fill="var(--ink1)" style="mix-blend-mode:var(--blend)">${s}</g>`}).join("")}
+ <text x="10" y="${h-2}">${hr(H[0].hour)}</text><text x="${w-10}" y="${h-2}" text-anchor="end">${hr(H[H.length-1].hour)} UTC</text></svg><p class="key">One dot ≈ 1/18 of the peak hour (${fmt(maxH)} events), rounded. ${src("Σ live.json events by hour")}</p></section>
+ <section class="wrap"><h2>Who did the work</h2>${P.engines.map(e=>`<span class="tag ${e.active?"on":"no"}" title="${esc(e.role)}">${esc(e.name)} · ${e.active?"ran":"not in last run"}</span>`).join("")}</section>`}};
+
+/* ===== 6 Babel Tower ===== */
+const iso=(x,y,z)=>[(x-y)*0.866,(x+y)*0.5-z];
+function slab(cx,by,s,z,hh,fill){const p=(x,y,zz)=>{const [a,b]=iso(x,y,zz);return `${(cx+a).toFixed(1)},${(by+b).toFixed(1)}`},o=-s/2,e=s/2;
+ return `<polygon points="${p(o,o,z+hh)} ${p(e,o,z+hh)} ${p(e,e,z+hh)} ${p(o,e,z+hh)}" fill="color-mix(in srgb,${fill} 55%,var(--surface))"/>
+ <polygon points="${p(o,e,z)} ${p(e,e,z)} ${p(e,e,z+hh)} ${p(o,e,z+hh)}" fill="${fill}"/>
+ <polygon points="${p(e,o,z)} ${p(e,e,z)} ${p(e,e,z+hh)} ${p(e,o,z+hh)}" fill="color-mix(in srgb,${fill} 70%,#000)"/>`}
+R.tower={home(){const fh=17,w=760,h=L.length*fh+220,cx=300,by=h-90;let out="",lab="";
+ byCov.forEach((r,i)=>{const s=26+230*r.coverage_pct/maxCov,z=i*fh,lagp=Math.round(20+80*r.median_lag_days/maxLag);out+=slab(cx,by,s,z,fh-3,`color-mix(in srgb,var(--data) ${lagp}%,var(--dim))`);
+  const [ax,ay]=iso(s/2,s/2,z+fh/2);lab+=`<line x1="${(cx+ax+4).toFixed(1)}" y1="${(by+ay).toFixed(1)}" x2="470" y2="${(by+ay).toFixed(1)}" stroke="var(--dim)"/><text class="tx" x="476" y="${(by+ay+4).toFixed(1)}">${nm(r.language)} · ${r.coverage_pct}% · ${yrs(r.median_lag_days)} yrs</text>`});
+ return `<section class="wrap"><h1>A tower of twenty tongues, still unfinished.</h1><p class="lede">Each floor is a language, as wide as its coverage of the shared topics; deeper colour means a longer median wait. The tower narrows fast.</p>${prov()}</section>
+ <section class="wrap"><div class="sky scroll"><svg viewBox="0 0 ${w} ${h}" style="width:100%;min-width:600px;display:block" role="img" aria-label="Isometric tower: ${L.length} floors from ${nm(byCov[0].language)} (${byCov[0].coverage_pct}%) at the base to ${nm(darkest.language)} (${darkest.coverage_pct}%) at the top.">${out}${lab}</svg></div>
+ <p class="key">Floor width = coverage_pct; colour depth = median_lag_days (labelled on every floor). Ordered widest at the base.</p></section>
+ <section class="wrap">${empties()}</section>`},
+ pipe(){const stages=[["stream","eventstreams-collector"],["bronze","delta-rs"],["silver","duckdb"],["checks","soda-core"],["gold","dbt-duckdb"],["export","babel-export"]];
+ const w=980,h=330,cx0=70,by=230;let blocks="",bars="";
+ stages.forEach(([s,e],i)=>{const g=P.engines.find(x=>x.name===e),on=g&&g.active,x=cx0+i*150;blocks+=slab(x,by,60,0,on?54:24,on?"var(--accent)":"var(--dim)")+`<text class="tx" x="${x}" y="${by+56}" text-anchor="middle">${s}</text><text x="${x}" y="${by+70}" text-anchor="middle">${esc(e)} · ${on?"ran":"not in last run"}</text>`});
+ H.forEach((d,i)=>{const hh=4+90*d.events/maxH;bars+=`<g class="hb" data-i="${i}">${slab(40+i*27,140-(i%2?0:0),16,0,hh,"var(--data)")}</g>`});
+ HOOK=i=>{document.querySelectorAll("#site g.hb").forEach((g,j)=>g.setAttribute("opacity",j===i?1:.35));document.getElementById("rp").textContent=`${hr(H[i].hour)} UTC · ${fmt(H[i].events)} events`};
+ return `<section class="wrap"><h1>The building site.</h1><p class="lede">Each stage is a block; it stands tall only if its engine ran in the last measured run. Behind it, one column per measured hour of the live stream.</p>${replayCtl()}</section>
+ <section class="wrap"><div class="sky scroll"><svg viewBox="0 0 ${w} 170" style="width:100%;min-width:700px;display:block" role="img" aria-label="Isometric columns of events per measured hour; peak ${fmt(maxH)}.">${bars}</svg>
+ <svg viewBox="0 0 ${w} ${h}" style="width:100%;min-width:700px;display:block" role="img" aria-label="${ranEng.length} of ${P.engines.length} engines ran in the last run.">${blocks}</svg></div></section>
+ <section class="wrap"><div class="row2"><div><h2>${fmt1(P.live.events_per_second)} events/s</h2><span class="key">last window ${src("live.events_per_second")}</span></div><div><h2>${fmt(P.totals.events)} events</h2><span class="key">ingested in total ${src("totals.events")}</span></div><div><h2>$${P.cost.usd}</h2><span class="key">cost ${src("cost.usd")}</span></div></div></section>`}};
+
+// ---------- chrome + render ----------
+function btn(g,key,val,label){const b=document.createElement("button");b.type="button";b.textContent=label;b.setAttribute("aria-pressed",st[key]===val);b.onclick=()=>{st[key]=val;render()};document.getElementById(g).appendChild(b)}
+function chrome(){["g-c","g-v","g-t","g-l"].forEach(g=>document.querySelectorAll(`#${g} button`).forEach(b=>b.remove()));
+ CONCEPTS.forEach((c,i)=>btn("g-c","c",c.id,`${i+1} ${c.name}`));btn("g-v","v","home","Home (Now)");btn("g-v","v","pipeline","Pipeline Live");
+ btn("g-t","t","light","Light");btn("g-t","t","dark","Dark");LOGO_KEYS.forEach(k=>btn("g-l","l",k,k[0].toUpperCase()+" "+k.slice(2)));
+ const c=CONCEPTS.find(x=>x.id===st.c);document.getElementById("chrome-note").textContent=`${c.name}: ${c.tag} Every number comes from the sample export copies in sample-data/.`}
+let timer=null;
+function render(){const p=PAL[st.c][st.t],s=document.getElementById("site");document.documentElement.dataset.theme=st.t;HOOK=null;
+ s.className="c-"+st.c;s.dataset.t=st.t;Object.entries(p).forEach(([k,v])=>s.style.setProperty("--"+k,v));s.style.colorScheme=st.t;
+ s.innerHTML=header(st.v==="home"?"Now":"Pipeline Live")+R[st.c][st.v==="home"?"home":"pipe"]()+footer();
+ history.replaceState(null,"",`#c=${st.c}&v=${st.v}&t=${st.t}&l=${st.l}${+st.shot?"&shot=1":""}`);chrome();replay()}
+// Motion rule: replay steps only through measured hourly buckets; nothing moves without a measured value behind it.
+function replay(){clearInterval(timer);const pp=document.getElementById("pp");if(pp)pp.onclick=()=>{st.paused=!st.paused;render()};
+ if(!HOOK)return;const last=H.length-1;if(reduced||st.paused||+st.shot){HOOK(last);return}
+ let i=0;HOOK(i);timer=setInterval(()=>{i=(i+1)%H.length;HOOK(i)},650)}
+render();
+</script>
+</body>
+</html>

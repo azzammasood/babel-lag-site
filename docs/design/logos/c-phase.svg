@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="t"><title id="t">Babel Lag: crescent phase (direction C)</title><style>.ink{fill:#111114}.lit{fill:#B04A00}.off{fill:#111114;opacity:.22}.st{stroke:#111114}.stl{stroke:#B04A00}@media (prefers-color-scheme:dark){.ink{fill:#F5F1E8}.lit{fill:#FFD23F}.off{fill:#F5F1E8;opacity:.25}.st{stroke:#F5F1E8}.stl{stroke:#FFD23F}}</style>
+<circle class="off" cx="36" cy="32" r="22"/>
+<path class="lit" d="M36 10a22 22 0 0 1 0 44a14 22 0 0 0 0-44z"/>
+<circle class="ink" cx="8" cy="32" r="4"/>
+<path class="st" fill="none" stroke-width="2" stroke-dasharray="2 3" d="M13 32h5"/>
+</svg>

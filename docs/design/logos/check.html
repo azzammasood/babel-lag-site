@@ -1,0 +1,6 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Logo size check</title>
+<style>body{margin:0;font:13px system-ui;background:#fff;color:#111}@media (prefers-color-scheme:dark){body{background:#0b0b0d;color:#eee}}
+table{border-collapse:collapse;margin:16px}td,th{padding:8px 14px;text-align:center}img{display:block;margin:auto}</style></head><body>
+<table><tr><th></th><th>16 px</th><th>32 px</th><th>64 px</th><th>128 px</th></tr>
+<script>for(const f of["a-halflit","b-flap","c-phase","d-tower"])document.write(`<tr><th>${f}</th>${[16,32,64,128].map(s=>`<td><img src="${f}.svg" width="${s}" height="${s}" alt="${f} at ${s}px"></td>`).join("")}</tr>`)</script>
+</table></body></html>

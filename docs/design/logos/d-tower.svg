@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="t"><title id="t">Babel Lag: isometric tower (direction D)</title><style>.ink{fill:#111114}.lit{fill:#B04A00}.off{fill:#111114;opacity:.22}.st{stroke:#111114}.stl{stroke:#B04A00}@media (prefers-color-scheme:dark){.ink{fill:#F5F1E8}.lit{fill:#FFD23F}.off{fill:#F5F1E8;opacity:.25}.st{stroke:#F5F1E8}.stl{stroke:#FFD23F}}</style>
+<path class="ink" d="M32 46 8 34v6l24 12 24-12v-6z"/>
+<path class="ink" opacity=".7" d="M32 36 14 27v5l18 9 18-9v-5z"/>
+<path class="ink" opacity=".45" d="M32 27 19 20.5v4.5L32 31.5l13-6.5v-4.5z"/>
+<path class="lit" d="M32 19 24 15v4l8 4 8-4v-4z"/>
+<path class="off" d="M32 12 28 10v3l4 2 4-2v-3z"/>
+</svg>
