@@ -16,11 +16,13 @@ none decorates with numbers that were not measured.
 
 ## Rules shared by all six
 
-- **Motion tied to data only.** Pipeline Live replays the measured hourly buckets of `live.json`
-  (labelled "replay of N measured hours, not a live feed"); in production it steps only when a new
-  export arrives. Nothing pulses, flickers or counts up without a measured value behind it.
-  `prefers-reduced-motion` stops all animation and shows the last measured hour; every replay has a
-  Pause button.
+- **Motion: data versus camera.** Anything that changes *what a mark says* (brightness, size,
+  highlight) changes only with a measured value: Pipeline Live replays the measured hourly
+  buckets of `live.json` (labelled "replay of N measured hours, not a live feed"; in production it
+  steps only when a new export arrives). The **camera** is free: 3D scenes orbit slowly and scroll
+  drives dolly, tilt and build-up, because that moves the viewpoint, not the data.
+  `prefers-reduced-motion` freezes every scene at one still frame (no sticky scroll, no orbit, no
+  replay) and the same data is always available as a plain list or a "same data as a table" block.
 - **Colour-blind safe.** Each concept encodes data with one hue plus lightness, or with size and
   position; no red/green pairs. Every value is also printed as text next to its mark.
 - **Keyboard and screen readers.** Native links and buttons, visible 3 px focus ring, charts carry
@@ -34,6 +36,25 @@ none decorates with numbers that were not measured.
   limits, aggregates-only privacy note, Method and Corrections links.
 - **Honest engines.** Tools appear with "ran in last run" or "not in last run" straight from
   `pipeline_metrics.engines[].active`.
+
+## 3D and scroll effects (per concept)
+
+All 3D is hand-rolled (canvas 2D projection or CSS 3D transforms), no libraries, so
+`preview.html` still opens by double-click and the site needs no WebGL. Scroll scenes are sticky
+sections (a progress bar shows how far through the scene you are).
+
+| Concept | Home (Now) | Pipeline Live |
+| --- | --- | --- |
+| Blackout | Scroll flies the camera down a tunnel of 20 native-script names, each lit to its coverage; a HUD names the language you are passing. | A 3D globe of 523 points (one per wiki, evenly spread, not geography), orbiting; points light by measured events in the replayed hour. |
+| Departures | A tilted 3D flap module cycles through languages; the full board swings upright from 62° as you scroll, then its flaps flip to the measured values. | The platform board swings upright the same way; flap clocks flip per measured hour. |
+| Seismograph | Scroll is time: a 3D ridgeline of 20 traces; the camera tilts from top-down to oblique while a time cursor sweeps 0 to 11 years and each needle jumps only when its median lag is reached. | A 3D drum of 34 hourly ridges that turns to the replayed hour. |
+| Light-years | A 3D solar system: scroll pulls the camera back from the sun past the year rings; planets orbit at their lag and their crescent (coverage) faces the sun. | A 3D terrain (40 busiest wikis × 34 hours, height = log events) slowly orbiting; the replayed hour's ridge glows. |
+| Riso Manifesto | The giant number starts misregistered and tilted in 3D, and snaps into register as you scroll; stamps fall into place in 3D and their halftone prints in; ink blobs drift with parallax. | The same registration snap on "523"; halftone columns tilt up and print in. |
+| Babel Tower | A turning CSS 3D tower built floor by floor as you scroll (widest at the base); the HUD names the floor just placed. | A 3D building site: 34 hourly columns behind stage blocks (tall only if the engine ran); the camera rises as you scroll. |
+
+Screens: `screens/<concept>-<page>-<theme>-scroll.png` are mid-scroll frames with motion on;
+`screens/<concept>-<page>-<theme>.png` are full pages with motion frozen;
+`screens/<concept>-home-phone.png` is a mid-scroll frame at 375 px.
 
 ---
 
