@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="t"><title id="t">Babel Lag: missing link (direction B)</title><style>.ink{fill:#111114}.lit{fill:#B02E17}.off{fill:#111114;opacity:.22}.st{stroke:#111114}.stl{stroke:#B02E17}@media (prefers-color-scheme:dark){.ink{fill:#F5F1E8}.lit{fill:#FF7557}.off{fill:#F5F1E8;opacity:.25}.st{stroke:#F5F1E8}.stl{stroke:#FF7557}}</style>
+<path class="ink" d="M18 6h16c8 0 13 4.5 13 11 0 4.500-2.500 7.500-6 9 5 1 9 5 9 10.500C50 44 44.500 49 35 49H18zm8.500 7.500V23H33c3 0 5-1.800 5-4.800s-2-4.700-5-4.700zm0 16.500v11.500H34c3.600 0 6-2.200 6-5.800S37.600 30 34 30z"/>
+<rect class="ink" x="8" y="54" width="22" height="4.500"/>
+<g class="lit"><rect x="34" y="54" width="6" height="4.500"/><rect x="43" y="54" width="6" height="4.500"/><rect x="52" y="54" width="6" height="4.500"/></g>
+</svg>

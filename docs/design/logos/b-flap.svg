@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="t"><title id="t">Babel Lag: split-flap tile (direction B)</title><style>.ink{fill:#111114}.lit{fill:#B04A00}.off{fill:#111114;opacity:.22}.st{stroke:#111114}.stl{stroke:#B04A00}@media (prefers-color-scheme:dark){.ink{fill:#F5F1E8}.lit{fill:#FFD23F}.off{fill:#F5F1E8;opacity:.25}.st{stroke:#F5F1E8}.stl{stroke:#FFD23F}}</style>
-<rect x="6" y="4" width="52" height="56" rx="7" style="fill:#18181B;stroke:#5A5A62;stroke-width:1.5"/>
-<path class="lit" d="M22 14h13c6 0 9 3 9 8 0 3-2 5-4 6 4 1 6 4 6 8 0 6-4 10-11 10H22zm7 5v7h5c2 0 4-1 4-3.5S36 19 34 19zm0 13v9h6c3 0 4-2 4-4.5S38 32 35 32z"/>
-<rect x="6" y="31" width="52" height="2.4" style="fill:#000;opacity:.55"/>
-<rect class="off" x="2" y="29" width="4" height="6" rx="1"/><rect class="off" x="58" y="29" width="4" height="6" rx="1"/>
-</svg>

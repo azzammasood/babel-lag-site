@@ -72,7 +72,7 @@ def bundle():
         },
         "pipeline": {k: pm[k] for k in pm},
         "catalog": {"completeness": cat["completeness"], "datasets": len(cat["datasets"])},
-        "glossary": [t["term"] for t in glo["terms"]],
+        "glossary": [{"term": t["term"], "definition": t["definition"]} for t in glo["terms"]],
         "lineage": {"nodes": len(lin["nodes"]), "edges": len(lin["edges"]),
                     "layers": sorted({n.get("layer") for n in lin["nodes"] if n.get("layer")})},
     }

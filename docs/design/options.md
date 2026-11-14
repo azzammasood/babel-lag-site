@@ -1,216 +1,65 @@
 # Babel Lag site: design options (design gate, milestone 4)
 
 Roshni measured who sits in the dark for electricity. Babel Lag measures who sits in the dark for
-**knowledge**: how long a new topic takes to reach each language on Wikipedia. Each concept below
-turns that question into one strong visual metaphor. Every metaphor is driven by a measured field;
-none decorates with numbers that were not measured.
+**knowledge**: how long a new topic takes to reach each language on Wikipedia.
 
-- Preview: [`preview.html`](preview.html) (double-click; inline CSS/JS and data; fonts load from
-  Google Fonts when online and fall back to system fonts). Switch concept, page (Home / Pipeline
-  Live), theme and logo in the top bar. Screens: [`screens/`](screens/).
+Round 6: **three** concepts. Each has one animated 3D element, and each of those is the data
+itself rather than decoration: a tower that builds in the order knowledge arrives, a wave that
+reaches each language at its measured lag, and red links that turn over to blue.
+
+- Preview: [`preview.html`](preview.html) (double-click; inline CSS/JS and data; no libraries;
+  fonts load from Google Fonts when online and fall back to system fonts). Switch concept, page
+  (Home / Pipeline Live), theme and logo in the top bar.
+- Screens in [`screens/`](screens/): `<concept>-<page>-<theme>-live.png` (animation running),
+  `<concept>-<page>-<theme>.png` (full page, still), `<concept>-home-phone.png` (375 px).
 - Data: copies of the backend exports in [`sample-data/`](sample-data/) (generated
   2026-11-12 15:41 UTC, profile `free`, 20-language slice, 523 wikis live). `tools/build.py`
   inlines them; derived values are plain sums of `live.json` rows by hour and by wiki.
 - Not in the slice yet: **topics** and **backtests** (milestone 3). Every concept shows a labelled
   empty state for them, never sample numbers.
 
-## Rules shared by all six
+## Rules shared by all three
 
-- **Motion: data versus camera.** Anything that changes *what a mark says* (brightness, size,
-  highlight) changes only with a measured value: Pipeline Live replays the measured hourly
-  buckets of `live.json` (labelled "replay of N measured hours, not a live feed"; in production it
-  steps only when a new export arrives). The **camera** is free: 3D scenes orbit slowly and scroll
-  drives dolly, tilt and build-up, because that moves the viewpoint, not the data.
-  `prefers-reduced-motion` freezes every scene at one still frame (no sticky scroll, no orbit, no
-  replay) and the same data is always available as a plain list or a "same data as a table" block.
-- **Colour-blind safe.** Each concept encodes data with one hue plus lightness, or with size and
-  position; no red/green pairs. Every value is also printed as text next to its mark.
-- **Keyboard and screen readers.** Native links and buttons, visible 3 px focus ring, charts carry
-  `role="img"` with an `aria-label` summary; per-item marks are focusable or listed with labels;
-  native-script names carry `lang` (and `dir="rtl"` for Urdu).
+- **Every animation is a clock over measured values.** On Home, one second is one year of median
+  lag: nothing appears before its measured time. On Pipeline Live, the animation replays the
+  measured hours of `live.json` (labelled as a replay). Each has Replay and Pause.
+- **Nothing follows the cursor and nothing is driven by scrolling.** The only ambient motion is
+  the tower's slow turn, which is there so every face can be read; Pause stops it.
+- **Reduced motion** shows the finished state as one still frame; the same data is always
+  available as a table.
+- **"First article"** means the earliest article among the followed languages (the reference
+  set); the footer says so.
+- **Colour-blind safe.** Data is carried by position, size, order, solid versus dashed and printed
+  values, never by hue alone.
+- **Keyboard and screen readers.** Each 3D scene has a text description (`role="img"` +
+  `aria-label`) and a plain list or table of the same values; controls are real buttons with a
+  visible 3 px focus ring; native-script names carry `lang` (and `dir="rtl"` for Urdu).
 - **Contrast.** Text, muted text, accent and data colours meet WCAG AA (≥ 4.5:1) on both the page
   background and the card surface, in light and dark; `tools/build.py` asserts this and writes the
-  tables below. `dim` is decorative (unlit/empty state) and never carries text.
+  tables below. `dim` is decorative and never carries text.
 - **Footer attribution** on every page: Wikimedia Foundation sources with links, CC0 for Wikidata
   and the dumps, "independent, non-commercial, not affiliated with Wikimedia", Wikipedia-only
   limits, aggregates-only privacy note, Method and Corrections links.
-- **Honest engines.** Tools appear with "ran in last run" or "not in last run" straight from
+- **Honest engines.** Tools show "ran in last run" or "not in last run" from
   `pipeline_metrics.engines[].active`.
-
-## 3D and scroll effects (per concept)
-
-All 3D is hand-rolled (canvas 2D projection or CSS 3D transforms), no libraries, so
-`preview.html` still opens by double-click and the site needs no WebGL. Scroll scenes are sticky
-sections (a progress bar shows how far through the scene you are).
-
-| Concept | Home (Now) | Pipeline Live |
-| --- | --- | --- |
-| Blackout | Scroll flies the camera down a tunnel of 20 native-script names, each lit to its coverage; a HUD names the language you are passing. | A 3D globe of 523 points (one per wiki, evenly spread, not geography), orbiting; points light by measured events in the replayed hour. |
-| Departures | A tilted 3D flap module cycles through languages; the full board swings upright from 62° as you scroll, then its flaps flip to the measured values. | The platform board swings upright the same way; flap clocks flip per measured hour. |
-| Seismograph | Scroll is time: a 3D ridgeline of 20 traces; the camera tilts from top-down to oblique while a time cursor sweeps 0 to 11 years and each needle jumps only when its median lag is reached. | A 3D drum of 34 hourly ridges that turns to the replayed hour. |
-| Light-years | A 3D solar system: scroll pulls the camera back from the sun past the year rings; planets orbit at their lag and their crescent (coverage) faces the sun. | A 3D terrain (40 busiest wikis × 34 hours, height = log events) slowly orbiting; the replayed hour's ridge glows. |
-| Riso Manifesto | The giant number starts misregistered and tilted in 3D, and snaps into register as you scroll; stamps fall into place in 3D and their halftone prints in; ink blobs drift with parallax. | The same registration snap on "523"; halftone columns tilt up and print in. |
-| Babel Tower | A turning CSS 3D tower built floor by floor as you scroll (widest at the base); the HUD names the floor just placed. | A 3D building site: 34 hourly columns behind stage blocks (tall only if the engine ran); the camera rises as you scroll. |
-
-Screens: `screens/<concept>-<page>-<theme>-scroll.png` are mid-scroll frames with motion on;
-`screens/<concept>-<page>-<theme>.png` are full pages with motion frozen;
-`screens/<concept>-home-phone.png` is a mid-scroll frame at 375 px.
 
 ---
 
-## 1. Blackout
+## 1. Babel Tower
 
-- **Idea:** the most direct echo of Roshni. Each language's own name, set huge in its own script,
-  is lit from the reading edge exactly as far as its `coverage_pct`. Urdu (24.72%) is a quarter
-  lit; Zulu (0.75%) is a sliver. The wall is mostly dark, and that is the finding.
-- **Mood:** night city, sodium lamps, protest typography. Stark, quiet, unforgettable.
-- **Typography:** Big Shoulders Display (condensed, heavy) for headlines; Inter for body; Noto Sans
-  family per script (Devanagari, Bengali, Ethiopic, Gurmukhi, Tamil, Telugu, Naskh Arabic) for the
-  native names.
-- **Layout:** full-bleed stacked "word wall", one language per row, value printed at the right
-  edge; Topics/Backtests empty states below.
-- **Languages lighting up:** the word wall itself (gradient clipped to the glyphs).
-- **Pipeline Live hero:** "The switchboard": one bulb per wiki heard (523), lit in an hour only if
-  that wiki produced measured events, brightness by log event count; two giant readouts
-  (events/s, event-to-table latency).
-- **Motion:** the switchboard steps through measured hours; the wall is static.
-- **Accessibility:** names carry an English `aria-label`; lit share is printed as text.
-- **Palette:**
-<!-- palette:blackout -->
-| role | light hex | on bg | dark hex | on bg |
-| --- | --- | --- | --- | --- |
-| bg | `#ECE9E2` | background | `#050505` | background |
-| surface | `#F7F5F0` | 1.11:1 | `#111111` | 1.08:1 |
-| text | `#111111` | 15.57:1 | `#F5F1E8` | 18.08:1 |
-| muted | `#57534B` | 6.31:1 | `#A39E93` | 7.64:1 |
-| accent | `#7A4E00` | 5.94:1 | `#FFD23F` | 14.11:1 |
-| data | `#7A4E00` | 5.94:1 | `#FFD23F` | 14.11:1 |
-| dim | `#D3CEC4` | decorative only (empty/off states, never text) | `#2E2E2E` | decorative only (empty/off states, never text) |
-<!-- /palette -->
-
-## 2. Departures
-
-- **Idea:** lag is a delay. A split-flap station board: knowledge departs from the first Wikipedia;
-  each language is a destination with its **median delay** and the share of topics that have
-  **arrived**. Topics show "NO SERVICE" until milestone 3 measures them.
-- **Mood:** European station at night; mechanical, tactile, instantly legible.
-- **Typography:** Space Mono for flaps and headings; Inter for body; Noto per script for native
-  names (one flap per name so complex scripts are never split).
-- **Layout:** one board as the hero, longest delays first; the board stays black in both themes
-  (as real boards do); the page around it switches.
-- **Languages lighting up:** the board (yellow delay column).
-- **Pipeline Live hero:** "Platform board": each stage is a service with version and RAN / NOT RUN
-  status from the last run; flap clocks for events/s, latency, events in the replayed hour, cost.
-- **Motion:** flaps flip only when a value is loaded or changes (staggered 18 ms per character).
-- **Accessibility:** each row has a full-sentence `aria-label`; flaps are `aria-hidden`.
-- **Palette:** (board: `#0A0A0B` with `#F4F4F4` flap text at 17.99:1 and `#FFC400` highlights at 12.39:1)
-<!-- palette:departures -->
-| role | light hex | on bg | dark hex | on bg |
-| --- | --- | --- | --- | --- |
-| bg | `#F1F1EE` | background | `#0E0E10` | background |
-| surface | `#FFFFFF` | 1.13:1 | `#1C1C20` | 1.14:1 |
-| text | `#111114` | 16.66:1 | `#F2F2F2` | 17.23:1 |
-| muted | `#55555C` | 6.53:1 | `#A0A0A8` | 7.43:1 |
-| accent | `#0B3D91` | 8.88:1 | `#FFC400` | 12.07:1 |
-| data | `#0B3D91` | 8.88:1 | `#FFC400` | 12.07:1 |
-| dim | `#D6D6D2` | decorative only (empty/off states, never text) | `#2E2E34` | decorative only (empty/off states, never text) |
-<!-- /palette -->
-
-## 3. Seismograph
-
-- **Idea:** new knowledge is a tremor. Each language is a needle trace on graph paper that stays
-  flat until its median coverage lag, then spikes (height = coverage). Twenty traces, twenty late
-  arrivals.
-- **Mood:** scientific instrument; red ink on graph paper (light), green phosphor oscilloscope
-  (dark).
-- **Typography:** IBM Plex Serif italic for headlines; IBM Plex Mono for body and readouts.
-- **Layout:** one wide graph-paper panel, years on the x axis; a caption states that the wiggle
-  shape is a marker, not data.
-- **Languages lighting up:** the traces, ordered fastest to slowest.
-- **Pipeline Live hero:** "The drum": a seismogram of events per measured hour across all wikis,
-  a needle stepping through the replay, a giant magnitude readout for the current hour.
-- **Motion:** traces draw in once on load (reveals measured positions); the drum needle steps per
-  measured hour.
-- **Accessibility:** each trace has a `<title>` with language, years and coverage.
-- **Palette:**
-<!-- palette:seismograph -->
-| role | light hex | on bg | dark hex | on bg |
-| --- | --- | --- | --- | --- |
-| bg | `#F3EFE6` | background | `#031A12` | background |
-| surface | `#FBF8F2` | 1.08:1 | `#072619` | 1.12:1 |
-| text | `#1A1A1A` | 15.17:1 | `#D7FFE9` | 16.69:1 |
-| muted | `#5C574E` | 6.25:1 | `#8FC2A8` | 9.01:1 |
-| accent | `#B0101C` | 6.23:1 | `#39FF88` | 13.65:1 |
-| data | `#B0101C` | 6.23:1 | `#39FF88` | 13.65:1 |
-| dim | `#D9D2C3` | decorative only (empty/off states, never text) | `#124A32` | decorative only (empty/off states, never text) |
-<!-- /palette -->
-
-## 4. Light-years
-
-- **Idea:** knowledge travels like starlight. The first article is a sun on the left; each language
-  is a planet at its median lag in years, shown as a **moon phase**: the lit crescent is its
-  coverage share of a full disc. Most planets are almost new moons.
-- **Mood:** observatory, deep space (dark) or star-chart paper (light); calm and awe-struck.
-- **Typography:** Unbounded (wide geometric) for headlines; Inter for body.
-- **Layout:** big headline naming the slowest language and its years; a wide space panel; readouts
-  below.
-- **Languages lighting up:** the moon-phase planets.
-- **Pipeline Live hero:** "Listening to 523 wikis": a radio-telescope waterfall (columns = 48
-  busiest wikis, rows = measured hours, brightness = log events) with a scan line replaying hours.
-- **Motion:** only the scan line moves, one measured hour per step.
-- **Accessibility:** planets are focusable with labels; phase is also printed in the caption.
-- **Palette:**
-<!-- palette:lightyears -->
-| role | light hex | on bg | dark hex | on bg |
-| --- | --- | --- | --- | --- |
-| bg | `#EAF2FB` | background | `#02030A` | background |
-| surface | `#FFFFFF` | 1.13:1 | `#0A0D1E` | 1.07:1 |
-| text | `#0A1430` | 16.09:1 | `#EAF0FF` | 18.05:1 |
-| muted | `#4A5878` | 6.28:1 | `#9AA6CC` | 8.53:1 |
-| accent | `#A63A08` | 5.76:1 | `#FF9F43` | 10.09:1 |
-| data | `#0B5CAD` | 5.91:1 | `#7DD3FC` | 12.35:1 |
-| dim | `#C8D6EA` | decorative only (empty/off states, never text) | `#1E2548` | decorative only (empty/off states, never text) |
-<!-- /palette -->
-
-## 5. Riso Manifesto
-
-- **Idea:** a two-ink risograph protest poster. A giant overprinted number (the slowest median lag
-  in years) with "That is how long Zulu waits"; twenty halftone stamps whose dot size is coverage.
-- **Mood:** loud, activist, print-shop; fluorescent pink over blue with misregistration.
-- **Typography:** Anton for display; Archivo for body.
-- **Layout:** poster split (number / statement), then a stamp grid; stacks to one column on phones.
-- **Languages lighting up:** the halftone stamps.
-- **Pipeline Live hero:** giant "523 wikis heard. Live. For $0." with a halftone column chart of
-  events per measured hour (one dot ≈ 1/18 of the peak hour, stated) and rubber-stamp engine tags
-  (solid "ran", dashed "not in last run").
-- **Motion:** the current replay column prints at full ink; others stay faded.
-- **Accessibility:** the big number is `aria-hidden` and repeated in the headline text; stamps are
-  labelled. The pink/blue inks are decorative; text uses the AA tokens below.
-- **Palette:** (decorative inks `#FF48B0` and `#0078BF`, never for text)
-<!-- palette:riso -->
-| role | light hex | on bg | dark hex | on bg |
-| --- | --- | --- | --- | --- |
-| bg | `#F6F0E1` | background | `#14112B` | background |
-| surface | `#FFF9EC` | 1.08:1 | `#1E1A3D` | 1.11:1 |
-| text | `#1B1464` | 13.88:1 | `#FFF4E0` | 16.83:1 |
-| muted | `#4B4683` | 7.38:1 | `#C2B8E0` | 9.81:1 |
-| accent | `#B8005A` | 5.80:1 | `#FF6EC4` | 7.23:1 |
-| data | `#005E9E` | 5.97:1 | `#4FC3FF` | 9.24:1 |
-| dim | `#E6DCC4` | decorative only (empty/off states, never text) | `#2E2858` | decorative only (empty/off states, never text) |
-<!-- /palette -->
-
-## 6. Babel Tower
-
-- **Idea:** the name made literal. An isometric tower of twenty floors, each as wide as its
-  language's coverage and coloured deeper the longer its median wait; it tapers fast into the sky.
-- **Mood:** architectural, warm sandstone at dusk; a little mythic.
-- **Typography:** Fraunces (heavy, soft serif) for headlines; Work Sans for body.
-- **Layout:** headline, then the tower with a labelled leader line per floor.
-- **Languages lighting up:** the tower floors.
-- **Pipeline Live hero:** "The building site": stage blocks (tall and lit only if the engine ran in
-  the last run) under an isometric skyline of events per measured hour.
-- **Motion:** the replayed hour's column is solid; others are faded.
-- **Accessibility:** every floor is labelled with name, coverage and years.
+- **Idea:** the project's namesake, built at the speed knowledge actually travels. A topic's first
+  article is year 0. Each language adds its floor when the median topic reaches it (Yoruba at 2.8
+  years, Zulu at 10.7), and the floor is only as wide as that language's coverage, so the tower
+  comes out uneven and unfinished-looking. Each floor carries the language's name in its own
+  script.
+- **Mood:** warm sandstone at dusk; architectural, a little mythic.
+- **Typography:** Fraunces for headlines; Work Sans for body; Noto per script on the floors.
+- **Layout:** headline and year clock, then the 3D tower beside a floor-by-floor log that fills in
+  step with it.
+- **Languages lighting up:** floors dropping into place in order of lag.
+- **Pipeline Live hero:** the tower's brickwork: one 3D column per measured hour, as tall as that
+  hour's events, laid in order while the matching row of the hour table is highlighted.
+- **3D and motion:** CSS 3D boxes; build runs at 1 second = 1 year; slow turn.
 - **Palette:**
 <!-- palette:tower -->
 | role | light hex | on bg | dark hex | on bg |
@@ -224,6 +73,57 @@ Screens: `screens/<concept>-<page>-<theme>-scroll.png` are mid-scroll frames wit
 | dim | `#E0CDB2` | decorative only (empty/off states, never text) | `#33284A` | decorative only (empty/off states, never text) |
 <!-- /palette -->
 
+## 2. Ripple
+
+- **Idea:** something is learned, then it spreads. The first article sits at the centre of a 3D
+  field. A ring leaves it at one year per second. Each language stands at its median lag and
+  lights up only when the ring arrives; its column rises to the share of topics it covers.
+- **Mood:** deep water at night (dark) or a pale chart (light); calm, precise, a little awe.
+- **Typography:** Space Grotesk for headlines; Inter for body; Noto per script for the names.
+- **Layout:** headline and year clock, then the field as a full-width stage.
+- **Languages lighting up:** names and columns igniting as the ring passes.
+- **Pipeline Live hero:** all 523 wikis as points, busiest at the centre; each hour a wiki's column
+  rises to its measured events and falls when it goes quiet.
+- **3D and motion:** canvas with a fixed camera; the ring and columns move, the view does not.
+- **Palette:**
+<!-- palette:ripple -->
+| role | light hex | on bg | dark hex | on bg |
+| --- | --- | --- | --- | --- |
+| bg | `#EEF5F9` | background | `#04101A` | background |
+| surface | `#FFFFFF` | 1.10:1 | `#0A1B2A` | 1.10:1 |
+| text | `#0A2233` | 14.78:1 | `#E6F4FF` | 17.13:1 |
+| muted | `#486578` | 5.59:1 | `#93B0C6` | 8.47:1 |
+| accent | `#8A5A00` | 5.38:1 | `#FFD166` | 13.31:1 |
+| data | `#0B6A94` | 5.44:1 | `#4CC9F0` | 9.98:1 |
+| dim | `#C7DAE6` | decorative only (empty/off states, never text) | `#163047` | decorative only (empty/off states, never text) |
+<!-- /palette -->
+
+## 3. Red Link
+
+- **Idea:** Wikipedia's own grammar. A blue link has an article; a red link is one nobody has
+  written yet. Every language starts as 100 red links and the ones it has written turn over, in
+  3D, to blue. Headline: "In Zulu Wikipedia, 99 of every 100 shared topics are still a red link."
+- **Mood:** an encyclopedia article; familiar, quietly damning.
+- **Typography:** Source Serif 4 for headlines; Inter for body; Noto per script.
+- **Layout:** headline beside a tilted article card that turns to the next language every five
+  seconds; below it, all 20 languages as paragraphs of links.
+- **Languages lighting up:** red links flipping to blue, up to each language's coverage.
+- **Pipeline Live hero:** "Recent changes, counted": a rolling counter turns to the events
+  measured in each hour while that row of the hour table is highlighted.
+- **3D and motion:** CSS 3D card turn and link flips (once, on load); rolling digits.
+- **Palette:** (accent = blue link, data = red link; red links are also dashed)
+<!-- palette:redlink -->
+| role | light hex | on bg | dark hex | on bg |
+| --- | --- | --- | --- | --- |
+| bg | `#F8F9FA` | background | `#101418` | background |
+| surface | `#FFFFFF` | 1.05:1 | `#171C22` | 1.08:1 |
+| text | `#202122` | 15.30:1 | `#EAECF0` | 15.64:1 |
+| muted | `#54595D` | 6.72:1 | `#A2A9B1` | 7.79:1 |
+| accent | `#2A4B8D` | 8.00:1 | `#88AEFF` | 8.41:1 |
+| data | `#B32424` | 6.24:1 | `#FF8A80` | 8.10:1 |
+| dim | `#DADDE3` | decorative only (empty/off states, never text) | `#2A3038` | decorative only (empty/off states, never text) |
+<!-- /palette -->
+
 ---
 
 ## Logo directions (`logos/`)
@@ -235,12 +135,11 @@ Each SVG switches ink via `prefers-color-scheme`, and in the site takes the conc
 
 | | Direction | Idea | Favicon check |
 | --- | --- | --- | --- |
-| A | `a-halflit.svg` | A heavy **B** lit only on its left third; the rest in the dark. Pairs with Blackout, Light-years. | Reads at 16 px in both themes. |
-| B | `b-flap.svg` | A split-flap tile with a lit **B** and the hinge line. Pairs with Departures, Riso. | Strongest at 16 px; tile stays dark in both themes. |
-| C | `c-phase.svg` | A crescent moon (lit share) fed by a small source dot. Pairs with Light-years, Seismograph. | 16 px reads as a crescent; the source dot fades, so drop it in the favicon variant. |
-| D | `d-tower.svg` | A stepped isometric tower whose top floor is lit and the peak unlit. Pairs with Babel Tower. | Reads as a stepped pyramid at 16 px; fine detail lost, acceptable. |
+| A | `a-halflit.svg` | A heavy **B** lit only on its left third. Works with any concept. | Reads at 16 px in both themes. |
+| B | `b-redlink.svg` | A **B** underlined like a link: solid, then dashed where it is missing. Pairs with Red Link. | The B reads at 16 px; the dashes merge into a line. |
+| C | `c-ripple.svg` | A lit source with two rings spreading from it. Pairs with Ripple. | Reads at 16 px. |
+| D | `d-tower.svg` | Four uneven floors, the top one lit. Pairs with Babel Tower. | Reads as a stepped stack at 16 px. |
 
 ## Owner's choice
 
-Pick one concept (1 to 6) and one logo (A to D). Mixing is possible (for example Blackout with
-logo B). The build then uses only that design.
+Pick one concept (1 to 3) and one logo (A to D). The build then uses only that design.
