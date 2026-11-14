@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="t"><title id="t">Babel Lag: tower (direction D)</title><style>.ink{fill:#111114}.lit{fill:#B02E17}.off{fill:#111114;opacity:.22}.st{stroke:#111114}.stl{stroke:#B02E17}@media (prefers-color-scheme:dark){.ink{fill:#F5F1E8}.lit{fill:#FF7557}.off{fill:#F5F1E8;opacity:.25}.st{stroke:#F5F1E8}.stl{stroke:#FF7557}}</style>
+<rect class="ink" x="6" y="48" width="52" height="10" rx="1.500"/>
+<rect class="ink" x="16" y="35" width="36" height="10" rx="1.500"/>
+<rect class="ink" x="10" y="22" width="26" height="10" rx="1.500" opacity=".65"/>
+<rect class="lit" x="22" y="9" width="12" height="10" rx="1.500"/>
+</svg>

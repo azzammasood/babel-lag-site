@@ -1,0 +1,70 @@
+import type { Metadata, Viewport } from "next";
+import { Fraunces, Work_Sans } from "next/font/google";
+import Link from "next/link";
+import { Nav } from "@/components/Nav";
+import { languages } from "@/lib/data";
+import "./globals.css";
+
+const fraunces = Fraunces({ subsets: ["latin"], weight: ["400", "800"], variable: "--font-fraunces" });
+const work = Work_Sans({ subsets: ["latin"], weight: ["400", "600"], variable: "--font-work" });
+
+export const metadata: Metadata = {
+  title: { default: "Babel Lag", template: "%s · Babel Lag" },
+  description:
+    "When the world learns something new, how long until it reaches each language on Wikipedia, and which languages stay in the dark?",
+};
+
+export const viewport: Viewport = { width: "device-width", initialScale: 1 };
+
+// Applied before paint: the saved colour mode.
+const boot = `(function(d){try{var m=localStorage.getItem("babel-mode");if(m)d.dataset.mode=m}catch(e){}})(document.documentElement)`;
+
+const FALLBACK_SOURCES = [
+  { name: "Wikimedia EventStreams", url: "https://stream.wikimedia.org/v2/stream/" },
+  { name: "Wikimedia dumps", url: "https://dumps.wikimedia.org/" },
+];
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const env = languages();
+  const sources = env?.sources ?? FALLBACK_SOURCES;
+  return (
+    <html lang="en" className={`${fraunces.variable} ${work.variable}`} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: boot }} />
+      </head>
+      <body>
+        <a className="skip-link" href="#main">
+          Skip to content
+        </a>
+        <Nav />
+        <main id="main">{children}</main>
+        <footer className="site">
+          <div className="wrap">
+            <nav aria-label="More pages">
+              <Link href="/maker/">The maker</Link>
+              <Link href="/corrections/">Corrections</Link>
+              <Link href="/method/">Method and limits</Link>
+            </nav>
+            <p>
+              <b>Data:</b> Wikimedia Foundation:{" "}
+              {sources.map((s, i) => (
+                <span key={s.url}>
+                  {i ? " · " : ""}
+                  <a href={s.url}>{s.name}</a>
+                </span>
+              ))}
+              {" · "}
+              <a href="https://stream.wikimedia.org/v2/stream/">Wikimedia EventStreams</a>. Wikidata and the Wikimedia
+              dumps are CC0. Babel Lag is independent and non-commercial, and is not affiliated with or endorsed by
+              the Wikimedia Foundation.
+            </p>
+            <p>
+              Lag is measured on Wikipedia only; it says nothing about other media in a language. Aggregates only: no
+              editor is named, ranked or profiled. Code MIT.
+            </p>
+          </div>
+        </footer>
+      </body>
+    </html>
+  );
+}

@@ -1,4 +1,10 @@
 node_modules/
 .next/
 out/
+data/
+next-env.d.ts
+test-results/
+playwright-report/
+*.tsbuildinfo
+.env*
 __pycache__/

@@ -4,15 +4,72 @@ The public site for **Babel Lag**: when the world learns something new, how long
 each language on Wikipedia, and which languages stay in the dark? The data pipeline lives in
 [`babel-lag-pipeline`](https://github.com/azzammasood/babel-lag-pipeline).
 
-**Status: design gate.** Six concepts and four logo directions are in `docs/design/` for the owner
-to choose from. No site is built until a design is picked.
+A static Next.js site (React, TypeScript, Tailwind) that renders **only** the published exports of
+the pipeline. Design: **Babel Tower** (concept 1 in `docs/design/options.md`), logo direction D.
 
-- `docs/design/options.md`: the six concepts (idea, palette with WCAG contrast, type, layout,
-  motion, accessibility) and logo notes.
-- `docs/design/preview.html`: open by double-click. Home (Now) and Pipeline Live for each concept,
-  light and dark, using real sample exports from `docs/design/sample-data/`.
-- `docs/design/screens/`: screenshots (desktop light/dark, Pipeline Live, phone width, logo sizes).
-- Rebuild the preview after changing data, palettes or logos: `python docs/design/tools/build.py`.
+**Status:** built against a snapshot of the milestone 2 slice (20 languages, 523 wikis live).
+Not published: GitHub Pages is the owner's decision and there is no deploy workflow yet.
+
+## Pages
+
+| Page | Shows | State |
+| --- | --- | --- |
+| Now (`/`) | The tower: one floor per language, placed at its median lag, as wide as its coverage | data |
+| Languages, `/languages/<code>/` | The index and one page per language | data |
+| Pipeline Live | Totals, rate, latency, cost, services, last run, run history, hourly stream | data |
+| Lineage, Catalog | The static metadata exports | data |
+| Method and data, How it's built, The maker, Corrections | Text, glossary, tools with evidence | text and data |
+| Topics, Backtests | Labelled empty states until the pipeline publishes them (milestone 3) | empty |
+
+## Rules the site keeps
+
+- **Every number comes from an export.** A figure is written as `<V file ptr as>`: it is read from
+  that JSON Pointer at build time and carries its source. `tests/e2e/trace.spec.ts` re-reads every
+  figure on every page from the export and fails on any digit that is not traced (or explicitly
+  marked as not data with `<S>`).
+- **Nothing is filled in.** A file that fails its schema is left out and the page says the data is
+  unavailable. A missing value shows as "not measured".
+- **Motion follows the data.** The tower builds at one second per year of median lag; Pipeline Live
+  replays the measured hours. Reduced motion shows the finished state. Nothing follows the cursor
+  or the scroll position.
+- **Accessibility:** axe (WCAG 2.2 AA) on the main pages in light and dark; the tower has a text
+  description and the same values as a list.
+
+## Commands
+
+```
+npm ci
+npm run data            # fixtures/site-data -> data/site (schema-checked); --from DIR for a local export
+npm run build           # static export to out/
+npm run serve           # serve out/ at http://127.0.0.1:4173
+npm run lint ; npm run typecheck ; npm test
+npm run test:e2e        # trace + accessibility on the built site (needs: npx playwright install chromium)
+```
+
+`fixtures/site-data/` is a committed snapshot of real exports (generated 2026-11-12). To build from
+a fresh pipeline run: `node scripts/fetch-data.mjs --from ../babel-lag/data/export/v1`.
+
+## Layout
+
+```
+src/app/         pages (App Router, static export)
+src/components/  V (traced figure), Tower and HourColumns (3D, client), Nav, Page
+src/lib/         data loader, formats, JSON Pointer, language names
+scripts/         fetch-data (schema check + derived sums), serve
+schemas/         JSON Schemas copied from the pipeline contracts/
+fixtures/        snapshot of real exports used by CI
+tests/           unit (schemas, sums, formats) and e2e (trace, axe)
+docs/design/     the design gate: options, preview, logos, screens
+docs/screens/    screenshots of the built site
+```
+
+## Gaps (logged, not hidden)
+
+- The pipeline does not publish a release yet, so builds use the committed snapshot.
+- The metadata exports (catalog, glossary, lineage) have no published JSON Schema; they are only
+  checked to be valid JSON.
+- Native-script names use system fonts; no web fonts are loaded for them.
+- dbt docs and benchmarks are not linked until the pipeline publishes them.
 
 Data: Wikimedia Foundation (EventStreams, MediaWiki history dumps, pageview dumps, Wikidata),
 CC0. Independent and non-commercial; not affiliated with the Wikimedia Foundation.

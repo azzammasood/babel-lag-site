@@ -1,0 +1,532 @@
+@import "tailwindcss";
+
+/* Babel Tower design (docs/design/options.md, concept 1). Tokens meet WCAG AA on bg and surface. */
+:root {
+  --bg: #f4e9d8;
+  --surface: #fff8ee;
+  --text: #2b1b10;
+  --muted: #6b5440;
+  --accent: #a8341a;
+  --data: #1f5f8b;
+  --dim: #e0cdb2;
+  --focus: #1d4ed8;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-mode="light"]) {
+    --bg: #120c1f;
+    --surface: #1d1530;
+    --text: #f6e9d6;
+    --muted: #bca98f;
+    --accent: #ff8a5b;
+    --data: #6eb6ff;
+    --dim: #33284a;
+    --focus: #93c5fd;
+    color-scheme: dark;
+  }
+}
+:root[data-mode="dark"] {
+  --bg: #120c1f;
+  --surface: #1d1530;
+  --text: #f6e9d6;
+  --muted: #bca98f;
+  --accent: #ff8a5b;
+  --data: #6eb6ff;
+  --dim: #33284a;
+  --focus: #93c5fd;
+  color-scheme: dark;
+}
+
+html {
+  background: var(--bg);
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-work), system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
+  overflow-x: clip;
+}
+a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  background: var(--surface);
+  padding: 8px 12px;
+  z-index: 100;
+}
+.skip-link:focus {
+  left: 8px;
+  top: 8px;
+}
+.wrap {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+.page {
+  padding-top: 26px;
+  padding-bottom: 20px;
+}
+h1,
+h2,
+h3 {
+  font-family: var(--font-fraunces), Georgia, serif;
+  line-height: 1.06;
+  margin: 0 0 0.4em;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+h1 {
+  font-size: clamp(32px, 5.2vw, 66px);
+}
+h1 em {
+  font-style: normal;
+  color: var(--accent);
+}
+h2 {
+  font-size: clamp(21px, 2.4vw, 28px);
+  margin-top: 1.4em;
+}
+h3 {
+  font-size: 18px;
+  margin-top: 1em;
+}
+p {
+  margin: 0 0 0.9em;
+}
+.lede {
+  font-size: clamp(16px, 1.6vw, 19px);
+  color: var(--muted);
+  max-width: 64ch;
+}
+.eyebrow {
+  font-size: 12.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 6px;
+}
+.muted {
+  color: var(--muted);
+}
+.small {
+  font-size: 13px;
+}
+.key {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 10px;
+}
+code,
+.src {
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 0.85em;
+  color: var(--muted);
+}
+.nat {
+  font-family: "Noto Sans", "Nirmala UI", "Ebrima", "Noto Sans Devanagari", "Noto Sans Bengali", "Noto Sans Ethiopic",
+    "Noto Naskh Arabic", system-ui, sans-serif;
+}
+.prose {
+  max-width: 70ch;
+}
+.prose li {
+  margin-bottom: 0.35em;
+}
+
+/* header and footer */
+header.top {
+  display: flex;
+  align-items: center;
+  gap: 10px 18px;
+  padding: 14px 16px;
+  flex-wrap: wrap;
+  max-width: 1160px;
+  margin: 0 auto;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-fraunces), Georgia, serif;
+  font-weight: 800;
+  font-size: 21px;
+  text-decoration: none;
+  color: var(--text);
+}
+.ink {
+  fill: var(--text);
+}
+.lit {
+  fill: var(--accent);
+}
+header.top nav {
+  flex: 1 1 auto;
+}
+header.top nav ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 14px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 14px;
+}
+header.top nav a {
+  color: var(--muted);
+  text-decoration: none;
+  padding: 4px 0;
+  display: inline-block;
+}
+header.top nav a[aria-current] {
+  color: var(--text);
+  font-weight: 600;
+  border-bottom: 2px solid var(--accent);
+}
+button.mode,
+.ctl button {
+  font: inherit;
+  font-size: 13.5px;
+  padding: 5px 14px;
+  border: 1px solid var(--text);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  border-radius: 99px;
+}
+footer.site {
+  border-top: 1px solid var(--dim);
+  margin-top: 36px;
+  padding: 20px 0 40px;
+  font-size: 13px;
+  color: var(--muted);
+}
+footer.site nav {
+  display: flex;
+  gap: 6px 16px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+/* shared blocks */
+.empty {
+  border: 1.5px dashed var(--muted);
+  padding: 14px 16px;
+  color: var(--muted);
+  font-size: 14.5px;
+  border-radius: 4px;
+}
+.empty b {
+  color: var(--text);
+}
+.grid2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 14px;
+}
+.stat .v {
+  font-family: var(--font-fraunces), Georgia, serif;
+  font-weight: 800;
+  font-size: clamp(26px, 3vw, 38px);
+  line-height: 1.05;
+  overflow-wrap: anywhere;
+}
+.stat .k {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 6px;
+}
+.card {
+  background: var(--surface);
+  border: 1px solid var(--dim);
+  border-radius: 6px;
+  padding: 14px 16px;
+}
+.card.on {
+  border-color: var(--accent);
+  box-shadow: inset 4px 0 0 var(--accent);
+}
+.scroll {
+  overflow-x: auto;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 14.5px;
+}
+th,
+td {
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--dim);
+  text-align: left;
+  vertical-align: baseline;
+}
+th {
+  font-size: 12.5px;
+  color: var(--muted);
+  font-weight: 600;
+}
+.r {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.mini {
+  display: inline-block;
+  vertical-align: middle;
+  width: 110px;
+  height: 8px;
+  background: var(--dim);
+  position: relative;
+}
+.mini i {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: var(--accent);
+}
+details summary {
+  cursor: pointer;
+  color: var(--accent);
+}
+.ctl {
+  display: flex;
+  gap: 8px 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 12px 0;
+  font-size: 13.5px;
+  color: var(--muted);
+}
+.ctl output {
+  font-family: var(--font-fraunces), Georgia, serif;
+  font-weight: 800;
+  font-size: clamp(24px, 3vw, 36px);
+  color: var(--text);
+  min-width: 7ch;
+  line-height: 1;
+}
+
+/* the tower */
+.split {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(250px, 1fr);
+  gap: 18px;
+  align-items: stretch;
+}
+.stage {
+  position: relative;
+  height: min(78vh, 720px);
+  min-height: 440px;
+  overflow: hidden;
+  border-radius: 6px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--data) 18%, var(--bg)), var(--bg) 80%);
+}
+.stage.low {
+  height: min(56vh, 480px);
+  min-height: 340px;
+}
+.stage3d {
+  position: absolute;
+  inset: 0;
+  perspective: 1500px;
+  perspective-origin: 50% 38%;
+}
+.world {
+  position: absolute;
+  left: 50%;
+  top: 90%;
+  transform-style: preserve-3d;
+  transform: scale(var(--sc, 1)) rotateX(-14deg) rotateY(32deg);
+}
+.world.flat {
+  top: 82%;
+  transform: scale(var(--sc, 1)) rotateX(-20deg) rotateY(-28deg);
+}
+.ground {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1100px;
+  height: 1100px;
+  margin: -550px 0 0 -550px;
+  transform: rotateX(90deg);
+  background: radial-gradient(circle, color-mix(in srgb, var(--text) 22%, transparent), transparent 62%);
+}
+.fl3 {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-style: preserve-3d;
+  transform: translate3d(0, calc(var(--y) - 420px), 0);
+  opacity: 0;
+  transition:
+    transform 0.7s cubic-bezier(0.2, 0.9, 0.3, 1.1),
+    opacity 0.25s;
+}
+.fl3.in {
+  transform: translate3d(0, var(--y), 0);
+  opacity: 1;
+}
+.bx {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-style: preserve-3d;
+  --c: color-mix(in srgb, var(--accent) 24%, var(--surface));
+}
+.fl3.new .bx {
+  --c: color-mix(in srgb, var(--accent) 62%, var(--surface));
+}
+.col3 .bx {
+  --c: var(--data);
+}
+.col3.new .bx {
+  --c: var(--accent);
+}
+.col3 {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-style: preserve-3d;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.col3.in {
+  opacity: 1;
+}
+.bx i {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  white-space: nowrap;
+  font-style: normal;
+  backface-visibility: hidden;
+  color: var(--text);
+  font-weight: 800;
+  font-size: 15px;
+  line-height: 1;
+}
+.bx .fr,
+.bx .bk {
+  width: var(--w);
+  height: var(--h);
+  margin: calc(var(--h) / -2) 0 0 calc(var(--w) / -2);
+}
+.bx .lf,
+.bx .rt {
+  width: var(--d);
+  height: var(--h);
+  margin: calc(var(--h) / -2) 0 0 calc(var(--d) / -2);
+  font-weight: 600;
+  font-size: 11.5px;
+}
+.bx .tp {
+  width: var(--w);
+  height: var(--d);
+  margin: calc(var(--d) / -2) 0 0 calc(var(--w) / -2);
+}
+.bx .fr {
+  transform: translateZ(calc(var(--d) / 2));
+  background: var(--c);
+}
+.bx .bk {
+  transform: rotateY(180deg) translateZ(calc(var(--d) / 2));
+  background: var(--c);
+}
+.bx .rt {
+  transform: rotateY(90deg) translateZ(calc(var(--w) / 2));
+  background: color-mix(in srgb, var(--c) 86%, #000);
+}
+.bx .lf {
+  transform: rotateY(-90deg) translateZ(calc(var(--w) / 2));
+  background: color-mix(in srgb, var(--c) 86%, #000);
+}
+.bx .tp {
+  transform: rotateX(90deg) translateZ(calc(var(--h) / 2));
+  background: color-mix(in srgb, var(--c) 80%, #fff);
+}
+.log {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 14px;
+  align-self: center;
+}
+.log li {
+  display: grid;
+  grid-template-columns: 78px 1fr auto;
+  gap: 8px;
+  padding: 3px 8px;
+  border-left: 3px solid var(--dim);
+  color: var(--muted);
+  align-items: baseline;
+}
+.log li.in {
+  color: var(--text);
+  border-left-color: var(--accent);
+}
+.log li.new {
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+}
+.log a {
+  color: inherit;
+}
+.log .t {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+/* lineage */
+.layers {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+}
+.layers h3 {
+  margin-top: 0;
+  text-transform: capitalize;
+}
+.layers ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 13px;
+}
+.layers li {
+  padding: 3px 0;
+  border-bottom: 1px solid var(--dim);
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 860px) {
+  .split {
+    grid-template-columns: 1fr;
+  }
+  .stage {
+    height: 520px;
+    min-height: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
