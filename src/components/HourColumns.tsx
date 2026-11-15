@@ -17,7 +17,7 @@ export function HourColumns({ heights, labels, label }: { heights: number[]; lab
   useEffect(() => {
     const fit = () => {
       const st = world.current?.parentElement;
-      if (st && world.current) world.current.style.setProperty("--sc", Math.min(1, st.clientWidth / 1000).toFixed(3));
+      if (st && world.current) world.current.style.setProperty("--sc", Math.min(1, st.clientWidth / (n * 27 + 120)).toFixed(3));
     };
     fit();
     addEventListener("resize", fit);

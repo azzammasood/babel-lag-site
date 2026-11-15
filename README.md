@@ -7,19 +7,20 @@ each language on Wikipedia, and which languages stay in the dark? The data pipel
 A static Next.js site (React, TypeScript, Tailwind) that renders **only** the published exports of
 the pipeline. Design: **Babel Tower** (concept 1 in `docs/design/options.md`), logo direction D.
 
-**Status:** built against a snapshot of the milestone 2 slice (20 languages, 523 wikis live).
-Not published: GitHub Pages is the owner's decision and there is no deploy workflow yet.
+**Status:** built against a snapshot of the pipeline release `site-data` (profile `full`,
+357 languages, reference set `all`). Not published: `.github/workflows/deploy.yml` is manual only,
+and enabling GitHub Pages is the owner's decision.
 
 ## Pages
 
 | Page | Shows | State |
 | --- | --- | --- |
-| Now (`/`) | The tower: one floor per language, placed at its median lag, as wide as its coverage | data |
+| Now (`/`) | The tower: one floor per language, placed at its median lag, with a floor area that follows its coverage | data |
 | Languages, `/languages/<code>/` | The index and one page per language | data |
 | Pipeline Live | Totals, rate, latency, cost, services, last run, run history, hourly stream | data |
 | Lineage, Catalog | The static metadata exports | data |
 | Method and data, How it's built, The maker, Corrections | Text, glossary, tools with evidence | text and data |
-| Topics, Backtests | Labelled empty states until the pipeline publishes them (milestone 3) | empty |
+| Backtests, Topics, `/topics/<item>/` | The backtest topics and each one's spread by language, from `backtests.json` | data once published (empty state until then) |
 
 ## Rules the site keeps
 
@@ -39,15 +40,17 @@ Not published: GitHub Pages is the owner's decision and there is no deploy workf
 
 ```
 npm ci
-npm run data            # fixtures/site-data -> data/site (schema-checked); --from DIR for a local export
+npm run data            # fixtures/site-data -> data/site (schema-checked)
+node scripts/fetch-data.mjs --release                              # from the pipeline release instead
+node scripts/fetch-data.mjs --release --strict --save fixtures/site-data   # refresh the snapshot
 npm run build           # static export to out/
 npm run serve           # serve out/ at http://127.0.0.1:4173
 npm run lint ; npm run typecheck ; npm test
 npm run test:e2e        # trace + accessibility on the built site (needs: npx playwright install chromium)
 ```
 
-`fixtures/site-data/` is a committed snapshot of real exports (generated 2026-11-12). To build from
-a fresh pipeline run: `node scripts/fetch-data.mjs --from ../babel-lag/data/export/v1`.
+`fixtures/site-data/` is a committed snapshot of the release (generated 2026-11-15). CI builds from
+it so a pull request never depends on the network; the deploy workflow builds from the release.
 
 ## Layout
 
@@ -65,10 +68,14 @@ docs/screens/    screenshots of the built site
 
 ## Gaps (logged, not hidden)
 
-- The pipeline does not publish a release yet, so builds use the committed snapshot.
+- `backtests.json` was not in the release when the snapshot was taken, so Backtests and Topics show
+  their empty state in CI builds. The pages were verified against a real local export.
+- Update lag and live tracking of single topics are not delivered by the pipeline; the site says so.
 - The metadata exports (catalog, glossary, lineage) have no published JSON Schema; they are only
   checked to be valid JSON.
-- Native-script names use system fonts; no web fonts are loaded for them.
+- Language names come from the runtime (Unicode CLDR through `Intl`); a few Wikipedia-only codes
+  are named by hand in `src/lib/names.ts`, and codes the runtime does not know show as the code.
+  Native-script names use system fonts.
 - dbt docs and benchmarks are not linked until the pipeline publishes them.
 
 Data: Wikimedia Foundation (EventStreams, MediaWiki history dumps, pageview dumps, Wikidata),

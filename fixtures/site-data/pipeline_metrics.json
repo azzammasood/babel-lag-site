@@ -1,11 +1,11 @@
 {
  "metrics_version": "1.0",
- "generated_at": "2026-11-12T15:41:55.595472+00:00",
+ "generated_at": "2026-11-15T07:55:49.232959+00:00",
  "profile": {
-  "produced_by": "free",
+  "produced_by": "full",
   "fallback": false,
-  "reason": "requested",
-  "run_id": "01a1d06c-30ea-7f63-8e68-7d3c3fc15e31"
+  "reason": "full healthy",
+  "run_id": "01a1de2b-1d71-7d56-b5ce-edac05849005"
  },
  "engines": [
   {
@@ -13,214 +13,270 @@
    "version": "0.1.0",
    "role": "versioned JSON export",
    "active": true,
-   "last_used": "2026-11-12T15:41:55.201938+00:00"
+   "last_used": "2026-11-15T07:55:49.184918+00:00"
   },
   {
    "name": "babel-profile",
    "version": "0.1.0",
    "role": "profile probe and fallback",
    "active": false,
-   "last_used": "2026-11-12T15:40:57.033474+00:00"
+   "last_used": "2026-11-15T01:07:39.553259+00:00"
+  },
+  {
+   "name": "databricks",
+   "version": "unity-catalog",
+   "role": "Unity Catalog volume, Lakeflow pipeline and SQL warehouse (full)",
+   "active": true,
+   "last_used": "2026-11-15T07:55:14.722595+00:00"
   },
   {
    "name": "datacontract-cli",
    "version": "1.2.9",
    "role": "ODCS contract lint",
    "active": false,
-   "last_used": "2026-11-12T15:39:02.122914+00:00"
+   "last_used": "2026-11-15T01:07:38.965820+00:00"
+  },
+  {
+   "name": "dbt-databricks",
+   "version": "1.13.0",
+   "role": "dbt models and tests on Databricks (full)",
+   "active": true,
+   "last_used": "2026-11-15T07:55:43.857985+00:00"
   },
   {
    "name": "dbt-duckdb",
    "version": "1.11.1",
    "role": "dbt models and tests on DuckDB (free)",
    "active": false,
-   "last_used": "2026-11-12T15:37:52.744347+00:00"
+   "last_used": "2026-11-15T01:07:24.294206+00:00"
   },
   {
    "name": "delta-rs",
    "version": "1.6.6",
    "role": "Delta Lake writer for bronze, silver and gold (free)",
-   "active": false,
-   "last_used": "2026-11-12T15:35:34.728423+00:00"
+   "active": true,
+   "last_used": "2026-11-15T07:49:47.639500+00:00"
   },
   {
    "name": "duckdb",
    "version": "2.0.0",
    "role": "core SQL engine (free)",
-   "active": false,
-   "last_used": "2026-11-12T15:37:19.623686+00:00"
+   "active": true,
+   "last_used": "2026-11-15T07:49:54.101031+00:00"
   },
   {
    "name": "eventstreams-collector",
    "version": "0.1.0",
    "role": "live ingestion (async SSE, checkpoints, sanitizer)",
-   "active": false,
-   "last_used": "2026-11-12T15:33:50.247420+00:00"
-  },
-  {
-   "name": "openmetadata",
-   "version": "1.9",
-   "role": "catalog ingestion",
-   "active": false,
-   "last_used": "2026-11-12T14:13:17.338903+00:00"
+   "active": true,
+   "last_used": "2026-11-15T07:49:35.844401+00:00"
   },
   {
    "name": "soda-core",
    "version": "3.5.6",
    "role": "data quality checks",
    "active": false,
-   "last_used": "2026-11-12T15:37:59.188902+00:00"
-  },
-  {
-   "name": "spark",
-   "version": "4.0.1",
-   "role": "core SQL and Structured Streaming engine (full)",
-   "active": false,
-   "last_used": "2026-11-11T18:15:34.986094+00:00"
+   "last_used": "2026-11-15T01:07:28.024034+00:00"
   }
  ],
  "totals": {
-  "events": 2522705,
-  "bytes": 3624062293,
-  "files": 348,
-  "history_rows": 72402118,
-  "wikis": 523,
-  "languages": 20,
+  "events": 4226255,
+  "bytes": 5791843575,
+  "files": 586,
+  "history_rows": null,
+  "wikis": 526,
+  "languages": 357,
   "date_range": {
-   "start": "2026-11-11T07:01:28.389Z",
-   "end": "2026-11-12T15:33:13.927000+00:00"
+   "start": "2026-11-14T09:21:18.027Z",
+   "end": "2026-11-15T07:49:34.183000+00:00"
   }
  },
  "last_run": {
-  "run_id": "01a1d06c-30ea-7f63-8e68-7d3c3fc15e31",
-  "started_at": "2026-11-12T15:41:54.046508+00:00",
-  "ended_at": "2026-11-12T15:41:55.201938+00:00",
+  "run_id": "01a1de2b-1d71-7d56-b5ce-edac05849005",
+  "started_at": "2026-11-15T07:45:30.432928+00:00",
+  "ended_at": "2026-11-15T07:55:49.184918+00:00",
   "status": "ok",
   "stages": [
+   {
+    "stage": "collect",
+    "service": "eventstreams-collector",
+    "version": "0.1.0",
+    "records_in": 1045744,
+    "records_out": 1045744,
+    "bytes_in": 1457757956,
+    "bytes_out": 462521102,
+    "seconds": 245.411,
+    "records_per_second": 4261.194,
+    "mb_per_second": 5.94,
+    "status": "ok"
+   },
+   {
+    "stage": "bronze",
+    "service": "delta-rs",
+    "version": "1.6.6",
+    "records_in": 1045744,
+    "records_out": 1045744,
+    "bytes_in": 462521102,
+    "bytes_out": null,
+    "seconds": 11.794,
+    "records_per_second": 88667.458,
+    "mb_per_second": 39.217,
+    "status": "ok"
+   },
+   {
+    "stage": "rollup",
+    "service": "duckdb",
+    "version": "2.0.0",
+    "records_in": null,
+    "records_out": 4239797,
+    "bytes_in": null,
+    "bytes_out": null,
+    "seconds": 6.459,
+    "records_per_second": 656416.938,
+    "mb_per_second": null,
+    "status": "ok"
+   },
+   {
+    "stage": "databricks_upload",
+    "service": "databricks",
+    "version": "0.1.0",
+    "records_in": null,
+    "records_out": 143,
+    "bytes_in": null,
+    "bytes_out": 462542004,
+    "seconds": 132.289,
+    "records_per_second": 1.081,
+    "mb_per_second": 3.496,
+    "status": "ok"
+   },
+   {
+    "stage": "lakeflow",
+    "service": "databricks",
+    "version": "lakeflow-serverless",
+    "records_in": null,
+    "records_out": null,
+    "bytes_in": null,
+    "bytes_out": null,
+    "seconds": 106.674,
+    "records_per_second": null,
+    "mb_per_second": null,
+    "status": "ok"
+   },
+   {
+    "stage": "uc_metadata",
+    "service": "databricks",
+    "version": "unity-catalog",
+    "records_in": null,
+    "records_out": 12,
+    "bytes_in": null,
+    "bytes_out": null,
+    "seconds": 81.004,
+    "records_per_second": 0.148,
+    "mb_per_second": null,
+    "status": "ok"
+   },
+   {
+    "stage": "dbt_build",
+    "service": "dbt-databricks",
+    "version": "1.13.0",
+    "records_in": null,
+    "records_out": 2,
+    "bytes_in": null,
+    "bytes_out": null,
+    "seconds": 29.135,
+    "records_per_second": 0.069,
+    "mb_per_second": null,
+    "status": "ok"
+   },
    {
     "stage": "export",
     "service": "babel-export",
     "version": "0.1.0",
     "records_in": null,
-    "records_out": 5817,
+    "records_out": 7131,
     "bytes_in": null,
     "bytes_out": null,
-    "seconds": 1.155,
-    "records_per_second": 5036.364,
+    "seconds": 5.296,
+    "records_per_second": 1346.488,
     "mb_per_second": null,
     "status": "ok"
    }
   ]
  },
  "live": {
-  "window_start": "2026-11-12T14:30:00+00:00",
-  "window_end": "2026-11-12T15:15:00+00:00",
-  "events_per_second": 1.81,
-  "end_to_end_latency_s": 521.7,
-  "reconnects": null,
+  "window_start": "2026-11-15T06:45:00+00:00",
+  "window_end": "2026-11-15T07:45:00+00:00",
+  "events_per_second": 19.75,
+  "end_to_end_latency_s": 375.0,
+  "reconnects": 0,
   "consumer_lag": null
  },
  "history": {
   "runs": [
    {
-    "run_id": "01a1cbc7-8671-7139-a371-7f1436baf1b3",
-    "ended_at": "2026-11-11T18:05:33.592151+00:00",
-    "status": "ok",
-    "events": 61873,
-    "seconds": 120.2
-   },
-   {
-    "run_id": "01a1cbc9-f7b0-70dd-a563-f98c84e29b17",
-    "ended_at": "2026-11-11T18:12:35.101703+00:00",
-    "status": "ok",
-    "events": null,
-    "seconds": 381.7
-   },
-   {
-    "run_id": "01a1cbd0-70cb-7fe3-ad16-27cf49b857be",
-    "ended_at": "2026-11-11T18:15:34.986094+00:00",
-    "status": "ok",
-    "events": null,
-    "seconds": 137.3
-   },
-   {
-    "run_id": "01a1cbdf-81c7-74d2-8114-621acfa12015",
-    "ended_at": "2026-11-11T19:01:51.961419+00:00",
-    "status": "ok",
-    "events": 23162,
-    "seconds": 1926.9
-   },
-   {
-    "run_id": "01a1d01a-7ecf-7d9b-97f0-3e5fdea5807b",
-    "ended_at": "2026-11-12T14:13:17.338903+00:00",
-    "status": "ok",
-    "events": null,
-    "seconds": 37.6
-   },
-   {
-    "run_id": "01a1d03c-859c-7fe5-9d29-781332f379c7",
-    "ended_at": "2026-11-12T15:03:12.895978+00:00",
+    "run_id": "01a1d993-661d-7815-b382-449852b2dccb",
+    "ended_at": "2026-11-14T10:24:53.142623+00:00",
     "status": "failed",
-    "events": 945725,
-    "seconds": 1605.9
+    "events": 3492,
+    "seconds": 428.7
    },
    {
-    "run_id": "01a1d04e-dcce-761f-89ce-4d44be5d4203",
-    "ended_at": "2026-11-12T15:19:33.404224+00:00",
+    "run_id": "01a1da80-aba2-7448-aa56-45583b78416c",
+    "ended_at": "2026-11-14T14:49:19.405231+00:00",
     "status": "failed",
-    "events": 470037,
-    "seconds": 1163.2
+    "events": 147865,
+    "seconds": 1051.0
    },
    {
-    "run_id": "01a1d058-8666-764b-bd1b-f1d1e93765b0",
-    "ended_at": "2026-11-12T15:20:31.352563+00:00",
+    "run_id": "01a1dae9-1421-7d93-91e5-8dbc64c1d8ed",
+    "ended_at": "2026-11-14T16:40:02.285874+00:00",
+    "status": "failed",
+    "events": 18017,
+    "seconds": 652.2
+   },
+   {
+    "run_id": "01a1dbd7-99f7-74e9-a6d0-9033430f5870",
+    "ended_at": "2026-11-14T21:06:11.824454+00:00",
+    "status": "failed",
+    "events": 237180,
+    "seconds": 1326.3
+   },
+   {
+    "run_id": "01a1dcb6-4bf8-7c15-96c8-fc98372d9741",
+    "ended_at": "2026-11-15T01:07:39.553259+00:00",
+    "status": "failed",
+    "events": 139175,
+    "seconds": 1112.9
+   },
+   {
+    "run_id": "01a1de2b-1d71-7d56-b5ce-edac05849005",
+    "ended_at": "2026-11-15T07:55:49.184918+00:00",
     "status": "ok",
-    "events": null,
-    "seconds": 6.4
-   },
-   {
-    "run_id": "01a1d058-d93a-71e9-9b0b-af20f00270fd",
-    "ended_at": "2026-11-12T15:27:54.811856+00:00",
-    "status": "failed",
-    "events": 379762,
-    "seconds": 857.0
-   },
-   {
-    "run_id": "01a1d060-3ba1-7eed-962c-41a613435111",
-    "ended_at": "2026-11-12T15:40:57.033474+00:00",
-    "status": "failed",
-    "events": 642146,
-    "seconds": 1338.6
-   },
-   {
-    "run_id": "01a1d06c-30ea-7f63-8e68-7d3c3fc15e31",
-    "ended_at": "2026-11-12T15:41:55.201938+00:00",
-    "status": "ok",
-    "events": null,
-    "seconds": 1.2
+    "events": 1045744,
+    "seconds": 618.1
    }
   ],
   "daily": [
    {
-    "day": "2026-11-11",
-    "events": 85035,
-    "bytes": 119491092
+    "day": "2026-11-14",
+    "events": 2380961,
+    "bytes": 3236402556
    },
    {
-    "day": "2026-11-12",
-    "events": 2437670,
-    "bytes": 3504571201
+    "day": "2026-11-15",
+    "events": 1845294,
+    "bytes": 2555441019
    }
   ]
  },
  "freshness": {
-  "latest_event_at": "2026-11-12T15:33:13.927000+00:00",
-  "published_at": "2026-11-12T15:41:55.595472+00:00",
-  "lag_s": 521.7
+  "latest_event_at": "2026-11-15T07:49:34.183000+00:00",
+  "published_at": "2026-11-15T07:55:49.232959+00:00",
+  "lag_s": 375.0
  },
  "quality": {
-  "checks_passed": null,
-  "checks_failed": null,
+  "checks_passed": 9,
+  "checks_failed": 0,
   "quarantined_rows": 0,
   "contract_violations": 0
  },
@@ -230,8 +286,8 @@
   "free_quota_note": "Databricks Free Edition publishes no quota meter; GitHub Actions minutes are not metered per run here."
  },
  "lineage_summary": {
-  "nodes": 33,
-  "edges": 36,
+  "nodes": 37,
+  "edges": 39,
   "documented_pct": 100.0
  }
 }

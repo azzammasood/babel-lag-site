@@ -3,19 +3,29 @@ import { useEffect, useRef, useState } from "react";
 
 export type Floor = {
   lagY: number; // median lag in years: when the floor is placed (1 second = 1 year)
-  size: number; // px, from coverage
-  front: React.ReactNode;
-  side: React.ReactNode;
+  size: number; // px side of the square floor; its area follows coverage
   log: React.ReactNode;
 };
 
-const FH = 27;
-const HOLD = 5;
+const HOLD = 6;
+const WINDOW = 14; // log lines shown: the most recent arrivals
 
 // The Babel tower: one floor per language, placed when the clock reaches its median lag.
-// The clock is the only thing that changes what is shown; the slow turn is so each face can be read.
-export function Tower({ floors, yrMax, label }: { floors: Floor[]; yrMax: number; label: string }) {
+// The clock is the only thing that changes what is shown; the slow turn is so the shape can be read.
+export function Tower({
+  floors,
+  yrMax,
+  label,
+  children,
+}: {
+  floors: Floor[];
+  yrMax: number;
+  label: string;
+  children?: React.ReactNode;
+}) {
   const n = floors.length;
+  // Floor height shrinks with the number of languages so the whole tower fits the stage.
+  const fh = Math.max(1.6, Math.min(27, 540 / Math.max(1, n)));
   const world = useRef<HTMLDivElement>(null);
   const out = useRef<HTMLOutputElement>(null);
   const clock = useRef({ t0: null as number | null, at: 0, paused: false });
@@ -28,7 +38,8 @@ export function Tower({ floors, yrMax, label }: { floors: Floor[]; yrMax: number
     const fit = () => {
       const st = world.current?.parentElement;
       if (st && world.current) {
-        world.current.style.setProperty("--sc", Math.min(1, st.clientWidth / 640, st.clientHeight / 700).toFixed(3));
+        const sc = Math.min(1, st.clientWidth / 640, st.clientHeight / (n * fh + 190));
+        world.current.style.setProperty("--sc", sc.toFixed(3));
       }
     };
     fit();
@@ -48,7 +59,8 @@ export function Tower({ floors, yrMax, label }: { floors: Floor[]; yrMax: number
         }
         c.at = e;
         const t = Math.min(yrMax, e);
-        const k = floors.filter((f) => t >= f.lagY).length;
+        let k = 0;
+        while (k < n && t >= floors[k]!.lagY) k++; // floors are ordered by lag
         setBuilt((p) => (p === k ? p : k));
         if (out.current) out.current.textContent = `Year ${t.toFixed(1)}`;
         if (world.current) {
@@ -62,7 +74,7 @@ export function Tower({ floors, yrMax, label }: { floors: Floor[]; yrMax: number
       cancelAnimationFrame(raf);
       removeEventListener("resize", fit);
     };
-  }, [floors, yrMax]);
+  }, [floors, yrMax, n, fh]);
 
   const replay = () => {
     clock.current.t0 = null;
@@ -75,7 +87,8 @@ export function Tower({ floors, yrMax, label }: { floors: Floor[]; yrMax: number
     if (!c.paused) c.t0 = performance.now() - c.at * 1000;
     setPaused(c.paused);
   };
-  const newest = built < n ? built - 1 : -1;
+  const done = built >= n;
+  const newest = done ? -1 : built - 1;
 
   return (
     <>
@@ -104,16 +117,18 @@ export function Tower({ floors, yrMax, label }: { floors: Floor[]; yrMax: number
                 <div
                   key={i}
                   className={`fl3${i < built ? " in" : ""}${i === newest ? " new" : ""}`}
-                  style={{ "--y": `${-(i * FH + FH / 2)}px` } as React.CSSProperties}
+                  style={{ "--y": `${(-(i * fh + fh / 2)).toFixed(2)}px` } as React.CSSProperties}
                 >
                   <div
                     className="bx"
-                    style={{ "--w": `${f.size}px`, "--h": `${FH - 2}px`, "--d": `${f.size}px` } as React.CSSProperties}
+                    style={
+                      { "--w": `${f.size}px`, "--h": `${(fh > 8 ? fh - 2 : fh).toFixed(2)}px`, "--d": `${f.size}px` } as React.CSSProperties
+                    }
                   >
-                    <i className="fr">{f.front}</i>
-                    <i className="bk">{f.front}</i>
-                    <i className="lf">{f.side}</i>
-                    <i className="rt">{f.side}</i>
+                    <i className="fr" />
+                    <i className="bk" />
+                    <i className="lf" />
+                    <i className="rt" />
                     <i className="tp" />
                   </div>
                 </div>
@@ -121,15 +136,21 @@ export function Tower({ floors, yrMax, label }: { floors: Floor[]; yrMax: number
             </div>
           </div>
         </div>
-        <ol className="log" reversed aria-label="Floors, top to bottom">
-          {floors
-            .map((f, i) => (
-              <li key={i} className={`${i < built ? "in" : ""}${i === newest ? " new" : ""}`}>
-                {f.log}
-              </li>
-            ))
-            .reverse()}
-        </ol>
+        <div className="logbox">
+          <p className="small muted" style={{ margin: "0 0 6px" }}>
+            {done ? "The last floors placed (longest waits)" : "Latest floors placed"}
+          </p>
+          <ol className="log" aria-label="Most recent floors, newest first">
+            {floors
+              .map((f, i) => (
+                <li key={i} hidden={i >= built || i < built - WINDOW} className={`in${i === newest ? " new" : ""}`}>
+                  {f.log}
+                </li>
+              ))
+              .reverse()}
+          </ol>
+          {children}
+        </div>
       </div>
     </>
   );

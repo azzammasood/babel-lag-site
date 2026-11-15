@@ -34,10 +34,32 @@ export default function Method() {
             language covered after another one.
           </li>
           <li>
-            The reference set in this release is the slice of languages listed on the Languages page. With a small
+            The reference set is recorded on every row: <S>slice20</S> (an early slice of twenty languages) or{" "}
+            <code>all</code> (every Wikipedia). The Languages page shows which one the current data uses. With a small
             reference set, &quot;first&quot; means first among those languages, not first in the world.
           </li>
         </ul>
+
+        <h2>Coverage depth</h2>
+        <p>
+          For each topic and language: the current size of the article divided by the size of the topic&apos;s first
+          article. Per language, the median over topics it covered after another language. A ratio below one means
+          shorter articles than the first language&apos;s.
+        </p>
+
+        <h2>Demand without supply (a proxy)</h2>
+        <p>
+          For a language, the human pageviews, in all languages, of reference topics that language has no eligible
+          article for. It measures interest in topics the language does not cover. It is not a count of searches made
+          in that language: Wikimedia publishes no search logs by language. Views of redirect titles are not counted.
+        </p>
+
+        <h2>Backtests</h2>
+        <p>
+          The rule was fixed before looking at results: the topics whose first eligible article was created between{" "}
+          <S>2020-01-01</S> and <S>2024-12-31</S> (UTC) and that exist in the most languages today, ties broken by
+          item number. For each, the creation lag of every language.
+        </p>
 
         <h2>Live layer</h2>
         <ul>
@@ -59,11 +81,17 @@ export default function Method() {
           published file for names and addresses.
         </p>
 
-        <h2>Not measured yet</h2>
-        <p>
-          Update lag, demand without supply, coverage depth, per-topic timelines and backtests are defined but not yet
-          published. Their pages stay empty until they are.
-        </p>
+        <h2>Not delivered</h2>
+        <ul>
+          <li>
+            <b>Update lag</b> (edit bursts spreading from the first language to others) is not computed or published.
+            It needs daily edit series for every page in every language, which the backfill does not keep.
+          </li>
+          <li>
+            <b>Live tracking of single topics</b> (following a brand-new topic across languages as it happens) is not
+            delivered. The live layer counts events by wiki and time only.
+          </li>
+        </ul>
 
         <h2>Glossary</h2>
         {g ? (

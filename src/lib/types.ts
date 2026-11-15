@@ -16,7 +16,18 @@ export type LanguageRow = {
   items_first: number;
   coverage_pct: number;
   median_lag_days: number;
+  median_depth_ratio: number | null;
   pageviews: number;
+  demand_without_supply: number | null;
+  reference_set: string;
+};
+export type BacktestRow = {
+  item_id: number;
+  wiki: string;
+  created_at: string;
+  first_created_at: string;
+  lag_days: number;
+  languages: number;
 };
 export type HourRow = {
   hour: string;

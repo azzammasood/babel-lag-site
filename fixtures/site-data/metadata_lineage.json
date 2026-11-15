@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-11-12T15:41:55.399835+00:00",
+ "generated_at": "2026-11-14T14:34:00.583186+00:00",
  "nodes": [
   {
    "id": "eventstreams",
@@ -77,7 +77,22 @@
    "layer": "gold"
   },
   {
+   "id": "gold_language_demand",
+   "kind": "dataset",
+   "layer": "gold"
+  },
+  {
    "id": "gold_item_pageviews",
+   "kind": "dataset",
+   "layer": "gold"
+  },
+  {
+   "id": "gold_language_lag_all",
+   "kind": "dataset",
+   "layer": "gold"
+  },
+  {
+   "id": "gold_language_demand_all",
    "kind": "dataset",
    "layer": "gold"
   },
@@ -147,6 +162,11 @@
    "layer": "job"
   },
   {
+   "id": "job:rollup_gold_language_demand",
+   "kind": "job",
+   "layer": "job"
+  },
+  {
    "id": "job:export_languages",
    "kind": "job",
    "layer": "job"
@@ -186,6 +206,10 @@
   },
   {
    "from": "gold_coverage_lag",
+   "to": "job:rollup_gold_language_demand"
+  },
+  {
+   "from": "gold_coverage_lag",
    "to": "job:rollup_gold_language_lag"
   },
   {
@@ -194,6 +218,10 @@
   },
   {
    "from": "gold_item_pageviews",
+   "to": "job:rollup_gold_language_demand"
+  },
+  {
+   "from": "gold_language_demand",
    "to": "job:export_languages"
   },
   {
@@ -251,6 +279,10 @@
   {
    "from": "job:rollup_gold_item_pageviews",
    "to": "gold_item_pageviews"
+  },
+  {
+   "from": "job:rollup_gold_language_demand",
+   "to": "gold_language_demand"
   },
   {
    "from": "job:rollup_gold_language_lag",
@@ -530,7 +562,25 @@
   {
    "to": "export_languages.pageviews",
    "from": [
-    "gold_item_pageviews.views"
+    "gold_language_demand.pageviews"
+   ]
+  },
+  {
+   "to": "export_languages.demand_without_supply",
+   "from": [
+    "gold_language_demand.demand_without_supply"
+   ]
+  },
+  {
+   "to": "export_languages.median_depth_ratio",
+   "from": [
+    "gold_language_lag.median_depth_ratio"
+   ]
+  },
+  {
+   "to": "export_languages.reference_set",
+   "from": [
+    "gold_language_lag.reference_set"
    ]
   }
  ]

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Native } from "@/components/Native";
+import { Names } from "@/components/Native";
 import { Empty, Page } from "@/components/Page";
 import { S, V } from "@/components/V";
 import { byLag, derived, languages } from "@/lib/data";
@@ -36,14 +36,12 @@ export default async function Language({ params }: Props) {
     <Page
       eyebrow="Language"
       title={
-        <>
-          <Native code={code} /> <span className="muted">{english(code)}</span>
-        </>
+        <Names code={code} />
       }
       lede={
         <>
           Floor <S>{pos + 1}</S> of <V file={F} ptr="/row_count" as="raw" /> in the tower, counting from the base
-          (the shortest wait).
+          (the shortest wait). Reference set: <V file={F} ptr={`${p}/reference_set`} as="raw" />.
         </>
       }
     >
@@ -76,11 +74,32 @@ export default async function Language({ params }: Props) {
         </div>
         <div className="stat">
           <div className="v">
+            <V file={F} ptr={`${p}/median_depth_ratio`} as="raw" />
+          </div>
+          <div className="k">
+            coverage depth: median article size relative to the topic&apos;s first article (below one means shorter)
+          </div>
+        </div>
+        <div className="stat">
+          <div className="v">
             <V file={F} ptr={`${p}/pageviews`} />
           </div>
-          <div className="k">human pageviews of covered topics over the slice days</div>
+          <div className="k">human pageviews of covered topics over the measured days</div>
+        </div>
+        <div className="stat">
+          <div className="v">
+            <V file={F} ptr={`${p}/demand_without_supply`} />
+          </div>
+          <div className="k">
+            demand without supply (proxy): views, in all languages, of reference topics this language has no article
+            for
+          </div>
         </div>
       </div>
+      <p className="key">
+        Demand without supply measures interest in topics this language does not cover. It is not a count of searches
+        made in this language: Wikimedia publishes no search logs by language.
+      </p>
 
       <h2>Live, over the measured window</h2>
       {live ? (
@@ -109,8 +128,6 @@ export default async function Language({ params }: Props) {
       )}
       <p className="key">Live figures are sums of the hourly rows of live.json for this wiki.</p>
 
-      <h2>Topics</h2>
-      <Empty title="Nothing tracked yet.">Per-topic timelines for this language arrive with the next milestone.</Empty>
       <p style={{ marginTop: 18 }}>
         <Link href="/languages/">All languages</Link>
       </p>

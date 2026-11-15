@@ -385,10 +385,10 @@ details summary {
   left: 0;
   top: 0;
   transform-style: preserve-3d;
-  --c: color-mix(in srgb, var(--accent) 24%, var(--surface));
+  --c: color-mix(in srgb, var(--accent) 40%, var(--surface));
 }
 .fl3.new .bx {
-  --c: color-mix(in srgb, var(--accent) 62%, var(--surface));
+  --c: var(--accent);
 }
 .col3 .bx {
   --c: var(--data);
@@ -487,6 +487,28 @@ details summary {
 }
 .log a {
   color: inherit;
+}
+.log li[hidden] {
+  display: none;
+}
+.logbox {
+  align-self: center;
+  min-width: 0;
+}
+.lagbar {
+  display: inline-block;
+  vertical-align: middle;
+  width: min(34vw, 320px);
+  height: 8px;
+  background: var(--dim);
+  position: relative;
+}
+.lagbar i {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: var(--accent);
 }
 .log .t {
   font-variant-numeric: tabular-nums;

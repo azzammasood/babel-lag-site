@@ -1,0 +1,54 @@
+name: deploy
+
+# Build from the pipeline's live exports (release site-data) and publish to GitHub Pages.
+# MANUAL ONLY: this runs when the owner starts it from the Actions tab, never on a push or a
+# schedule. Publishing also needs Pages enabled with source "GitHub Actions" and the repository
+# variable PAGES_ENABLED=true (both the owner's decision); without them the build and the gates
+# still run and nothing is published.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      BABEL_BASE_PATH: /babel-lag-site
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Exports from the pipeline release (strict)
+        run: node scripts/fetch-data.mjs --release --strict
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Every figure traced to an export; accessibility in light and dark
+        run: npm run test:e2e
+      - if: vars.PAGES_ENABLED == 'true'
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: out
+
+  deploy:
+    if: vars.PAGES_ENABLED == 'true'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

@@ -1,7 +1,7 @@
 // Build-time loader for data/site/ (written by scripts/fetch-data.mjs). Server components only.
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import type { Catalog, Derived, Envelope, Glossary, LanguageRow, Lineage, Metrics } from "./types";
+import type { BacktestRow, Catalog, Derived, Envelope, Glossary, LanguageRow, Lineage, Metrics } from "./types";
 
 export const DATA_DIR = process.env.BABEL_DATA_DIR ?? join(process.cwd(), "data", "site");
 
@@ -23,6 +23,7 @@ export function load<T>(file: string): T | null {
 }
 
 export const languages = () => load<Envelope<LanguageRow>>("languages.json");
+export const backtests = () => load<Envelope<BacktestRow>>("backtests.json");
 export const derived = () => load<Derived>("derived.json");
 export const metrics = () => load<Metrics>("pipeline_metrics.json");
 export const catalog = () => load<Catalog>("metadata_catalog.json");
@@ -34,3 +35,14 @@ export type Ranked = LanguageRow & { i: number };
 export function byLag(rows: LanguageRow[]): Ranked[] {
   return rows.map((r, i) => ({ ...r, i })).sort((a, b) => a.median_lag_days - b.median_lag_days);
 }
+
+export type Spread = BacktestRow & { i: number };
+// Backtest rows grouped by item, each group ordered by lag (the first language first).
+export function byItem(rows: BacktestRow[]): Map<number, Spread[]> {
+  const groups = new Map<number, Spread[]>();
+  rows.forEach((r, i) => groups.set(r.item_id, [...(groups.get(r.item_id) ?? []), { ...r, i }]));
+  for (const g of groups.values()) g.sort((a, b) => a.lag_days - b.lag_days || a.wiki.localeCompare(b.wiki));
+  return groups;
+}
+// Wikipedia language code of a wiki database name ("zh_min_nanwiki" -> "zh_min_nan").
+export const wikiLang = (wiki: string) => wiki.replace(/wiki$/, "");
