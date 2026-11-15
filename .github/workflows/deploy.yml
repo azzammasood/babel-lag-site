@@ -7,6 +7,10 @@ name: deploy
 # still run and nothing is published.
 on:
   workflow_dispatch:
+  # Rebuild from the latest pipeline release every hour (best effort, like all GitHub schedules)
+  # so the site keeps updating; gated by PAGES_ENABLED like the deploy job.
+  schedule:
+    - cron: "23 * * * *"
 
 permissions:
   contents: read
