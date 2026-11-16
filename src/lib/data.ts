@@ -1,7 +1,18 @@
 // Build-time loader for data/site/ (written by scripts/fetch-data.mjs). Server components only.
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import type { BacktestRow, Catalog, Derived, Envelope, Glossary, LanguageRow, Lineage, Metrics } from "./types";
+import type {
+  BacktestRow,
+  Catalog,
+  Derived,
+  Envelope,
+  Glossary,
+  LanguageRow,
+  Lineage,
+  Metrics,
+  SpreadingRow,
+  UpdateLagRow,
+} from "./types";
 
 export const DATA_DIR = process.env.BABEL_DATA_DIR ?? join(process.cwd(), "data", "site");
 
@@ -24,6 +35,8 @@ export function load<T>(file: string): T | null {
 
 export const languages = () => load<Envelope<LanguageRow>>("languages.json");
 export const backtests = () => load<Envelope<BacktestRow>>("backtests.json");
+export const updateLag = () => load<Envelope<UpdateLagRow>>("update_lag.json");
+export const spreading = () => load<Envelope<SpreadingRow>>("spreading.json");
 export const derived = () => load<Derived>("derived.json");
 export const metrics = () => load<Metrics>("pipeline_metrics.json");
 export const catalog = () => load<Catalog>("metadata_catalog.json");

@@ -81,17 +81,45 @@ export default function Method() {
           published file for names and addresses.
         </p>
 
-        <h2>Not delivered</h2>
+        <h2>Update lag (twenty-language slice only)</h2>
         <ul>
           <li>
-            <b>Update lag</b> (edit bursts spreading from the first language to others) is not computed or published.
-            It needs daily edit series for every page in every language, which the backfill does not keep.
+            Daily series: human, non-reverted article edits per page and day, from <S>2024-11-01</S> to{" "}
+            <S>2026-10-31</S>.
           </li>
           <li>
-            <b>Live tracking of single topics</b> (following a brand-new topic across languages as it happens) is not
-            delivered. The live layer counts events by wiki and time only.
+            A burst is a day with at least <S>5</S> such edits and at least <S>3</S> times the usual active-day count
+            of the page. An event is the first burst of a multi-language topic in any language between{" "}
+            <S>2025-11-01</S> and <S>2026-10-31</S>.
+          </li>
+          <li>
+            For a language that already had the article: it <i>led</i> the event if it burst on the first day,{" "}
+            <i>followed</i> if it burst within <S>30</S> days, and otherwise did not update.
+          </li>
+          <li>
+            Daily series exist only for the slice languages, so these figures cover that slice and nothing else.
+            Follow counts are small: every median is shown with the number of events behind it.
           </li>
         </ul>
+
+        <h2>Live topic tracking</h2>
+        <ul>
+          <li>
+            New articles (not by bots, not redirects) seen on the live stream in the last <S>48</S> hours are matched
+            to their topic through Wikidata.
+          </li>
+          <li>
+            Published: topics with new articles in two or more languages in that window, with the lag of each
+            language in hours after the first. An empty list is a valid answer.
+          </li>
+          <li>
+            Limit: Wikidata is often linked hours after an article appears. Articles linked after the window, or
+            beyond the lookup budget of a run, are missed.
+          </li>
+        </ul>
+
+        <h2>Not delivered</h2>
+        <p>The weekly written report is not delivered. Everything else described on this page is published.</p>
 
         <h2>Glossary</h2>
         {g ? (

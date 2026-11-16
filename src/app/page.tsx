@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Names } from "@/components/Native";
-import { Empty, Unavailable } from "@/components/Page";
+import { Unavailable } from "@/components/Page";
+import { Spreading } from "@/components/Spreading";
 import { type Floor, Tower } from "@/components/Tower";
 import { S, V } from "@/components/V";
 import { backtests, byLag, languages } from "@/lib/data";
@@ -56,7 +57,10 @@ export default function Now() {
         years.
       </p>
       <p className="small muted">
-        Profile <b>{env.produced_by.profile}</b> · generated <V file={F} ptr="/generated_at" as="date" /> UTC ·{" "}
+        Profile{" "}
+        <b>
+          <V file={F} ptr="/produced_by/profile" as="raw" />
+        </b> · generated <V file={F} ptr="/generated_at" as="date" /> UTC ·{" "}
         <V file={F} ptr="/row_count" as="raw" /> languages
       </p>
 
@@ -77,16 +81,12 @@ export default function Now() {
       </p>
 
       <h2>Topics spreading now</h2>
-      <Empty title="Live topic tracking is not delivered.">
-        Following a single new topic across languages as it happens is not part of this release.{" "}
-        {hasBacktests ? (
-          <>
-            Past topics can be followed instead: see <Link href="/topics/">how individual topics spread</Link>.
-          </>
-        ) : (
-          "Nothing is shown here in its place."
-        )}
-      </Empty>
+      <Spreading />
+      {hasBacktests ? (
+        <p style={{ marginTop: 10 }}>
+          Past topics, with the wait of every language: <Link href="/topics/">how individual topics spread</Link>.
+        </p>
+      ) : null}
 
       <h2>Where to go next</h2>
       <div className="grid2">

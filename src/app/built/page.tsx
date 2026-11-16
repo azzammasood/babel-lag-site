@@ -42,7 +42,9 @@ export default function Built() {
             <tbody>
               {m.engines.map((e, i) => (
                 <tr key={e.name}>
-                  <td>{e.name}</td>
+                  <td>
+                    <V file={M} ptr={`/engines/${i}/name`} as="raw" />
+                  </td>
                   <td>
                     <V file={M} ptr={`/engines/${i}/version`} as="raw" />
                   </td>
@@ -62,7 +64,8 @@ export default function Built() {
         <Unavailable file={M} />
       )}
       <p className="key">
-        The data on this site was produced by the <b>{m?.profile.produced_by ?? "unknown"}</b> profile.
+        The data on this site was produced by the{" "}
+        <b>{m ? <V file={M} ptr="/profile/produced_by" as="raw" /> : "unknown"}</b> profile.
       </p>
 
       <div className="prose">

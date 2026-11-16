@@ -29,6 +29,23 @@ export type BacktestRow = {
   lag_days: number;
   languages: number;
 };
+export type UpdateLagRow = {
+  wiki: string;
+  items_with_event: number;
+  items_first: number;
+  items_followed: number;
+  updated_pct: number;
+  median_follow_lag_days: number | null;
+  reference_set: string;
+};
+export type SpreadingRow = {
+  item_id: number;
+  wiki: string;
+  created_at: string;
+  first_created_at: string;
+  lag_hours: number;
+  languages: number;
+};
 export type HourRow = {
   hour: string;
   events: number;

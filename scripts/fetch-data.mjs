@@ -35,6 +35,8 @@ const FILES = {
   "live.json": { schema: "live_row.schema.json" },
   "pipeline_metrics.json": { schema: "pipeline_metrics.schema.json" },
   "backtests.json": { schema: "backtests_row.schema.json", optional: true },
+  "update_lag.json": { schema: "update_lag_row.schema.json", optional: true },
+  "spreading.json": { schema: "spreading_row.schema.json", optional: true },
   "metadata_catalog.json": { schema: null },
   "metadata_glossary.json": { schema: null },
   "metadata_lineage.json": { schema: null },

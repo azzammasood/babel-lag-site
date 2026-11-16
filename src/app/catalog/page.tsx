@@ -32,8 +32,10 @@ export default function CatalogPage() {
           <h3 style={{ marginTop: 0 }}>
             <V file={F} ptr={`/datasets/${i}/name`} as="raw" />{" "}
             <span className="small muted" style={{ fontWeight: 400 }}>
-              {d.layer} · {d.classification} · freshness: <V file={F} ptr={`/datasets/${i}/freshness_sla`} as="raw" />{" "}
-              · owner: {d.owner}
+              <V file={F} ptr={`/datasets/${i}/layer`} as="raw" /> ·{" "}
+              <V file={F} ptr={`/datasets/${i}/classification`} as="raw" /> · freshness:{" "}
+              <V file={F} ptr={`/datasets/${i}/freshness_sla`} as="raw" />{" "}
+              · owner: <V file={F} ptr={`/datasets/${i}/owner`} as="raw" />
             </span>
           </h3>
           <p style={{ marginBottom: 6 }}>

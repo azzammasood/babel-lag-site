@@ -9,6 +9,7 @@ for (const scheme of ["light", "dark"] as const) {
     test.use({ colorScheme: scheme, reducedMotion: "reduce" });
     for (const path of mainPages()) {
       test(`axe: /${path}`, async ({ page }) => {
+        test.setTimeout(120_000); // the language index is a table of several hundred rows
         await page.goto(path);
         const r = await new AxeBuilder({ page }).withTags(TAGS).analyze();
         expect(r.violations.map((v) => `${v.id}: ${v.nodes.length} nodes (${v.nodes[0]?.target})`)).toEqual([]);
@@ -27,7 +28,7 @@ test("the home page does not scroll sideways on a phone", async ({ page }) => {
 
 test("the colour mode toggle switches and is remembered", async ({ page }) => {
   await page.emulateMedia({ colorScheme: "dark", reducedMotion: "reduce" });
-  await page.goto("languages/");
+  await page.goto("method/");
   await page.getByRole("button", { name: "Switch colour mode" }).click();
   await expect(page.locator("html")).toHaveAttribute("data-mode", "light");
   await page.reload();

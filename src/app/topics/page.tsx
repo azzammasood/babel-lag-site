@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Names } from "@/components/Native";
-import { Empty, Page } from "@/components/Page";
+import { Page } from "@/components/Page";
+import { Spreading } from "@/components/Spreading";
 import { V } from "@/components/V";
 import { backtests, byItem, wikiLang } from "@/lib/data";
 
@@ -17,10 +18,10 @@ export default function Topics() {
       title="One topic, spreading"
       lede="For a single topic: the day its first article was written, and the day each other language caught up."
     >
-      <Empty title="Live topic tracking is not delivered.">
-        Following a brand-new topic across languages as it happens is not part of this release. The topics below are
-        past ones, chosen by the fixed rule on the Backtests page.
-      </Empty>
+      <h2 style={{ marginTop: 0 }}>Spreading now</h2>
+      <Spreading />
+      <h2>Past topics</h2>
+      <p className="muted">Chosen by the fixed rule on the Backtests page, with the wait of every language.</p>
       {items.length === 0 ? (
         <p className="muted" style={{ marginTop: 14 }}>
           No per-topic data has been published in the data this build was made from.

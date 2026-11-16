@@ -40,8 +40,11 @@ export default function Pipeline() {
       lede="Everything the pipeline reported about itself in its last run. Every figure on this page is read from pipeline_metrics.json or summed from live.json; nothing is estimated."
     >
       <p className="small muted">
-        Profile <b>{m.profile.produced_by}</b>
-        {m.profile.fallback ? " (fallback)" : ""} · reason: {m.profile.reason} · published{" "}
+        Profile{" "}
+        <b>
+          <V file={M} ptr="/profile/produced_by" as="raw" />
+        </b>
+        {m.profile.fallback ? " (fallback)" : ""} · reason: <V file={M} ptr="/profile/reason" as="raw" /> · published{" "}
         <V file={M} ptr="/freshness/published_at" as="date" /> UTC
       </p>
 
@@ -128,7 +131,9 @@ export default function Pipeline() {
       <div className="grid2">
         {m.engines.map((e, i) => (
           <div className={`card${e.active ? " on" : ""}`} key={e.name}>
-            <b>{e.name}</b>{" "}
+            <b>
+              <V file={M} ptr={`/engines/${i}/name`} as="raw" />
+            </b>{" "}
             <span className="muted">
               <V file={M} ptr={`/engines/${i}/version`} as="raw" />
             </span>
@@ -161,10 +166,13 @@ export default function Pipeline() {
           </thead>
           <tbody>
             {m.last_run.stages.map((s, i) => (
-              <tr key={s.stage}>
-                <td>{s.stage}</td>
+              <tr key={i}>
                 <td>
-                  {s.service} <V file={M} ptr={`/last_run/stages/${i}/version`} as="raw" />
+                  <V file={M} ptr={`/last_run/stages/${i}/stage`} as="raw" />
+                </td>
+                <td>
+                  <V file={M} ptr={`/last_run/stages/${i}/service`} as="raw" />{" "}
+                  <V file={M} ptr={`/last_run/stages/${i}/version`} as="raw" />
                 </td>
                 <td className="r">
                   <V file={M} ptr={`/last_run/stages/${i}/records_in`} />
@@ -178,7 +186,9 @@ export default function Pipeline() {
                 <td className="r">
                   <V file={M} ptr={`/last_run/stages/${i}/records_per_second`} as="f1" />
                 </td>
-                <td>{s.status}</td>
+                <td>
+                  <V file={M} ptr={`/last_run/stages/${i}/status`} as="raw" />
+                </td>
               </tr>
             ))}
           </tbody>
@@ -203,7 +213,10 @@ export default function Pipeline() {
                   <td>
                     <V file={M} ptr={`/history/runs/${i}/ended_at`} as="date" />
                   </td>
-                  <td>{r.status === "ok" ? "✓ ok" : `✕ ${r.status}`}</td>
+                  <td>
+                    {r.status === "ok" ? "✓ " : "✕ "}
+                    <V file={M} ptr={`/history/runs/${i}/status`} as="raw" />
+                  </td>
                   <td className="r">
                     <V file={M} ptr={`/history/runs/${i}/events`} />
                   </td>

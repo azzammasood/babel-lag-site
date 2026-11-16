@@ -38,7 +38,9 @@ export default function LineagePage() {
               {l.nodes.map((n, i) =>
                 n.layer === layer ? (
                   <li key={n.id}>
-                    <V file={F} ptr={`/nodes/${i}/id`} as="raw" /> <span className="muted">({n.kind})</span>
+                    <V file={F} ptr={`/nodes/${i}/id`} as="raw" /> <span className="muted">
+                      (<V file={F} ptr={`/nodes/${i}/kind`} as="raw" />)
+                    </span>
                   </li>
                 ) : null,
               )}

@@ -4,11 +4,12 @@ import { notFound } from "next/navigation";
 import { Names } from "@/components/Native";
 import { Empty, Page } from "@/components/Page";
 import { S, V } from "@/components/V";
-import { byLag, derived, languages } from "@/lib/data";
+import { byLag, derived, languages, updateLag } from "@/lib/data";
 import { english } from "@/lib/names";
 
 const F = "languages.json";
 const D = "derived.json";
+const U = "update_lag.json";
 type Props = { params: Promise<{ code: string }> };
 
 export function generateStaticParams() {
@@ -30,6 +31,8 @@ export default async function Language({ params }: Props) {
   const r = ranked[pos];
   if (!env || !r) notFound();
   const live = derived()?.by_wiki[r.wiki];
+  const ui = updateLag()?.rows.findIndex((x) => x.wiki === r.wiki) ?? -1;
+  const u = `/rows/${ui}`;
   const p = `/rows/${r.i}`;
   const w = `/by_wiki/${r.wiki}`;
   return (
@@ -101,6 +104,47 @@ export default async function Language({ params }: Props) {
         made in this language: Wikimedia publishes no search logs by language.
       </p>
 
+      {ui >= 0 ? (
+        <>
+          <h2>Update lag</h2>
+          <p className="muted">
+            When a topic suddenly gets a burst of edits in one language, does this language update its own article?
+            Measured for the twenty-language slice only (reference set:{" "}
+            <V file={U} ptr={`${u}/reference_set`} as="raw" />
+            ), so it is not comparable with the all-language figures above.
+          </p>
+          <div className="grid2">
+            <div className="stat">
+              <div className="v">
+                <V file={U} ptr={`${u}/median_follow_lag_days`} as="raw" /> days
+              </div>
+              <div className="k">
+                median time to follow, over only <V file={U} ptr={`${u}/items_followed`} /> followed events (a small
+                sample: read the two together)
+              </div>
+            </div>
+            <div className="stat">
+              <div className="v">
+                <V file={U} ptr={`${u}/updated_pct`} as="raw" />%
+              </div>
+              <div className="k">of events led or followed within thirty days</div>
+            </div>
+            <div className="stat">
+              <div className="v">
+                <V file={U} ptr={`${u}/items_with_event`} />
+              </div>
+              <div className="k">edit-burst events on topics this language already had an article for</div>
+            </div>
+            <div className="stat">
+              <div className="v">
+                <V file={U} ptr={`${u}/items_first`} />
+              </div>
+              <div className="k">events this language led (it burst on the first day)</div>
+            </div>
+          </div>
+        </>
+      ) : null}
+
       <h2>Live, over the measured window</h2>
       {live ? (
         <div className="grid2">
@@ -108,7 +152,9 @@ export default async function Language({ params }: Props) {
             <div className="v">
               <V file={D} ptr={`${w}/new_articles`} />
             </div>
-            <div className="k">new articles on {r.wiki}</div>
+            <div className="k">
+              new articles on <V file={F} ptr={`${p}/wiki`} as="raw" />
+            </div>
           </div>
           <div className="stat">
             <div className="v">
@@ -124,7 +170,7 @@ export default async function Language({ params }: Props) {
           </div>
         </div>
       ) : (
-        <Empty title="No live events measured.">The collector heard nothing from {r.wiki} in this window.</Empty>
+        <Empty title="No live events measured.">The collector heard nothing from <V file={F} ptr={`${p}/wiki`} as="raw" /> in this window.</Empty>
       )}
       <p className="key">Live figures are sums of the hourly rows of live.json for this wiki.</p>
 

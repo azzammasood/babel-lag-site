@@ -1,11 +1,11 @@
 {
  "metrics_version": "1.0",
- "generated_at": "2026-11-15T07:55:49.232959+00:00",
+ "generated_at": "2026-11-16T00:31:58.766719+00:00",
  "profile": {
-  "produced_by": "full",
-  "fallback": false,
-  "reason": "full healthy",
-  "run_id": "01a1de2b-1d71-7d56-b5ce-edac05849005"
+  "produced_by": "free",
+  "fallback": true,
+  "reason": "full job failed: RuntimeError: Lakeflow FAILED: ['Update e02e91 is FAILED.', 'Update f17082 is FAILED.', 'Update 3268a5 is FAILED.', 'Update 9505c0 is FAILED.', 'Update f4c686 is FAILED.']",
+  "run_id": "01a1e1b8-dfdd-7b12-8efd-994ae801f633"
  },
  "engines": [
   {
@@ -13,114 +13,121 @@
    "version": "0.1.0",
    "role": "versioned JSON export",
    "active": true,
-   "last_used": "2026-11-15T07:55:49.184918+00:00"
+   "last_used": "2026-11-16T00:31:58.717980+00:00"
   },
   {
    "name": "babel-profile",
    "version": "0.1.0",
    "role": "profile probe and fallback",
    "active": false,
-   "last_used": "2026-11-15T01:07:39.553259+00:00"
+   "last_used": "2026-11-15T20:41:52.939270+00:00"
   },
   {
    "name": "databricks",
-   "version": "unity-catalog",
+   "version": "lakeflow-serverless",
    "role": "Unity Catalog volume, Lakeflow pipeline and SQL warehouse (full)",
    "active": true,
-   "last_used": "2026-11-15T07:55:14.722595+00:00"
+   "last_used": "2026-11-16T00:26:38.026230+00:00"
   },
   {
    "name": "datacontract-cli",
    "version": "1.2.9",
    "role": "ODCS contract lint",
-   "active": false,
-   "last_used": "2026-11-15T01:07:38.965820+00:00"
+   "active": true,
+   "last_used": "2026-11-16T00:31:58.164939+00:00"
   },
   {
    "name": "dbt-databricks",
    "version": "1.13.0",
    "role": "dbt models and tests on Databricks (full)",
-   "active": true,
-   "last_used": "2026-11-15T07:55:43.857985+00:00"
+   "active": false,
+   "last_used": "2026-11-15T15:47:17.780043+00:00"
   },
   {
    "name": "dbt-duckdb",
    "version": "1.11.1",
    "role": "dbt models and tests on DuckDB (free)",
-   "active": false,
-   "last_used": "2026-11-15T01:07:24.294206+00:00"
+   "active": true,
+   "last_used": "2026-11-16T00:31:44.380967+00:00"
   },
   {
    "name": "delta-rs",
    "version": "1.6.6",
    "role": "Delta Lake writer for bronze, silver and gold (free)",
    "active": true,
-   "last_used": "2026-11-15T07:49:47.639500+00:00"
+   "last_used": "2026-11-16T00:30:07.719609+00:00"
   },
   {
    "name": "duckdb",
    "version": "2.0.0",
    "role": "core SQL engine (free)",
    "active": true,
-   "last_used": "2026-11-15T07:49:54.101031+00:00"
+   "last_used": "2026-11-16T00:30:18.798137+00:00"
   },
   {
    "name": "eventstreams-collector",
    "version": "0.1.0",
    "role": "live ingestion (async SSE, checkpoints, sanitizer)",
    "active": true,
-   "last_used": "2026-11-15T07:49:35.844401+00:00"
+   "last_used": "2026-11-16T00:30:00.154624+00:00"
   },
   {
    "name": "soda-core",
    "version": "3.5.6",
    "role": "data quality checks",
-   "active": false,
-   "last_used": "2026-11-15T01:07:28.024034+00:00"
+   "active": true,
+   "last_used": "2026-11-16T00:31:47.215812+00:00"
+  },
+  {
+   "name": "wikidata-api",
+   "version": "wbgetentities",
+   "role": "wikidata-api",
+   "active": true,
+   "last_used": "2026-11-16T00:31:35.230894+00:00"
   }
  ],
  "totals": {
-  "events": 4226255,
-  "bytes": 5791843575,
-  "files": 586,
+  "events": 7981300,
+  "bytes": 10879659055,
+  "files": 1092,
   "history_rows": null,
-  "wikis": 526,
+  "wikis": 594,
   "languages": 357,
   "date_range": {
    "start": "2026-11-14T09:21:18.027Z",
-   "end": "2026-11-15T07:49:34.183000+00:00"
+   "end": "2026-11-16T00:29:58.214000+00:00"
   }
  },
  "last_run": {
-  "run_id": "01a1de2b-1d71-7d56-b5ce-edac05849005",
-  "started_at": "2026-11-15T07:45:30.432928+00:00",
-  "ended_at": "2026-11-15T07:55:49.184918+00:00",
-  "status": "ok",
+  "run_id": "01a1e1b8-dfdd-7b12-8efd-994ae801f633",
+  "started_at": "2026-11-16T00:19:12.722128+00:00",
+  "ended_at": "2026-11-16T00:31:58.717980+00:00",
+  "status": "failed",
   "stages": [
    {
     "stage": "collect",
     "service": "eventstreams-collector",
     "version": "0.1.0",
-    "records_in": 1045744,
-    "records_out": 1045744,
-    "bytes_in": 1457757956,
-    "bytes_out": 462521102,
-    "seconds": 245.411,
-    "records_per_second": 4261.194,
-    "mb_per_second": 5.94,
+    "records_in": 687547,
+    "records_out": 687546,
+    "bytes_in": 941009754,
+    "bytes_out": 305088298,
+    "seconds": 156.322,
+    "records_per_second": 4398.268,
+    "mb_per_second": 6.02,
     "status": "ok"
    },
    {
     "stage": "bronze",
     "service": "delta-rs",
     "version": "1.6.6",
-    "records_in": 1045744,
-    "records_out": 1045744,
-    "bytes_in": 462521102,
+    "records_in": 687546,
+    "records_out": 687546,
+    "bytes_in": 305088298,
     "bytes_out": null,
-    "seconds": 11.794,
-    "records_per_second": 88667.458,
-    "mb_per_second": 39.217,
+    "seconds": 6.783,
+    "records_per_second": 101363.114,
+    "mb_per_second": 44.978,
     "status": "ok"
    },
    {
@@ -128,11 +135,24 @@
     "service": "duckdb",
     "version": "2.0.0",
     "records_in": null,
-    "records_out": 4239797,
+    "records_out": 7214649,
     "bytes_in": null,
     "bytes_out": null,
-    "seconds": 6.459,
-    "records_per_second": 656416.938,
+    "seconds": 9.948,
+    "records_per_second": 725236.128,
+    "mb_per_second": null,
+    "status": "ok"
+   },
+   {
+    "stage": "live_topics",
+    "service": "wikidata-api",
+    "version": "wbgetentities",
+    "records_in": null,
+    "records_out": 0,
+    "bytes_in": null,
+    "bytes_out": null,
+    "seconds": 169.565,
+    "records_per_second": 0.0,
     "mb_per_second": null,
     "status": "ok"
    },
@@ -141,12 +161,12 @@
     "service": "databricks",
     "version": "0.1.0",
     "records_in": null,
-    "records_out": 143,
+    "records_out": 93,
     "bytes_in": null,
-    "bytes_out": 462542004,
-    "seconds": 132.289,
-    "records_per_second": 1.081,
-    "mb_per_second": 3.496,
+    "bytes_out": 305109200,
+    "seconds": 89.975,
+    "records_per_second": 1.034,
+    "mb_per_second": 3.391,
     "status": "ok"
    },
    {
@@ -157,34 +177,99 @@
     "records_out": null,
     "bytes_in": null,
     "bytes_out": null,
-    "seconds": 106.674,
+    "seconds": 12.7,
     "records_per_second": null,
+    "mb_per_second": null,
+    "status": "failed"
+   },
+   {
+    "stage": "collect",
+    "service": "eventstreams-collector",
+    "version": "0.1.0",
+    "records_in": 790594,
+    "records_out": 790593,
+    "bytes_in": 1011087000,
+    "bytes_out": 327664693,
+    "seconds": 202.127,
+    "records_per_second": 3911.368,
+    "mb_per_second": 5.002,
+    "status": "ok"
+   },
+   {
+    "stage": "bronze",
+    "service": "delta-rs",
+    "version": "1.6.6",
+    "records_in": 790593,
+    "records_out": 790593,
+    "bytes_in": 327664693,
+    "bytes_out": null,
+    "seconds": 7.564,
+    "records_per_second": 104520.492,
+    "mb_per_second": 43.319,
+    "status": "ok"
+   },
+   {
+    "stage": "rollup",
+    "service": "duckdb",
+    "version": "2.0.0",
+    "records_in": null,
+    "records_out": 8005395,
+    "bytes_in": null,
+    "bytes_out": null,
+    "seconds": 11.077,
+    "records_per_second": 722704.252,
     "mb_per_second": null,
     "status": "ok"
    },
    {
-    "stage": "uc_metadata",
-    "service": "databricks",
-    "version": "unity-catalog",
+    "stage": "live_topics",
+    "service": "wikidata-api",
+    "version": "wbgetentities",
     "records_in": null,
-    "records_out": 12,
+    "records_out": null,
     "bytes_in": null,
     "bytes_out": null,
-    "seconds": 81.004,
-    "records_per_second": 0.148,
+    "seconds": 76.431,
+    "records_per_second": null,
     "mb_per_second": null,
-    "status": "ok"
+    "status": "failed"
    },
    {
     "stage": "dbt_build",
-    "service": "dbt-databricks",
-    "version": "1.13.0",
+    "service": "dbt-duckdb",
+    "version": "1.11.1",
     "records_in": null,
     "records_out": 2,
     "bytes_in": null,
     "bytes_out": null,
-    "seconds": 29.135,
-    "records_per_second": 0.069,
+    "seconds": 9.146,
+    "records_per_second": 0.219,
+    "mb_per_second": null,
+    "status": "ok"
+   },
+   {
+    "stage": "soda_scan",
+    "service": "soda-core",
+    "version": "3.5.6",
+    "records_in": null,
+    "records_out": 10,
+    "bytes_in": null,
+    "bytes_out": null,
+    "seconds": 2.8,
+    "records_per_second": 3.571,
+    "mb_per_second": null,
+    "status": "ok"
+   },
+   {
+    "stage": "contracts_lint",
+    "service": "datacontract-cli",
+    "version": "1.2.9",
+    "records_in": 19,
+    "records_out": 19,
+    "bytes_in": null,
+    "bytes_out": null,
+    "seconds": 10.948,
+    "records_per_second": 1.735,
     "mb_per_second": null,
     "status": "ok"
    },
@@ -193,21 +278,21 @@
     "service": "babel-export",
     "version": "0.1.0",
     "records_in": null,
-    "records_out": 7131,
+    "records_out": 11295,
     "bytes_in": null,
     "bytes_out": null,
-    "seconds": 5.296,
-    "records_per_second": 1346.488,
+    "seconds": 0.53,
+    "records_per_second": 21311.321,
     "mb_per_second": null,
     "status": "ok"
    }
   ]
  },
  "live": {
-  "window_start": "2026-11-15T06:45:00+00:00",
-  "window_end": "2026-11-15T07:45:00+00:00",
-  "events_per_second": 19.75,
-  "end_to_end_latency_s": 375.0,
+  "window_start": "2026-11-15T23:26:00+00:00",
+  "window_end": "2026-11-16T00:26:00+00:00",
+  "events_per_second": 29.31,
+  "end_to_end_latency_s": 120.6,
   "reconnects": 0,
   "consumer_lag": null
  },
@@ -250,10 +335,31 @@
    },
    {
     "run_id": "01a1de2b-1d71-7d56-b5ce-edac05849005",
-    "ended_at": "2026-11-15T07:55:49.184918+00:00",
+    "ended_at": "2026-11-15T07:55:49.588463+00:00",
     "status": "ok",
     "events": 1045744,
-    "seconds": 618.1
+    "seconds": 1237.7
+   },
+   {
+    "run_id": "01a1dfda-434a-7616-9163-06da0151395d",
+    "ended_at": "2026-11-15T15:47:22.965088+00:00",
+    "status": "ok",
+    "events": 1358817,
+    "seconds": 1302.5
+   },
+   {
+    "run_id": "01a1e0e9-8ec8-7815-89bc-0ddd720989ef",
+    "ended_at": "2026-11-15T20:41:52.939270+00:00",
+    "status": "failed",
+    "events": 819599,
+    "seconds": 1094.1
+   },
+   {
+    "run_id": "01a1e1b8-dfdd-7b12-8efd-994ae801f633",
+    "ended_at": "2026-11-16T00:31:58.717980+00:00",
+    "status": "failed",
+    "events": 790593,
+    "seconds": 765.9
    }
   ],
   "daily": [
@@ -264,18 +370,23 @@
    },
    {
     "day": "2026-11-15",
-    "events": 1845294,
-    "bytes": 2555441019
+    "events": 4122200,
+    "bytes": 5691159745
+   },
+   {
+    "day": "2026-11-16",
+    "events": 1478139,
+    "bytes": 1952096754
    }
   ]
  },
  "freshness": {
-  "latest_event_at": "2026-11-15T07:49:34.183000+00:00",
-  "published_at": "2026-11-15T07:55:49.232959+00:00",
-  "lag_s": 375.0
+  "latest_event_at": "2026-11-16T00:29:58.214000+00:00",
+  "published_at": "2026-11-16T00:31:58.766719+00:00",
+  "lag_s": 120.6
  },
  "quality": {
-  "checks_passed": 9,
+  "checks_passed": 38,
   "checks_failed": 0,
   "quarantined_rows": 0,
   "contract_violations": 0
@@ -286,8 +397,8 @@
   "free_quota_note": "Databricks Free Edition publishes no quota meter; GitHub Actions minutes are not metered per run here."
  },
  "lineage_summary": {
-  "nodes": 37,
-  "edges": 39,
+  "nodes": 50,
+  "edges": 54,
   "documented_pct": 100.0
  }
 }

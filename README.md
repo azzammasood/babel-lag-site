@@ -7,9 +7,9 @@ each language on Wikipedia, and which languages stay in the dark? The data pipel
 A static Next.js site (React, TypeScript, Tailwind) that renders **only** the published exports of
 the pipeline. Design: **Babel Tower** (concept 1 in `docs/design/options.md`), logo direction D.
 
-**Status:** built against a snapshot of the pipeline release `site-data` (profile `full`,
-357 languages, reference set `all`). Not published: `.github/workflows/deploy.yml` is manual only,
-and enabling GitHub Pages is the owner's decision.
+**Status:** live at <https://azzammasood.github.io/babel-lag-site/>. `.github/workflows/deploy.yml`
+rebuilds it from the pipeline release `site-data` every hour (and on demand); CI builds from the
+committed snapshot of that release.
 
 ## Pages
 
@@ -68,9 +68,9 @@ docs/screens/    screenshots of the built site
 
 ## Gaps (logged, not hidden)
 
-- `backtests.json` was not in the release when the snapshot was taken, so Backtests and Topics show
-  their empty state in CI builds. The pages were verified against a real local export.
-- Update lag and live tracking of single topics are not delivered by the pipeline; the site says so.
+- `update_lag.json` and `spreading.json` were not in the release when the snapshot was taken, so
+  CI builds show their "not published" states. Both were verified against real local exports.
+- The weekly written report is not delivered by the pipeline.
 - The metadata exports (catalog, glossary, lineage) have no published JSON Schema; they are only
   checked to be valid JSON.
 - Language names come from the runtime (Unicode CLDR through `Intl`); a few Wikipedia-only codes
