@@ -11,6 +11,7 @@ const LINKS: [string, string][] = [
   ["/pipeline/", "Pipeline Live"],
   ["/lineage/", "Lineage"],
   ["/catalog/", "Catalog"],
+  ["/report/", "Weekly report"],
   ["/method/", "Method and data"],
   ["/built/", "How it's built"],
 ];

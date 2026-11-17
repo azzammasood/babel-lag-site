@@ -19,107 +19,149 @@ export default function Method() {
       <div className="prose">
         <h2>Coverage lag</h2>
         <ul>
-          <li>A topic is a Wikidata item with at least one Wikipedia article linked to it.</li>
-          <li>An article&apos;s creation time is the time of its earliest revision in the history dump.</li>
           <li>
-            Left out: redirects, deleted pages, and pages whose first revision was made by a bot. Reverted edits are
-            left out of measures that use revisions.
+            A topic is a Wikidata item with at least one Wikipedia article
+            linked to it.
           </li>
           <li>
-            For each topic, the start is the earliest eligible article across the reference set. The lag for a
-            language is its article&apos;s creation time minus that start. Tied languages all count as first.
+            An article&apos;s creation time is the time of its earliest revision
+            in the history dump.
           </li>
           <li>
-            The median lag of a language is taken over topics that exist in two or more languages and that the
-            language covered after another one.
+            Left out: redirects, deleted pages, and pages whose first revision
+            was made by a bot. Reverted edits are left out of measures that use
+            revisions.
           </li>
           <li>
-            The reference set is recorded on every row: <S>slice20</S> (an early slice of twenty languages) or{" "}
-            <code>all</code> (every Wikipedia). The Languages page shows which one the current data uses. With a small
-            reference set, &quot;first&quot; means first among those languages, not first in the world.
+            For each topic, the start is the earliest eligible article across
+            the reference set. The lag for a language is its article&apos;s
+            creation time minus that start. Tied languages all count as first.
+          </li>
+          <li>
+            The median lag of a language is taken over topics that exist in two
+            or more languages and that the language covered after another one.
+          </li>
+          <li>
+            The reference set is recorded on every row: <S>slice20</S> (an early
+            slice of twenty languages) or <code>all</code> (every Wikipedia).
+            The Languages page shows which one the current data uses. With a
+            small reference set, &quot;first&quot; means first among those
+            languages, not first in the world.
           </li>
         </ul>
 
         <h2>Coverage depth</h2>
         <p>
-          For each topic and language: the current size of the article divided by the size of the topic&apos;s first
-          article. Per language, the median over topics it covered after another language. A ratio below one means
-          shorter articles than the first language&apos;s.
+          For each topic and language: the current size of the article divided
+          by the size of the topic&apos;s first article. Per language, the
+          median over topics it covered after another language. A ratio below
+          one means shorter articles than the first language&apos;s.
         </p>
 
         <h2>Demand without supply (a proxy)</h2>
         <p>
-          For a language, the human pageviews, in all languages, of reference topics that language has no eligible
-          article for. It measures interest in topics the language does not cover. It is not a count of searches made
-          in that language: Wikimedia publishes no search logs by language. Views of redirect titles are not counted.
+          For a language, the human pageviews, in all languages, of reference
+          topics that language has no eligible article for. It measures interest
+          in topics the language does not cover. It is not a count of searches
+          made in that language: Wikimedia publishes no search logs by language.
+          Views of redirect titles are not counted.
         </p>
 
         <h2>Backtests</h2>
         <p>
-          The rule was fixed before looking at results: the topics whose first eligible article was created between{" "}
-          <S>2020-01-01</S> and <S>2024-12-31</S> (UTC) and that exist in the most languages today, ties broken by
-          item number. For each, the creation lag of every language.
+          The rule was fixed before looking at results: the topics whose first
+          eligible article was created between <S>2020-01-01</S> and{" "}
+          <S>2024-12-31</S> (UTC) and that exist in the most languages today,
+          ties broken by item number. For each, the creation lag of every
+          language.
         </p>
 
         <h2>Live layer</h2>
         <ul>
           <li>
-            Events come from the Wikimedia EventStreams for every wiki, cleaned at ingestion: no usernames, no IP
-            addresses, no edit comments.
+            Events come from the Wikimedia EventStreams for every wiki, cleaned
+            at ingestion: no usernames, no IP addresses, no edit comments.
           </li>
-          <li>Duplicates are dropped on the event id. Late events are counted apart.</li>
           <li>
-            New articles are page creations in the article namespace that are not by bots and not redirects. Human
-            article edits are non-bot edits in the article namespace. The live layer has no revert signal yet.
+            Duplicates are dropped on the event id. Late events are counted
+            apart.
+          </li>
+          <li>
+            New articles are page creations in the article namespace that are
+            not by bots and not redirects. Human article edits are non-bot edits
+            in the article namespace. The live layer has no revert signal yet.
           </li>
         </ul>
 
         <h2>Privacy</h2>
         <p>
-          Editor names and IP addresses are dropped at ingestion. Everything published is an aggregate by language,
-          topic, wiki and time. No editor is named, ranked or profiled, and a test in the pipeline scans every
+          Editor names and IP addresses are dropped at ingestion. Everything
+          published is an aggregate by language, topic, wiki and time. No editor
+          is named, ranked or profiled, and a test in the pipeline scans every
           published file for names and addresses.
         </p>
 
         <h2>Update lag (twenty-language slice only)</h2>
         <ul>
           <li>
-            Daily series: human, non-reverted article edits per page and day, from <S>2024-11-01</S> to{" "}
-            <S>2026-10-31</S>.
+            Daily series: human, non-reverted article edits per page and day,
+            from <S>2024-11-01</S> to <S>2026-10-31</S>.
           </li>
           <li>
-            A burst is a day with at least <S>5</S> such edits and at least <S>3</S> times the usual active-day count
-            of the page. An event is the first burst of a multi-language topic in any language between{" "}
+            A burst is a day with at least <S>5</S> such edits and at least{" "}
+            <S>3</S> times the usual active-day count of the page. An event is
+            the first burst of a multi-language topic in any language between{" "}
             <S>2025-11-01</S> and <S>2026-10-31</S>.
           </li>
           <li>
-            For a language that already had the article: it <i>led</i> the event if it burst on the first day,{" "}
-            <i>followed</i> if it burst within <S>30</S> days, and otherwise did not update.
+            For a language that already had the article: it <i>led</i> the event
+            if it burst on the first day, <i>followed</i> if it burst within{" "}
+            <S>30</S> days, and otherwise did not update.
           </li>
           <li>
-            Daily series exist only for the slice languages, so these figures cover that slice and nothing else.
-            Follow counts are small: every median is shown with the number of events behind it.
+            Daily series exist only for the slice languages, so these figures
+            cover that slice and nothing else. Follow counts are small: every
+            median is shown with the number of events behind it.
           </li>
         </ul>
 
         <h2>Live topic tracking</h2>
         <ul>
           <li>
-            New articles (not by bots, not redirects) seen on the live stream in the last <S>48</S> hours are matched
-            to their topic through Wikidata.
+            New articles (not by bots, not redirects) seen on the live stream in
+            the last <S>48</S> hours are matched to their topic through
+            Wikidata.
           </li>
           <li>
-            Published: topics with new articles in two or more languages in that window, with the lag of each
-            language in hours after the first. An empty list is a valid answer.
+            Published: topics with new articles in two or more languages in that
+            window, with the lag of each language in hours after the first. An
+            empty list is a valid answer.
           </li>
           <li>
-            Limit: Wikidata is often linked hours after an article appears. Articles linked after the window, or
-            beyond the lookup budget of a run, are missed.
+            Limit: Wikidata is often linked hours after an article appears.
+            Articles linked after the window, or beyond the lookup budget of a
+            run, are missed.
           </li>
         </ul>
 
-        <h2>Not delivered</h2>
-        <p>The weekly written report is not delivered. Everything else described on this page is published.</p>
+        <h2>Weekly report</h2>
+        <ul>
+          <li>
+            Once a week a free AI model on OpenRouter writes a short summary
+            from numbers already in the exports. It computes nothing and costs
+            nothing (only free models are allowed).
+          </li>
+          <li>
+            Before publishing, every number in the text is checked against those
+            numbers, every language code must be one of them, and any ranking
+            (largest, shortest, longest) must come from a list the pipeline
+            computed. A text that fails any check is thrown away and nothing is
+            published.
+          </li>
+          <li>
+            The report page labels the text as AI-written and names the model.
+          </li>
+        </ul>
 
         <h2>Glossary</h2>
         {g ? (
@@ -138,7 +180,9 @@ export default function Method() {
             ))}
           </dl>
         ) : (
-          <p className="muted">The glossary export is unavailable in this build.</p>
+          <p className="muted">
+            The glossary export is unavailable in this build.
+          </p>
         )}
 
         <h2>Sources and licences</h2>
@@ -151,13 +195,16 @@ export default function Method() {
             </li>
           ))}
           <li>
-            <a href="https://stream.wikimedia.org/v2/stream/">Wikimedia EventStreams</a> (recent changes, revision
-            creations, page creations)
+            <a href="https://stream.wikimedia.org/v2/stream/">
+              Wikimedia EventStreams
+            </a>{" "}
+            (recent changes, revision creations, page creations)
           </li>
         </ul>
         <p>
-          Wikidata and the Wikimedia dumps are released under CC<S>0</S>. Babel Lag is not affiliated with or endorsed
-          by the Wikimedia Foundation. The full method, with the SQL it refers to, is in the{" "}
+          Wikidata and the Wikimedia dumps are released under CC<S>0</S>. Babel
+          Lag is not affiliated with or endorsed by the Wikimedia Foundation.
+          The full method, with the SQL it refers to, is in the{" "}
           <a href={`${PIPE}/blob/main/docs/method.md`}>pipeline repository</a>.
         </p>
       </div>

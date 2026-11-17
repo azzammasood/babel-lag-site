@@ -10,6 +10,7 @@ import type {
   LanguageRow,
   Lineage,
   Metrics,
+  ReportRow,
   SpreadingRow,
   UpdateLagRow,
 } from "./types";
@@ -37,6 +38,7 @@ export const languages = () => load<Envelope<LanguageRow>>("languages.json");
 export const backtests = () => load<Envelope<BacktestRow>>("backtests.json");
 export const updateLag = () => load<Envelope<UpdateLagRow>>("update_lag.json");
 export const spreading = () => load<Envelope<SpreadingRow>>("spreading.json");
+export const report = () => load<Envelope<ReportRow>>("report.json");
 export const derived = () => load<Derived>("derived.json");
 export const metrics = () => load<Metrics>("pipeline_metrics.json");
 export const catalog = () => load<Catalog>("metadata_catalog.json");

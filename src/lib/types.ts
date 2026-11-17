@@ -2,7 +2,12 @@ export type Source = { name: string; url: string; terms: string };
 export type Envelope<T> = {
   dataset: string;
   generated_at: string;
-  produced_by: { profile: string; fallback: boolean; run_id: string; babel_version: string };
+  produced_by: {
+    profile: string;
+    fallback: boolean;
+    run_id: string;
+    babel_version: string;
+  };
   window: { start: string | null; end: string | null };
   sources: Source[];
   corrections: string;
@@ -60,9 +65,18 @@ export type Derived = {
   hourly: HourRow[];
   peak_hour_events: number;
   totals: Record<string, number>;
-  by_wiki: Record<string, Omit<HourRow, "hour" | "wikis_active"> & { wiki: string }>;
+  by_wiki: Record<
+    string,
+    Omit<HourRow, "hour" | "wikis_active"> & { wiki: string }
+  >;
 };
-export type Engine = { name: string; version: string; role: string; active: boolean; last_used: string | null };
+export type Engine = {
+  name: string;
+  version: string;
+  role: string;
+  active: boolean;
+  last_used: string | null;
+};
 export type Stage = {
   stage: string;
   service: string;
@@ -73,18 +87,42 @@ export type Stage = {
   records_per_second: number | null;
   status: string;
 };
-export type Run = { run_id: string; ended_at: string; status: string; events: number | null; seconds: number | null };
+export type Run = {
+  run_id: string;
+  ended_at: string;
+  status: string;
+  events: number | null;
+  seconds: number | null;
+};
 export type Metrics = {
   generated_at: string;
-  profile: { produced_by: string; fallback: boolean; reason: string; run_id: string };
+  profile: {
+    produced_by: string;
+    fallback: boolean;
+    reason: string;
+    run_id: string;
+  };
   engines: Engine[];
   totals: Record<string, unknown>;
-  last_run: { run_id: string; started_at: string; ended_at: string; status: string; stages: Stage[] };
+  last_run: {
+    run_id: string;
+    started_at: string;
+    ended_at: string;
+    status: string;
+    stages: Stage[];
+  };
   live: Record<string, number | string | null>;
-  history: { runs: Run[]; daily: { day: string; events: number; bytes: number }[] };
+  history: {
+    runs: Run[];
+    daily: { day: string; events: number; bytes: number }[];
+  };
   freshness: Record<string, number | string | null>;
   quality: Record<string, number | null>;
-  cost: { usd: number; free_quota_use_pct: number | null; free_quota_note: string };
+  cost: {
+    usd: number;
+    free_quota_use_pct: number | null;
+    free_quota_note: string;
+  };
   lineage_summary: { nodes: number; edges: number; documented_pct: number };
 };
 export type Column = { name: string; type?: string; description?: string };
@@ -110,4 +148,13 @@ export type Lineage = {
   nodes: { id: string; kind: string; layer: string }[];
   edges: { from: string; to: string }[];
   columns: { to: string; from: string[] }[];
+};
+
+export type ReportRow = {
+  text: string;
+  model: string;
+  facts_sha: string;
+  facts_date: string;
+  ai_generated: true;
+  numbers_validated: true;
 };

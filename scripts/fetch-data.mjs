@@ -37,6 +37,7 @@ const FILES = {
   "backtests.json": { schema: "backtests_row.schema.json", optional: true },
   "update_lag.json": { schema: "update_lag_row.schema.json", optional: true },
   "spreading.json": { schema: "spreading_row.schema.json", optional: true },
+  "report.json": { schema: "report_row.schema.json", optional: true },
   "metadata_catalog.json": { schema: null },
   "metadata_glossary.json": { schema: null },
   "metadata_lineage.json": { schema: null },
