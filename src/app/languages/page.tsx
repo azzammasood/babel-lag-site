@@ -2,11 +2,23 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Names } from "@/components/Native";
 import { Page, Unavailable } from "@/components/Page";
+import { Searchable, type SortOption } from "@/components/Searchable";
 import { V } from "@/components/V";
 import { byLag, languages } from "@/lib/data";
+import { english, native } from "@/lib/names";
 
 export const metadata: Metadata = { title: "Languages" };
 const F = "languages.json";
+
+const SORTS: SortOption[] = [
+  { value: "lag-asc", label: "Shortest wait first", key: "lag", dir: 1 },
+  { value: "lag-desc", label: "Longest wait first", key: "lag", dir: -1 },
+  { value: "cov-desc", label: "Most covered first", key: "cov", dir: -1 },
+  { value: "cov-asc", label: "Least covered first", key: "cov", dir: 1 },
+  { value: "depth-desc", label: "Deepest articles first", key: "depth", dir: -1 },
+  { value: "demand-desc", label: "Most unmet demand first", key: "demand", dir: -1 },
+  { value: "name", label: "Name, A to Z", key: "name", dir: 1, text: true },
+];
 
 export default function Languages() {
   const env = languages();
@@ -25,8 +37,8 @@ export default function Languages() {
             <V file={F} ptr="/rows/0/reference_set" as="raw" /> · generated{" "}
             <V file={F} ptr="/generated_at" as="date" /> UTC
           </p>
-          <div className="scroll">
-            <table>
+          <Searchable label="Languages table" placeholder="Search by name or code" sorts={SORTS}>
+            <table className="sticky">
               <thead>
                 <tr>
                   <th>Language</th>
@@ -40,7 +52,16 @@ export default function Languages() {
               </thead>
               <tbody>
                 {byLag(env.rows).map((r) => (
-                  <tr key={r.language}>
+                  <tr
+                    key={r.language}
+                    data-row=""
+                    data-search={`${english(r.language)} ${native(r.language)} ${r.language}`}
+                    data-s-lag={r.median_lag_days}
+                    data-s-cov={r.coverage_pct}
+                    data-s-depth={r.median_depth_ratio ?? ""}
+                    data-s-demand={r.demand_without_supply ?? ""}
+                    data-s-name={english(r.language)}
+                  >
                     <td>
                       <Link href={`/languages/${r.language}/`}>
                         <Names code={r.language} />
@@ -68,7 +89,7 @@ export default function Languages() {
                 ))}
               </tbody>
             </table>
-          </div>
+          </Searchable>
         </>
       )}
       <p className="key">

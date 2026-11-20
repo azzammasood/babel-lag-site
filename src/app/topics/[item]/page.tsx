@@ -3,7 +3,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Names } from "@/components/Native";
 import { Page } from "@/components/Page";
+import { Searchable } from "@/components/Searchable";
 import { V } from "@/components/V";
+import { english, native } from "@/lib/names";
 import { backtests, byItem, wikiLang } from "@/lib/data";
 
 const F = "backtests.json";
@@ -48,8 +50,8 @@ export default async function Topic({ params }: Props) {
         <a href={`https://www.wikidata.org/wiki/Q${first.item_id}`}>See what this topic is on Wikidata</a>. Titles are
         not part of the export, so the topic is shown by its item number.
       </p>
-      <div className="scroll">
-        <table>
+      <Searchable label="Languages for this topic" placeholder="Search languages" height="min(64vh, 560px)">
+        <table className="sticky">
           <thead>
             <tr>
               <th>Language</th>
@@ -60,7 +62,11 @@ export default async function Topic({ params }: Props) {
           </thead>
           <tbody>
             {g.map((r) => (
-              <tr key={r.wiki}>
+              <tr
+                key={r.wiki}
+                data-row=""
+                data-search={`${english(wikiLang(r.wiki))} ${native(wikiLang(r.wiki))} ${wikiLang(r.wiki)}`}
+              >
                 <td>
                   <Link href={`/languages/${wikiLang(r.wiki)}/`}>
                     <Names code={wikiLang(r.wiki)} />
@@ -81,7 +87,7 @@ export default async function Topic({ params }: Props) {
             ))}
           </tbody>
         </table>
-      </div>
+      </Searchable>
       <p className="key">
         Lag is the article&apos;s creation time minus the first article&apos;s. The bar is the lag relative to the
         longest on this page.

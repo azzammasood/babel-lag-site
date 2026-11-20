@@ -1,101 +1,154 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { box, depth, easeOut, fitCanvas, onTheme, prefersReducedMotion, readTokens, rgba, shade, tint, visibleLoop, type View } from "@/lib/iso";
 
-const STEP = 0.4;
+const STEP = 0.4; // seconds per measured hour
 const HOLD = 5;
+const SPACING = 27;
+const SIDE = 20;
+const MAXH = 240;
 
-// The live stream as brickwork: one 3D column per measured hour, laid in order.
-// `heights` are px, already scaled from the measured events; `labels` name each hour.
+// The live stream as brickwork on a canvas: one column per measured hour, laid in order.
+// `heights` are 0..1 of the busiest hour; `labels` name each hour.
 export function HourColumns({ heights, labels, label }: { heights: number[]; labels: string[]; label: string }) {
   const n = heights.length;
-  const world = useRef<HTMLDivElement>(null);
-  const clock = useRef({ t0: null as number | null, at: 0, paused: false });
-  const [k, setK] = useState(n - 1); // server render and reduced motion: every column laid
+  const canvas = useRef<HTMLCanvasElement>(null);
+  const out = useRef<HTMLOutputElement>(null);
+  const ctl = useRef({ playing: true, replay: () => {}, toggle: () => {} });
   const [paused, setPaused] = useState(false);
   const [moving, setMoving] = useState(false);
 
   useEffect(() => {
-    const fit = () => {
-      const st = world.current?.parentElement;
-      if (st && world.current) world.current.style.setProperty("--sc", Math.min(1, st.clientWidth / (n * 27 + 120)).toFixed(3));
+    const c = canvas.current;
+    const ctx = c?.getContext("2d");
+    if (!c || !ctx || n === 0) return;
+    const reduced = prefersReducedMotion();
+    let tk = readTokens();
+    let e = reduced ? n * STEP : 0;
+    let k = reduced ? n - 1 : -1;
+    const placed = new Float64Array(n).fill(-1e9);
+    let clock = 0;
+    const order = heights.map((_, i) => i);
+
+    const draw = () => {
+      const [w, h] = fitCanvas(c, ctx);
+      ctx.clearRect(0, 0, w, h);
+      const rowW = n * SPACING;
+      const yaw = -0.5;
+      const pitch = 0.5;
+      const sc = Math.min(1, (w - 30) / (rowW * Math.abs(Math.cos(yaw)) + SIDE * 2), (h - 30) / (MAXH * Math.cos(pitch) + rowW * Math.abs(Math.sin(yaw)) * Math.sin(pitch)));
+      const v: View = { cx: w / 2, cy: h * 0.5 + (MAXH * Math.cos(pitch) * sc) / 2, sc, yaw, pitch };
+      const x = (i: number) => (i - (n - 1) / 2) * SPACING;
+      order.sort((a, b) => depth(v, x(a), 0) - depth(v, x(b), 0));
+      const top = rgba(tint(tk.data, 0.15));
+      const sideA = rgba(shade(tk.data, 0.12));
+      const sideB = rgba(shade(tk.data, 0.3));
+      for (const i of order) {
+        if (i > k) continue;
+        const grow = reduced ? 1 : easeOut((clock - placed[i]!) / 0.35);
+        const hh = Math.max(2, heights[i]! * MAXH) * grow;
+        const cur = i === k && !reduced;
+        box(
+          ctx,
+          v,
+          x(i),
+          0,
+          SIDE,
+          SIDE,
+          0,
+          hh,
+          cur ? rgba(tint(tk.accent, 0.1)) : top,
+          cur ? rgba(shade(tk.accent, 0.12)) : sideA,
+          cur ? rgba(shade(tk.accent, 0.28)) : sideB,
+        );
+      }
     };
-    fit();
-    addEventListener("resize", fit);
-    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return () => removeEventListener("resize", fit);
+
+    const frame = (dt: number) => {
+      if (!ctl.current.playing) return false;
+      clock += dt;
+      e += dt;
+      if (e > n * STEP + HOLD) {
+        e = 0;
+        k = -1;
+        placed.fill(-1e9);
+      }
+      const next = Math.min(n - 1, Math.floor(e / STEP));
+      while (k < next) {
+        k++;
+        placed[k] = clock;
+        if (out.current) out.current.textContent = labels[k] ?? "";
+      }
+      draw();
+      return true;
+    };
+
+    const ro = new ResizeObserver(() => draw());
+    ro.observe(c);
+    const offTheme = onTheme(() => {
+      tk = readTokens();
+      draw();
+    });
+    if (reduced) {
+      draw();
+      return () => {
+        ro.disconnect();
+        offTheme();
+      };
+    }
     // eslint-disable-next-line react-hooks/set-state-in-effect -- motion is only known in the browser
     setMoving(true);
-    let raf = 0;
-    const tick = (now: number) => {
-      const c = clock.current;
-      if (!c.paused) {
-        if (c.t0 === null) c.t0 = now;
-        let e = (now - c.t0) / 1000;
-        if (e > n * STEP + HOLD) {
-          c.t0 = now;
-          e = 0;
-        }
-        c.at = e;
-        const next = Math.min(n - 1, Math.floor(e / STEP));
-        setK((p) => (p === next ? p : next));
-      }
-      raf = requestAnimationFrame(tick);
+    const loop = visibleLoop(c, frame);
+    ctl.current.replay = () => {
+      e = 0;
+      k = -1;
+      placed.fill(-1e9);
+      ctl.current.playing = true;
+      loop.start();
     };
-    raf = requestAnimationFrame(tick);
+    ctl.current.toggle = () => {
+      ctl.current.playing = !ctl.current.playing;
+      if (ctl.current.playing) loop.start();
+    };
+    loop.start();
     return () => {
-      cancelAnimationFrame(raf);
-      removeEventListener("resize", fit);
+      loop.stop();
+      ro.disconnect();
+      offTheme();
     };
-  }, [n]);
-
-  const replay = () => {
-    clock.current.t0 = null;
-    clock.current.paused = false;
-    setPaused(false);
-  };
-  const toggle = () => {
-    const c = clock.current;
-    c.paused = !c.paused;
-    if (!c.paused) c.t0 = performance.now() - c.at * 1000;
-    setPaused(c.paused);
-  };
+  }, [heights, labels, n]);
 
   return (
     <>
       <div className="ctl" data-static="">
         {moving ? (
           <>
-            <button type="button" onClick={replay}>
+            <button
+              type="button"
+              onClick={() => {
+                ctl.current.replay();
+                setPaused(false);
+              }}
+            >
               Replay
             </button>
-            <button type="button" onClick={toggle}>
+            <button
+              type="button"
+              aria-pressed={paused}
+              onClick={() => {
+                ctl.current.toggle();
+                setPaused(!ctl.current.playing);
+              }}
+            >
               {paused ? "Play" : "Pause"}
             </button>
           </>
         ) : null}
-        <output>{labels[k]}</output>
+        <output ref={out}>{labels[n - 1]}</output>
         <span>replay of the measured hours, oldest first; not a live feed</span>
       </div>
-      <div className="stage low" role="img" aria-label={label}>
-        <div className="stage3d" aria-hidden="true" style={{ perspectiveOrigin: "50% 20%" }}>
-          <div className="world flat" ref={world}>
-            <div className="ground" />
-            {heights.map((h, i) => (
-              <div
-                key={i}
-                className={`col3${i <= k ? " in" : ""}${i === k && moving ? " new" : ""}`}
-                style={{ transform: `translate3d(${(i - (n - 1) / 2) * 27}px,${-h / 2}px,0)` }}
-              >
-                <div className="bx" style={{ "--w": "20px", "--h": `${h}px`, "--d": "20px" } as React.CSSProperties}>
-                  <i className="fr" />
-                  <i className="bk" />
-                  <i className="lf" />
-                  <i className="rt" />
-                  <i className="tp" />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+      <div className="stage low">
+        <canvas ref={canvas} role="img" aria-label={label} />
       </div>
     </>
   );

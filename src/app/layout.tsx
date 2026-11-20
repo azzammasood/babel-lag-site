@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Fraunces, Work_Sans } from "next/font/google";
 import Link from "next/link";
 import { Nav } from "@/components/Nav";
+import { RouteTransitions } from "@/components/RouteTransitions";
 import { languages } from "@/lib/data";
 import "./globals.css";
 
@@ -16,8 +17,9 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = { width: "device-width", initialScale: 1 };
 
-// Applied before paint: the saved colour mode.
-const boot = `(function(d){try{var m=localStorage.getItem("babel-mode");if(m)d.dataset.mode=m}catch(e){}})(document.documentElement)`;
+// Applied before paint: the saved colour mode, and `vt` when the View Transitions API exists
+// (the CSS fallback entry animation is used only without it).
+const boot = `(function(d){try{var m=localStorage.getItem("babel-mode");if(m)d.dataset.mode=m}catch(e){}if(document.startViewTransition)d.classList.add("vt")})(document.documentElement)`;
 
 const FALLBACK_SOURCES = [
   { name: "Wikimedia EventStreams", url: "https://stream.wikimedia.org/v2/stream/" },
@@ -37,6 +39,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           Skip to content
         </a>
         <Nav />
+        <RouteTransitions />
         <main id="main">{children}</main>
         <footer className="site">
           <div className="wrap">

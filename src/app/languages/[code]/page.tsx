@@ -29,6 +29,8 @@ export default async function Language({ params }: Props) {
   const ranked = env ? byLag(env.rows) : [];
   const pos = ranked.findIndex((r) => r.language === code);
   const r = ranked[pos];
+  const prev = pos > 0 ? ranked[pos - 1] : undefined;
+  const next = ranked[pos + 1];
   if (!env || !r) notFound();
   const live = derived()?.by_wiki[r.wiki];
   const ui = updateLag()?.rows.findIndex((x) => x.wiki === r.wiki) ?? -1;
@@ -174,9 +176,31 @@ export default async function Language({ params }: Props) {
       )}
       <p className="key">Live figures are sums of the hourly rows of live.json for this wiki.</p>
 
-      <p style={{ marginTop: 18 }}>
-        <Link href="/languages/">All languages</Link>
-      </p>
+      <nav className="prevnext" aria-label="Neighbouring floors of the tower">
+        {prev ? (
+          <Link href={`/languages/${prev.language}/`} rel="prev">
+            <span className="small muted">One floor down, shorter wait</span>
+            <span>
+              ← <Names code={prev.language} />
+            </span>
+          </Link>
+        ) : (
+          <span />
+        )}
+        <Link href="/languages/" className="all">
+          All languages
+        </Link>
+        {next ? (
+          <Link href={`/languages/${next.language}/`} rel="next" className="nx">
+            <span className="small muted">One floor up, longer wait</span>
+            <span>
+              <Names code={next.language} /> →
+            </span>
+          </Link>
+        ) : (
+          <span />
+        )}
+      </nav>
     </Page>
   );
 }

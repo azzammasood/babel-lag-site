@@ -47,6 +47,13 @@ export default function Pipeline() {
         {m.profile.fallback ? " (fallback)" : ""} · reason: <V file={M} ptr="/profile/reason" as="raw" /> · published{" "}
         <V file={M} ptr="/freshness/published_at" as="date" /> UTC
       </p>
+      <nav className="toc" aria-label="On this page">
+        <a href="#stream">Live stream</a>
+        <a href="#services">Services</a>
+        <a href="#last-run">Last run</a>
+        <a href="#history">Run history</a>
+        <a href="#quality">Quality</a>
+      </nav>
 
       <div className="grid2">
         <Stat k="events per second in the last measured window">
@@ -78,16 +85,16 @@ export default function Pipeline() {
         Quota: <V file={M} ptr="/cost/free_quota_note" as="raw" />
       </p>
 
-      <h2>The live stream, one column per measured hour</h2>
+      <h2 id="stream">The live stream, one column per measured hour</h2>
       {d && d.hourly.length ? (
         <>
           <HourColumns
-            heights={d.hourly.map((h) => Math.round(8 + (230 * h.events) / (peak || 1)))}
+            heights={d.hourly.map((h) => h.events / (peak || 1))}
             labels={d.hourly.map((h) => `${FMT.hour(h.hour)} UTC`)}
             label="Columns of events per measured hour, oldest first. The same values are in the table below."
           />
-          <div className="scroll">
-            <table>
+          <div className="scrollbox" tabIndex={0} role="region" aria-label="Events per measured hour" style={{ maxHeight: 420 }}>
+            <table className="sticky">
               <thead>
                 <tr>
                   <th>Hour (UTC)</th>
@@ -123,7 +130,7 @@ export default function Pipeline() {
         <Unavailable file="live.json" />
       )}
 
-      <h2>Services</h2>
+      <h2 id="services">Services</h2>
       <p className="muted">
         Each service the pipeline can use, and whether it ran in the last measured run. A tool is listed only with
         evidence that it ran at some point.
@@ -150,7 +157,7 @@ export default function Pipeline() {
         ))}
       </div>
 
-      <h2>Last run</h2>
+      <h2 id="last-run">Last run</h2>
       <div className="scroll">
         <table>
           <thead>
@@ -195,9 +202,9 @@ export default function Pipeline() {
         </table>
       </div>
 
-      <h2>Run history</h2>
-      <div className="scroll">
-        <table>
+      <h2 id="history">Run history</h2>
+      <div className="scrollbox" tabIndex={0} role="region" aria-label="Run history" style={{ maxHeight: 360 }}>
+        <table className="sticky">
           <thead>
             <tr>
               <th>Run ended (UTC)</th>
@@ -230,7 +237,7 @@ export default function Pipeline() {
         </table>
       </div>
 
-      <h2>Quality and freshness</h2>
+      <h2 id="quality">Quality and freshness</h2>
       <div className="grid2">
         <Stat k="rows quarantined">
           <V file={M} ptr="/quality/quarantined_rows" />

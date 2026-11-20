@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { Page, Unavailable } from "@/components/Page";
+import { Searchable } from "@/components/Searchable";
 import { V } from "@/components/V";
 import { catalog } from "@/lib/data";
 
 export const metadata: Metadata = { title: "Catalog" };
 const F = "metadata_catalog.json";
+const LAYERS = ["source", "landing", "bronze", "silver", "gold", "dbt", "export"];
 
 export default function CatalogPage() {
   const c = catalog();
@@ -27,8 +29,20 @@ export default function CatalogPage() {
         %) · <V file={F} ptr="/datasets" as="len" /> datasets · generated <V file={F} ptr="/generated_at" as="date" />{" "}
         UTC
       </p>
+      <Searchable
+        label="Datasets"
+        placeholder="Search datasets and descriptions"
+        facets={LAYERS.filter((l) => c.datasets.some((d) => d.layer === l)).map((l) => ({ value: l, label: l === "dbt" ? "dbt" : l[0]!.toUpperCase() + l.slice(1) }))}
+      >
       {c.datasets.map((d, i) => (
-        <div className="card" key={d.name} style={{ marginBottom: 10 }}>
+        <div
+          className="card"
+          key={d.name}
+          style={{ marginBottom: 10 }}
+          data-row=""
+          data-facet={d.layer}
+          data-search={`${d.name} ${d.description} ${d.layer} ${d.physical}`}
+        >
           <h3 style={{ marginTop: 0 }}>
             <V file={F} ptr={`/datasets/${i}/name`} as="raw" />{" "}
             <span className="small muted" style={{ fontWeight: 400 }}>
@@ -83,6 +97,7 @@ export default function CatalogPage() {
           ) : null}
         </div>
       ))}
+      </Searchable>
     </Page>
   );
 }

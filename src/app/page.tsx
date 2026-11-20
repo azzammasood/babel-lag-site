@@ -45,26 +45,29 @@ export default function Now() {
 
   return (
     <div className="wrap page">
-      <p className="eyebrow">Now</p>
-      <h1>
-        The tower of Babel, built at the speed knowledge <em>actually</em> travels.
-      </h1>
-      <p className="lede">
-        A new topic gets its first Wikipedia article at year <S>0</S>. Each language adds its floor when the median
-        topic reaches it, and the area of the floor is the share of topics that language covers. The first floor
-        is {english(fast.language)}, after <V file={F} ptr={`/rows/${fast.i}/median_lag_days`} as="years" /> years;
-        the last is {english(slow.language)}, after <V file={F} ptr={`/rows/${slow.i}/median_lag_days`} as="years" />{" "}
-        years.
-      </p>
-      <p className="small muted">
-        Profile{" "}
-        <b>
-          <V file={F} ptr="/produced_by/profile" as="raw" />
-        </b> · generated <V file={F} ptr="/generated_at" as="date" /> UTC ·{" "}
-        <V file={F} ptr="/row_count" as="raw" /> languages
-      </p>
-
       <Tower
+        intro={
+          <>
+            <p className="eyebrow">Now</p>
+            <h1>
+              The tower of Babel, built at the speed knowledge <em>actually</em> travels.
+            </h1>
+            <p className="lede">
+              A new topic gets its first Wikipedia article at year <S>0</S>. Each language adds its floor when the median
+              topic reaches it, and the area of the floor is the share of topics that language covers. The first floor
+              is {english(fast.language)}, after <V file={F} ptr={`/rows/${fast.i}/median_lag_days`} as="years" /> years;
+              the last is {english(slow.language)}, after <V file={F} ptr={`/rows/${slow.i}/median_lag_days`} as="years" />{" "}
+              years.
+            </p>
+            <p className="small muted">
+              Profile{" "}
+              <b>
+                <V file={F} ptr="/produced_by/profile" as="raw" />
+              </b> · generated <V file={F} ptr="/generated_at" as="date" /> UTC ·{" "}
+              <V file={F} ptr="/row_count" as="raw" /> languages
+            </p>
+          </>
+        }
         floors={floors}
         yrMax={yrMax}
         label={`A tower of ${rows.length} floors, one per language, placed in order of median lag from ${english(fast.language)} at the base to ${english(slow.language)} at the top; the area of each floor is that language's coverage. Every value is in the table on the Languages page.`}

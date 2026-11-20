@@ -1,149 +1,225 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { box, easeOut, fitCanvas, mix, onTheme, prefersReducedMotion, readTokens, rgba, shade, tint, visibleLoop, type View } from "@/lib/iso";
 
 export type Floor = {
   lagY: number; // median lag in years: when the floor is placed (1 second = 1 year)
-  size: number; // px side of the square floor; its area follows coverage
+  size: number; // side of the square floor in world units; its area follows coverage
   log: React.ReactNode;
 };
 
-const HOLD = 6;
+const HOLD = 6; // seconds the finished tower stands before the build replays
 const WINDOW = 14; // log lines shown: the most recent arrivals
+const DROP = 0.45; // seconds a new floor takes to settle
+const PITCH = 0.42;
 
-// The Babel tower: one floor per language, placed when the clock reaches its median lag.
-// The clock is the only thing that changes what is shown; the slow turn is so the shape can be read.
+// The Babel tower on a canvas: one floor per language, placed when the clock reaches its median
+// lag. Nothing is React state per frame: the clock, the count and the log are written directly,
+// the loop pauses when the tower is off screen or the tab is hidden, and reduced motion draws the
+// finished tower once.
 export function Tower({
   floors,
   yrMax,
   label,
+  intro,
   children,
 }: {
+  intro?: React.ReactNode;
   floors: Floor[];
   yrMax: number;
   label: string;
   children?: React.ReactNode;
 }) {
   const n = floors.length;
-  // Floor height shrinks with the number of languages so the whole tower fits the stage.
-  const fh = Math.max(1.6, Math.min(27, 540 / Math.max(1, n)));
-  const world = useRef<HTMLDivElement>(null);
+  const canvas = useRef<HTMLCanvasElement>(null);
   const out = useRef<HTMLOutputElement>(null);
-  const clock = useRef({ t0: null as number | null, at: 0, paused: false });
-  // Server render and reduced motion: the finished tower.
-  const [built, setBuilt] = useState(n);
+  const count = useRef<HTMLSpanElement>(null);
+  const caption = useRef<HTMLParagraphElement>(null);
+  const items = useRef<(HTMLLIElement | null)[]>([]);
+  const ctl = useRef({ playing: true, replay: () => {}, toggle: () => {} });
   const [paused, setPaused] = useState(false);
   const [moving, setMoving] = useState(false);
 
   useEffect(() => {
-    const fit = () => {
-      const st = world.current?.parentElement;
-      if (st && world.current) {
-        const sc = Math.min(1, st.clientWidth / 640, st.clientHeight / (n * fh + 190));
-        world.current.style.setProperty("--sc", sc.toFixed(3));
+    const c = canvas.current;
+    const ctx = c?.getContext("2d");
+    if (!c || !ctx) return;
+    const reduced = prefersReducedMotion();
+    let tk = readTokens();
+    const fh = Math.max(1.6, Math.min(27, 540 / Math.max(1, n)));
+    const gap = fh > 5 ? 1.5 : 0;
+    const maxSide = Math.max(...floors.map((f) => f.size));
+    const placed = new Float64Array(n).fill(-1e9);
+    let t = reduced ? yrMax : 0;
+    let k = reduced ? n : 0;
+    let yaw = 0.6;
+    let clock = 0;
+
+    const setLog = (kk: number, newest: number) => {
+      items.current.forEach((li, i) => {
+        if (!li) return;
+        li.hidden = i >= kk || i < kk - WINDOW;
+        li.classList.toggle("new", i === newest);
+      });
+      if (count.current) count.current.textContent = `${kk} of ${n} floors built`;
+      if (caption.current) {
+        caption.current.textContent =
+          kk >= n ? "The last floors placed (longest waits)" : "Latest floors placed";
       }
     };
-    fit();
-    addEventListener("resize", fit);
-    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return () => removeEventListener("resize", fit);
+
+    const draw = () => {
+      const [w, h] = fitCanvas(c, ctx);
+      ctx.clearRect(0, 0, w, h);
+      const half = (maxSide / 2) * Math.SQRT2;
+      const towerH = n * fh;
+      const sc = Math.min((w - 32) / (2 * half), (h - 40) / (towerH * Math.cos(PITCH) + 2 * half * Math.sin(PITCH)));
+      const v: View = { cx: w / 2, cy: h - 20 - half * sc * Math.sin(PITCH), sc, yaw, pitch: PITCH };
+      // ground shadow
+      const g = ctx.createRadialGradient(v.cx, v.cy, 0, v.cx, v.cy, half * sc * 1.15);
+      g.addColorStop(0, rgba(tk.text, 0.22));
+      g.addColorStop(1, rgba(tk.text, 0));
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.ellipse(v.cx, v.cy, half * sc * 1.15, half * sc * 1.15 * Math.sin(PITCH), 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      const base = mix(tk.surface, tk.accent, 0.38);
+      const top = rgba(tint(base, 0.12));
+      const sideA = rgba(shade(base, 0.16));
+      const sideB = rgba(shade(base, 0.3));
+      const hot = tk.accent;
+      for (let i = 0; i < k; i++) {
+        const f = floors[i]!;
+        const age = (clock - placed[i]!) / DROP;
+        const drop = reduced ? 0 : (1 - easeOut(age)) * 160;
+        const fresh = !reduced && age < 2.4;
+        box(
+          ctx,
+          v,
+          0,
+          0,
+          f.size,
+          f.size,
+          i * fh + drop,
+          Math.max(0.8, fh - gap),
+          fresh ? rgba(tint(hot, 0.1)) : top,
+          fresh ? rgba(shade(hot, 0.12)) : sideA,
+          fresh ? rgba(shade(hot, 0.28)) : sideB,
+        );
+      }
+    };
+
+    const frame = (dt: number) => {
+      if (!ctl.current.playing) return false;
+      clock += dt;
+      t += dt;
+      if (t > yrMax + HOLD) {
+        t = 0;
+        k = 0;
+        placed.fill(-1e9);
+      }
+      const shown = Math.min(t, yrMax);
+      let kk = k;
+      while (kk < n && shown >= floors[kk]!.lagY) {
+        placed[kk] = clock;
+        kk++;
+      }
+      if (kk !== k) {
+        k = kk;
+        setLog(k, k < n ? k - 1 : -1);
+      }
+      yaw += dt * 0.12;
+      if (out.current) out.current.textContent = `Year ${shown.toFixed(1)}`;
+      draw();
+      return true;
+    };
+
+    const ro = new ResizeObserver(() => draw());
+    ro.observe(c);
+    const offTheme = onTheme(() => {
+      tk = readTokens();
+      draw();
+    });
+    if (reduced) {
+      setLog(n, -1);
+      draw();
+      return () => {
+        ro.disconnect();
+        offTheme();
+      };
+    }
     // eslint-disable-next-line react-hooks/set-state-in-effect -- motion is only known in the browser
     setMoving(true);
-    let raf = 0;
-    const tick = (now: number) => {
-      const c = clock.current;
-      if (!c.paused) {
-        if (c.t0 === null) c.t0 = now;
-        let e = (now - c.t0) / 1000;
-        if (e > yrMax + HOLD) {
-          c.t0 = now;
-          e = 0;
-        }
-        c.at = e;
-        const t = Math.min(yrMax, e);
-        let k = 0;
-        while (k < n && t >= floors[k]!.lagY) k++; // floors are ordered by lag
-        setBuilt((p) => (p === k ? p : k));
-        if (out.current) out.current.textContent = `Year ${t.toFixed(1)}`;
-        if (world.current) {
-          world.current.style.transform = `scale(var(--sc, 1)) rotateX(-14deg) rotateY(${(28 + (now / 1000) * 7).toFixed(2)}deg)`;
-        }
-      }
-      raf = requestAnimationFrame(tick);
+    setLog(0, -1);
+    const loop = visibleLoop(c, frame);
+    ctl.current.replay = () => {
+      t = 0;
+      k = 0;
+      placed.fill(-1e9);
+      setLog(0, -1);
+      ctl.current.playing = true;
+      loop.start();
     };
-    raf = requestAnimationFrame(tick);
+    ctl.current.toggle = () => {
+      ctl.current.playing = !ctl.current.playing;
+      if (ctl.current.playing) loop.start();
+    };
+    loop.start();
     return () => {
-      cancelAnimationFrame(raf);
-      removeEventListener("resize", fit);
+      loop.stop();
+      ro.disconnect();
+      offTheme();
     };
-  }, [floors, yrMax, n, fh]);
+  }, [floors, yrMax, n]);
 
   const replay = () => {
-    clock.current.t0 = null;
-    clock.current.paused = false;
+    ctl.current.replay();
     setPaused(false);
   };
   const toggle = () => {
-    const c = clock.current;
-    c.paused = !c.paused;
-    if (!c.paused) c.t0 = performance.now() - c.at * 1000;
-    setPaused(c.paused);
+    ctl.current.toggle();
+    setPaused(!ctl.current.playing);
   };
-  const done = built >= n;
-  const newest = done ? -1 : built - 1;
 
   return (
-    <>
+    <div className="tower-hero">
+      <div className="th-text">
+      {intro}
       <div className="ctl" data-static="">
         {moving ? (
           <>
             <button type="button" onClick={replay}>
               Replay
             </button>
-            <button type="button" onClick={toggle}>
+            <button type="button" onClick={toggle} aria-pressed={paused}>
               {paused ? "Play" : "Pause"}
             </button>
           </>
         ) : null}
         <output ref={out}>Year {yrMax.toFixed(1)}</output>
         <span>
-          {built} of {n} floors built · 1 second = 1 year of median lag
+          <span ref={count}>
+            {n} of {n} floors built
+          </span>{" "}
+          · 1 second = 1 year of median lag
         </span>
       </div>
-      <div className="split">
-        <div className="stage" role="img" aria-label={label}>
-          <div className="stage3d" aria-hidden="true">
-            <div className="world" ref={world}>
-              <div className="ground" />
-              {floors.map((f, i) => (
-                <div
-                  key={i}
-                  className={`fl3${i < built ? " in" : ""}${i === newest ? " new" : ""}`}
-                  style={{ "--y": `${(-(i * fh + fh / 2)).toFixed(2)}px` } as React.CSSProperties}
-                >
-                  <div
-                    className="bx"
-                    style={
-                      { "--w": `${f.size}px`, "--h": `${(fh > 8 ? fh - 2 : fh).toFixed(2)}px`, "--d": `${f.size}px` } as React.CSSProperties
-                    }
-                  >
-                    <i className="fr" />
-                    <i className="bk" />
-                    <i className="lf" />
-                    <i className="rt" />
-                    <i className="tp" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
         <div className="logbox">
-          <p className="small muted" style={{ margin: "0 0 6px" }}>
-            {done ? "The last floors placed (longest waits)" : "Latest floors placed"}
+          <p className="small muted" style={{ margin: "0 0 6px" }} ref={caption}>
+            The last floors placed (longest waits)
           </p>
           <ol className="log" aria-label="Most recent floors, newest first">
             {floors
               .map((f, i) => (
-                <li key={i} hidden={i >= built || i < built - WINDOW} className={`in${i === newest ? " new" : ""}`}>
+                <li
+                  key={i}
+                  ref={(el) => {
+                    items.current[i] = el;
+                  }}
+                  hidden={i < n - WINDOW}
+                  className="in"
+                >
                   {f.log}
                 </li>
               ))
@@ -152,6 +228,9 @@ export function Tower({
           {children}
         </div>
       </div>
-    </>
+      <div className="stage tall">
+        <canvas ref={canvas} role="img" aria-label={label} />
+      </div>
+    </div>
   );
 }

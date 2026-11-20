@@ -15,11 +15,14 @@ committed snapshot of that release.
 
 | Page | Shows | State |
 | --- | --- | --- |
-| Now (`/`) | The tower: one floor per language, placed at its median lag, with a floor area that follows its coverage | data |
-| Languages, `/languages/<code>/` | The index and one page per language | data |
+| Now (`/`) | The tower (canvas): one floor per language, placed at its median lag, with a floor area that follows its coverage; live topic tracking | data |
+| Languages, `/languages/<code>/` | The index (search, sort, bounded scroll) and one page per language, with its neighbours in the tower | data |
 | Pipeline Live | Totals, rate, latency, cost, services, last run, run history, hourly stream | data |
-| Lineage, Catalog | The static metadata exports | data |
-| Method and data, How it's built, The maker, Corrections | Text, glossary, tools with evidence | text and data |
+| Lineage | An interactive graph of `metadata_lineage.json` (pan, zoom, upstream and downstream highlight, details), with tables as a fallback | data |
+| Catalog | Every dataset, with search and layer filters | data |
+| How it's built | An architecture diagram of the tools that really ran (Simple Icons logos, bundled) | text |
+| Weekly report | The AI-written report, labelled, numbers traced to `report.json` | data |
+| Method and data, The maker, Corrections | Method, glossary; the maker's page in the first person, with marked placeholders | text and data |
 | Backtests, Topics, `/topics/<item>/` | The backtest topics and each one's spread by language, from `backtests.json` | data once published (empty state until then) |
 
 ## Rules the site keeps
@@ -31,8 +34,10 @@ committed snapshot of that release.
 - **Nothing is filled in.** A file that fails its schema is left out and the page says the data is
   unavailable. A missing value shows as "not measured".
 - **Motion follows the data.** The tower builds at one second per year of median lag; Pipeline Live
-  replays the measured hours. Reduced motion shows the finished state. Nothing follows the cursor
-  or the scroll position.
+  replays the measured hours. Both draw on a canvas, pause off screen and in hidden tabs, and cap the
+  pixel ratio at 2. Page changes and the colour mode switch animate with the View Transitions API
+  (a CSS fade without it). Reduced motion turns all of it off. Nothing follows the cursor or the
+  scroll position.
 - **Accessibility:** axe (WCAG 2.2 AA) on the main pages in light and dark; the tower has a text
   description and the same values as a list.
 

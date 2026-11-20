@@ -1,11 +1,11 @@
 {
  "metrics_version": "1.0",
- "generated_at": "2026-11-16T00:31:58.766719+00:00",
+ "generated_at": "2026-11-20T08:45:39.254154+00:00",
  "profile": {
   "produced_by": "free",
-  "fallback": true,
-  "reason": "full job failed: RuntimeError: Lakeflow FAILED: ['Update e02e91 is FAILED.', 'Update f17082 is FAILED.', 'Update 3268a5 is FAILED.', 'Update 9505c0 is FAILED.', 'Update f4c686 is FAILED.']",
-  "run_id": "01a1e1b8-dfdd-7b12-8efd-994ae801f633"
+  "fallback": false,
+  "reason": "requested",
+  "run_id": "01a1f81d-b787-75cd-9272-c1e13eca7382"
  },
  "engines": [
   {
@@ -13,28 +13,28 @@
    "version": "0.1.0",
    "role": "versioned JSON export",
    "active": true,
-   "last_used": "2026-11-16T00:31:58.717980+00:00"
+   "last_used": "2026-11-20T08:45:39.128841+00:00"
   },
   {
    "name": "babel-profile",
    "version": "0.1.0",
    "role": "profile probe and fallback",
    "active": false,
-   "last_used": "2026-11-15T20:41:52.939270+00:00"
+   "last_used": "2026-11-20T07:06:24.875085+00:00"
   },
   {
    "name": "databricks",
    "version": "lakeflow-serverless",
    "role": "Unity Catalog volume, Lakeflow pipeline and SQL warehouse (full)",
-   "active": true,
-   "last_used": "2026-11-16T00:26:38.026230+00:00"
+   "active": false,
+   "last_used": "2026-11-19T00:24:47.189805+00:00"
   },
   {
    "name": "datacontract-cli",
    "version": "1.2.9",
    "role": "ODCS contract lint",
    "active": true,
-   "last_used": "2026-11-16T00:31:58.164939+00:00"
+   "last_used": "2026-11-20T08:45:38.229331+00:00"
   },
   {
    "name": "dbt-databricks",
@@ -48,86 +48,86 @@
    "version": "1.11.1",
    "role": "dbt models and tests on DuckDB (free)",
    "active": true,
-   "last_used": "2026-11-16T00:31:44.380967+00:00"
+   "last_used": "2026-11-20T08:45:21.267679+00:00"
   },
   {
    "name": "delta-rs",
    "version": "1.6.6",
    "role": "Delta Lake writer for bronze, silver and gold (free)",
    "active": true,
-   "last_used": "2026-11-16T00:30:07.719609+00:00"
+   "last_used": "2026-11-20T08:42:41.014371+00:00"
   },
   {
    "name": "duckdb",
    "version": "2.0.0",
    "role": "core SQL engine (free)",
    "active": true,
-   "last_used": "2026-11-16T00:30:18.798137+00:00"
+   "last_used": "2026-11-20T08:42:56.861899+00:00"
   },
   {
    "name": "eventstreams-collector",
    "version": "0.1.0",
    "role": "live ingestion (async SSE, checkpoints, sanitizer)",
    "active": true,
-   "last_used": "2026-11-16T00:30:00.154624+00:00"
+   "last_used": "2026-11-20T08:42:35.739626+00:00"
   },
   {
    "name": "soda-core",
    "version": "3.5.6",
    "role": "data quality checks",
    "active": true,
-   "last_used": "2026-11-16T00:31:47.215812+00:00"
+   "last_used": "2026-11-20T08:45:24.429825+00:00"
   },
   {
    "name": "wikidata-api",
    "version": "wbgetentities",
    "role": "wikidata-api",
    "active": true,
-   "last_used": "2026-11-16T00:31:35.230894+00:00"
+   "last_used": "2026-11-20T08:45:10.845735+00:00"
   }
  ],
  "totals": {
-  "events": 7981300,
-  "bytes": 10879659055,
-  "files": 1092,
+  "events": 28283788,
+  "bytes": 39214361872,
+  "files": 3679,
   "history_rows": null,
-  "wikis": 594,
+  "wikis": 645,
   "languages": 357,
   "date_range": {
-   "start": "2026-11-14T09:21:18.027Z",
-   "end": "2026-11-16T00:29:58.214000+00:00"
+   "start": "2026-11-14T09:15:00+00:00",
+   "end": "2026-11-20T08:42:27.824000+00:00"
   }
  },
  "last_run": {
-  "run_id": "01a1e1b8-dfdd-7b12-8efd-994ae801f633",
-  "started_at": "2026-11-16T00:19:12.722128+00:00",
-  "ended_at": "2026-11-16T00:31:58.717980+00:00",
+  "run_id": "01a1f81d-b787-75cd-9272-c1e13eca7382",
+  "started_at": "2026-11-20T08:40:59.531765+00:00",
+  "ended_at": "2026-11-20T08:45:39.128841+00:00",
   "status": "failed",
   "stages": [
    {
     "stage": "collect",
     "service": "eventstreams-collector",
     "version": "0.1.0",
-    "records_in": 687547,
-    "records_out": 687546,
-    "bytes_in": 941009754,
-    "bytes_out": 305088298,
-    "seconds": 156.322,
-    "records_per_second": 4398.268,
-    "mb_per_second": 6.02,
+    "records_in": 303524,
+    "records_out": 303524,
+    "bytes_in": 422937149,
+    "bytes_out": 137954894,
+    "seconds": 96.208,
+    "records_per_second": 3154.873,
+    "mb_per_second": 4.396,
     "status": "ok"
    },
    {
     "stage": "bronze",
     "service": "delta-rs",
     "version": "1.6.6",
-    "records_in": 687546,
-    "records_out": 687546,
-    "bytes_in": 305088298,
+    "records_in": 303524,
+    "records_out": 303524,
+    "bytes_in": 137954894,
     "bytes_out": null,
-    "seconds": 6.783,
-    "records_per_second": 101363.114,
-    "mb_per_second": 44.978,
+    "seconds": 5.274,
+    "records_per_second": 57551.005,
+    "mb_per_second": 26.158,
     "status": "ok"
    },
    {
@@ -135,89 +135,11 @@
     "service": "duckdb",
     "version": "2.0.0",
     "records_in": null,
-    "records_out": 7214649,
+    "records_out": 8581791,
     "bytes_in": null,
     "bytes_out": null,
-    "seconds": 9.948,
-    "records_per_second": 725236.128,
-    "mb_per_second": null,
-    "status": "ok"
-   },
-   {
-    "stage": "live_topics",
-    "service": "wikidata-api",
-    "version": "wbgetentities",
-    "records_in": null,
-    "records_out": 0,
-    "bytes_in": null,
-    "bytes_out": null,
-    "seconds": 169.565,
-    "records_per_second": 0.0,
-    "mb_per_second": null,
-    "status": "ok"
-   },
-   {
-    "stage": "databricks_upload",
-    "service": "databricks",
-    "version": "0.1.0",
-    "records_in": null,
-    "records_out": 93,
-    "bytes_in": null,
-    "bytes_out": 305109200,
-    "seconds": 89.975,
-    "records_per_second": 1.034,
-    "mb_per_second": 3.391,
-    "status": "ok"
-   },
-   {
-    "stage": "lakeflow",
-    "service": "databricks",
-    "version": "lakeflow-serverless",
-    "records_in": null,
-    "records_out": null,
-    "bytes_in": null,
-    "bytes_out": null,
-    "seconds": 12.7,
-    "records_per_second": null,
-    "mb_per_second": null,
-    "status": "failed"
-   },
-   {
-    "stage": "collect",
-    "service": "eventstreams-collector",
-    "version": "0.1.0",
-    "records_in": 790594,
-    "records_out": 790593,
-    "bytes_in": 1011087000,
-    "bytes_out": 327664693,
-    "seconds": 202.127,
-    "records_per_second": 3911.368,
-    "mb_per_second": 5.002,
-    "status": "ok"
-   },
-   {
-    "stage": "bronze",
-    "service": "delta-rs",
-    "version": "1.6.6",
-    "records_in": 790593,
-    "records_out": 790593,
-    "bytes_in": 327664693,
-    "bytes_out": null,
-    "seconds": 7.564,
-    "records_per_second": 104520.492,
-    "mb_per_second": 43.319,
-    "status": "ok"
-   },
-   {
-    "stage": "rollup",
-    "service": "duckdb",
-    "version": "2.0.0",
-    "records_in": null,
-    "records_out": 8005395,
-    "bytes_in": null,
-    "bytes_out": null,
-    "seconds": 11.077,
-    "records_per_second": 722704.252,
+    "seconds": 15.845,
+    "records_per_second": 541608.772,
     "mb_per_second": null,
     "status": "ok"
    },
@@ -229,7 +151,7 @@
     "records_out": null,
     "bytes_in": null,
     "bytes_out": null,
-    "seconds": 76.431,
+    "seconds": 133.98,
     "records_per_second": null,
     "mb_per_second": null,
     "status": "failed"
@@ -242,8 +164,8 @@
     "records_out": 2,
     "bytes_in": null,
     "bytes_out": null,
-    "seconds": 9.146,
-    "records_per_second": 0.219,
+    "seconds": 10.415,
+    "records_per_second": 0.192,
     "mb_per_second": null,
     "status": "ok"
    },
@@ -255,8 +177,8 @@
     "records_out": 10,
     "bytes_in": null,
     "bytes_out": null,
-    "seconds": 2.8,
-    "records_per_second": 3.571,
+    "seconds": 3.121,
+    "records_per_second": 3.204,
     "mb_per_second": null,
     "status": "ok"
    },
@@ -268,8 +190,8 @@
     "records_out": 19,
     "bytes_in": null,
     "bytes_out": null,
-    "seconds": 10.948,
-    "records_per_second": 1.735,
+    "seconds": 13.798,
+    "records_per_second": 1.377,
     "mb_per_second": null,
     "status": "ok"
    },
@@ -278,21 +200,21 @@
     "service": "babel-export",
     "version": "0.1.0",
     "records_in": null,
-    "records_out": 11295,
+    "records_out": 13297,
     "bytes_in": null,
     "bytes_out": null,
-    "seconds": 0.53,
-    "records_per_second": 21311.321,
+    "seconds": 0.872,
+    "records_per_second": 15248.853,
     "mb_per_second": null,
     "status": "ok"
    }
   ]
  },
  "live": {
-  "window_start": "2026-11-15T23:26:00+00:00",
-  "window_end": "2026-11-16T00:26:00+00:00",
-  "events_per_second": 29.31,
-  "end_to_end_latency_s": 120.6,
+  "window_start": "2026-11-20T07:40:00+00:00",
+  "window_end": "2026-11-20T08:40:00+00:00",
+  "events_per_second": 21.47,
+  "end_to_end_latency_s": 191.4,
   "reconnects": 0,
   "consumer_lag": null
  },
@@ -356,10 +278,164 @@
    },
    {
     "run_id": "01a1e1b8-dfdd-7b12-8efd-994ae801f633",
-    "ended_at": "2026-11-16T00:31:58.717980+00:00",
+    "ended_at": "2026-11-16T00:31:59.139298+00:00",
     "status": "failed",
     "events": 790593,
-    "seconds": 765.9
+    "seconds": 1533.1
+   },
+   {
+    "run_id": "01a1e332-740c-7767-9939-86c551a87399",
+    "ended_at": "2026-11-16T07:20:21.582165+00:00",
+    "status": "ok",
+    "events": 1077565,
+    "seconds": 1048.6
+   },
+   {
+    "run_id": "01a1e561-d484-706e-a86f-2d832666f473",
+    "ended_at": "2026-11-16T17:26:24.965356+00:00",
+    "status": "ok",
+    "events": 64631,
+    "seconds": 456.8
+   },
+   {
+    "run_id": "01a1e705-641b-7647-9796-0017749fc695",
+    "ended_at": "2026-11-17T01:19:44.955748+00:00",
+    "status": "ok",
+    "events": 2822564,
+    "seconds": 2264.1
+   },
+   {
+    "run_id": "01a1e8be-7235-74b9-8262-f76b617124c2",
+    "ended_at": "2026-11-17T09:11:03.213045+00:00",
+    "status": "ok",
+    "events": 917871,
+    "seconds": 1010.7
+   },
+   {
+    "run_id": "01a1ea45-78c9-722f-a795-85ba4b489119",
+    "ended_at": "2026-11-17T16:23:08.419428+00:00",
+    "status": "ok",
+    "events": 2021654,
+    "seconds": 1608.5
+   },
+   {
+    "run_id": "01a1eac2-77b8-7d15-a899-81af8101be3e",
+    "ended_at": "2026-11-17T18:39:50.773716+00:00",
+    "status": "failed",
+    "events": 768497,
+    "seconds": 1628.8
+   },
+   {
+    "run_id": "01a1ebda-ee81-7371-bc47-80582cdeab86",
+    "ended_at": "2026-11-17T23:40:03.810380+00:00",
+    "status": "ok",
+    "events": 985418,
+    "seconds": 894.8
+   },
+   {
+    "run_id": "01a1ec38-ccbb-7647-acdb-360f87a54f66",
+    "ended_at": "2026-11-18T01:20:24.318670+00:00",
+    "status": "ok",
+    "events": 278489,
+    "seconds": 632.4
+   },
+   {
+    "run_id": "01a1ecf7-110b-7135-b7f6-0746c23f3fc5",
+    "ended_at": "2026-11-18T04:50:18.529686+00:00",
+    "status": "ok",
+    "events": 605012,
+    "seconds": 882.2
+   },
+   {
+    "run_id": "01a1ede4-bcfa-740b-846e-ffbf1fad92e5",
+    "ended_at": "2026-11-18T09:10:53.756570+00:00",
+    "status": "ok",
+    "events": 1112371,
+    "seconds": 1000.5
+   },
+   {
+    "run_id": "01a1efce-536c-783e-bd4f-2a8bb28305ed",
+    "ended_at": "2026-11-18T18:09:14.845906+00:00",
+    "status": "ok",
+    "events": 1778408,
+    "seconds": 1431.2
+   },
+   {
+    "run_id": "01a1f096-2685-7200-9acb-d9ed0a016196",
+    "ended_at": "2026-11-18T21:39:29.497500+00:00",
+    "status": "ok",
+    "events": 101394,
+    "seconds": 469.4
+   },
+   {
+    "run_id": "01a1f127-6023-7838-9557-e450080feb86",
+    "ended_at": "2026-11-19T00:30:27.031303+00:00",
+    "status": "failed",
+    "events": 484606,
+    "seconds": 1948.3
+   },
+   {
+    "run_id": "01a1f1b4-5d2e-77e0-8e01-16e89b6340a5",
+    "ended_at": "2026-11-19T02:54:07.008792+00:00",
+    "status": "ok",
+    "events": 446287,
+    "seconds": 709.7
+   },
+   {
+    "run_id": "01a1f2c9-4147-722a-83a6-309cba017d67",
+    "ended_at": "2026-11-19T07:59:41.650942+00:00",
+    "status": "ok",
+    "events": 873279,
+    "seconds": 1086.4
+   },
+   {
+    "run_id": "01a1f36c-65c6-7ad8-aa6e-932fff498566",
+    "ended_at": "2026-11-19T10:54:02.565141+00:00",
+    "status": "failed",
+    "events": 281000,
+    "seconds": 624.8
+   },
+   {
+    "run_id": "01a1f4cf-ed29-7aa0-8f6a-9491ce7fc3ea",
+    "ended_at": "2026-11-19T17:26:42.355848+00:00",
+    "status": "ok",
+    "events": 1451409,
+    "seconds": 1144.5
+   },
+   {
+    "run_id": "01a1f53a-09a0-791e-9729-910f106d2510",
+    "ended_at": "2026-11-19T19:15:48.284746+00:00",
+    "status": "failed",
+    "events": 154536,
+    "seconds": 328.2
+   },
+   {
+    "run_id": "01a1f634-2dbc-79bb-8add-220fc0583055",
+    "ended_at": "2026-11-19T23:54:59.126244+00:00",
+    "status": "ok",
+    "events": 1026922,
+    "seconds": 1043.4
+   },
+   {
+    "run_id": "01a1f688-f211-71c9-a9a1-e0185b589a97",
+    "ended_at": "2026-11-20T01:22:53.070202+00:00",
+    "status": "failed",
+    "events": 253300,
+    "seconds": 480.6
+   },
+   {
+    "run_id": "01a1f7c0-b73d-799c-ad85-9f9307f825d6",
+    "ended_at": "2026-11-20T07:06:24.875085+00:00",
+    "status": "ok",
+    "events": 812154,
+    "seconds": 839.8
+   },
+   {
+    "run_id": "01a1f81d-b787-75cd-9272-c1e13eca7382",
+    "ended_at": "2026-11-20T08:45:39.128841+00:00",
+    "status": "failed",
+    "events": 303524,
+    "seconds": 279.5
    }
   ],
   "daily": [
@@ -375,15 +451,35 @@
    },
    {
     "day": "2026-11-16",
-    "events": 1478139,
-    "bytes": 1952096754
+    "events": 2620335,
+    "bytes": 3556220913
+   },
+   {
+    "day": "2026-11-17",
+    "events": 7955214,
+    "bytes": 11095105372
+   },
+   {
+    "day": "2026-11-18",
+    "events": 3875674,
+    "bytes": 5462274411
+   },
+   {
+    "day": "2026-11-19",
+    "events": 5960426,
+    "bytes": 8240052262
+   },
+   {
+    "day": "2026-11-20",
+    "events": 1368978,
+    "bytes": 1933146613
    }
   ]
  },
  "freshness": {
-  "latest_event_at": "2026-11-16T00:29:58.214000+00:00",
-  "published_at": "2026-11-16T00:31:58.766719+00:00",
-  "lag_s": 120.6
+  "latest_event_at": "2026-11-20T08:42:27.824000+00:00",
+  "published_at": "2026-11-20T08:45:39.254154+00:00",
+  "lag_s": 191.4
  },
  "quality": {
   "checks_passed": 38,
