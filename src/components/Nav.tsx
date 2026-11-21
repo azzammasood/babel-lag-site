@@ -18,6 +18,11 @@ const LINKS: [string, string][] = [
 ];
 
 type VT = { ready: Promise<void>; finished: Promise<void> };
+
+// Three themes, in the order the button walks through them.
+const NEXT: Record<string, string> = { babel: "dark", dark: "light", light: "babel" };
+const LABEL: Record<string, string> = { babel: "Babel", dark: "Dark", light: "Light" };
+const ICON: Record<string, string> = { babel: "babel", dark: "moon", light: "sun" };
 type DocVT = Document & { startViewTransition?: (cb: () => void) => VT };
 
 export function Nav() {
@@ -32,17 +37,14 @@ export function Nav() {
   }
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- reads the mode the boot script applied
-    setMode(
-      document.documentElement.dataset.mode ??
-        (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"),
-    );
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- reads the theme the boot script applied
+    setMode(document.documentElement.dataset.mode ?? "babel");
   }, []);
 
   // Theme switch: a circular reveal from the button through a view transition; a short colour
   // fade where view transitions are missing; instant under reduced motion.
   const toggle = (e: React.MouseEvent<HTMLButtonElement>) => {
-    const next = mode === "dark" ? "light" : "dark";
+    const next = NEXT[mode ?? "babel"] ?? "dark";
     const root = document.documentElement;
     const apply = () => {
       root.dataset.mode = next;
@@ -109,9 +111,15 @@ export function Nav() {
           })}
         </ul>
       </nav>
-      <button type="button" className="mode" onClick={toggle} aria-label="Switch colour mode">
-        <span className={`mode-icon ${mode === "dark" ? "moon" : "sun"}`} aria-hidden="true" />
-        <span className="mode-label">{mode === "dark" ? "Light" : "Dark"}</span>
+      <button
+        type="button"
+        className="mode"
+        onClick={toggle}
+        aria-label={`Colour theme: ${LABEL[mode ?? "babel"]}. Switch to ${LABEL[NEXT[mode ?? "babel"] ?? "dark"]}`}
+        title="Switch theme: Babel, Dark, Light"
+      >
+        <span className={`mode-icon ${ICON[mode ?? "babel"] ?? "babel"}`} aria-hidden="true" />
+        <span className="mode-label">{LABEL[mode ?? "babel"]}</span>
       </button>
     </header>
   );

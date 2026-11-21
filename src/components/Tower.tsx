@@ -19,8 +19,10 @@ export type Floor = {
   lagY: number; // median lag in years: when the floor is placed (1 second = 1 year)
   size: number; // side of the square floor in world units; its area follows coverage
   log: React.ReactNode; // the line in the "latest floors" list
-  info: React.ReactNode; // shown when the floor is pointed at
+  info: React.ReactNode; // the short card shown beside a floor when it is pointed at
 };
+
+type Hit = { i: number; x: number; y: number };
 
 const WINDOW = 14; // log lines shown: the most recent arrivals
 const FH = 10; // floor height in world units: thick enough to read while the camera follows
@@ -61,14 +63,13 @@ export function Tower({
     playing: boolean;
     replay: () => void;
     toggle: () => void;
-    pick: (x: number, y: number) => number | null;
+    pick: (x: number, y: number) => Hit | null;
     highlight: (i: number | null) => void;
   }>({ playing: false, replay: () => {}, toggle: () => {}, pick: () => null, highlight: () => {} });
   const [paused, setPaused] = useState(false);
   const [moving, setMoving] = useState(false);
   const [finished, setFinished] = useState(true);
-  const [hover, setHover] = useState<number | null>(null);
-  const [over, setOver] = useState(false);
+  const [hover, setHover] = useState<Hit | null>(null);
   const [pinned, setPinned] = useState(false);
 
   useEffect(() => {
@@ -172,7 +173,7 @@ export function Tower({
         const rr = (floors[i]!.size / 2) * Math.SQRT2 * v.sc;
         const top = v.cy - (i + 1) * fhNow * v.sc * Math.cos(PITCH) - rr * Math.sin(PITCH);
         const bottom = v.cy - i * fhNow * v.sc * Math.cos(PITCH) + rr * Math.sin(PITCH);
-        if (y >= top && y <= bottom && Math.abs(x - v.cx) <= rr) return i;
+        if (y >= top && y <= bottom && Math.abs(x - v.cx) <= rr) return { i, x: v.cx + rr, y: (top + bottom) / 2 };
       }
       return null;
     };
@@ -283,18 +284,17 @@ export function Tower({
   };
   const point = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const r = e.currentTarget.getBoundingClientRect();
-    const i = api.current.pick(e.clientX - r.left, e.clientY - r.top);
-    if (i !== hover) {
-      setHover(i);
-      api.current.highlight(i);
+    const hit = api.current.pick(e.clientX - r.left, e.clientY - r.top);
+    if (hit?.i !== hover?.i) api.current.highlight(hit ? hit.i : null);
+    if (hit?.i !== hover?.i || (hit && hover && Math.abs(hit.y - hover.y) > 1)) {
+      // keep the card beside the floor, on its right, inside the stage
+      setHover(hit ? { ...hit, x: Math.min(hit.x + 14, r.width - 236), y: Math.max(8, Math.min(r.height - 90, hit.y - 24)) } : null);
     }
   };
   const leave = () => {
-    setOver(false);
     setHover(null);
     api.current.highlight(null);
   };
-  const open = over || pinned;
 
   return (
     <div className="tower-hero">
@@ -347,25 +347,22 @@ export function Tower({
           {children}
         </div>
       </div>
-      <div className="stage-wrap" onPointerEnter={() => setOver(true)} onPointerLeave={leave}>
+      <div className="stage-wrap" onPointerLeave={leave}>
         <div className="stage tall">
           <canvas ref={canvas} role="img" aria-label={label} onPointerMove={point} />
+          {hover && floors[hover.i] ? (
+            <div className="floor-tip" style={{ left: hover.x, top: hover.y }} role="status">
+              {floors[hover.i]!.info}
+            </div>
+          ) : null}
         </div>
-        <div className={`tower-pop${open ? " on" : ""}`} id={popId} role="note" aria-label="About the tower">
+        <div className={`tower-pop${pinned ? " on" : ""}`} id={popId} role="note" aria-label="About the tower" hidden={!pinned}>
           <b className="pop-title">What you are looking at</b>
           {explain}
-          <div className="pop-floor" aria-live="polite">
-            {hover !== null && floors[hover] ? (
-              floors[hover].info
-            ) : (
-              <span className="muted">Point at a floor to see which language it is.</span>
-            )}
-          </div>
-          {pinned ? (
-            <button type="button" className="chip" onClick={() => setPinned(false)}>
-              Close
-            </button>
-          ) : null}
+          <p className="muted small">Point at any floor to see which language it is.</p>
+          <button type="button" className="chip" onClick={() => setPinned(false)}>
+            Close
+          </button>
         </div>
       </div>
     </div>

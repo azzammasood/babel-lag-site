@@ -28,19 +28,23 @@ export default function Now() {
   const floors: Floor[] = rows.map((r, idx) => ({
     info: (
       <>
-        <b className="pop-lang">
+        <b className="tip-lang">
           <Names code={r.language} />
         </b>
-        <span>
-          Floor <S>{idx + 1}</S> of <V file={F} ptr="/row_count" as="raw" />. A new topic reaches it after{" "}
+        <span className="tip-row">
           <b>
-            <V file={F} ptr={`/rows/${r.i}/median_lag_days`} as="years" /> years
+            <V file={F} ptr={`/rows/${r.i}/median_lag_days`} as="years" />
           </b>{" "}
-          (median), and it has an article for{" "}
+          yrs wait
+        </span>
+        <span className="tip-row">
           <b>
             <V file={F} ptr={`/rows/${r.i}/coverage_pct`} as="raw" />%
           </b>{" "}
-          of the shared topics.
+          of topics covered
+        </span>
+        <span className="tip-row muted">
+          floor <S>{idx + 1}</S> of <V file={F} ptr="/row_count" as="raw" />
         </span>
       </>
     ),
@@ -140,7 +144,7 @@ export default function Now() {
       </Tower>
       <p className="key">
         Floor order and timing = median coverage lag. Floor area = coverage of the reference topics. The camera follows
-        the newest floor, then pulls back once to show the whole tower. Point at the tower for an explanation.
+        the newest floor, then pulls back once to show the whole tower. Point at a floor to see its language.
       </p>
 
       <h2>Topics spreading now</h2>

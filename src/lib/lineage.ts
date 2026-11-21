@@ -1,6 +1,8 @@
 // Layout of the lineage graph, computed at build time from metadata_lineage.json.
 // Columns follow the longest path from a source (so every edge points right); rows inside a column
-// are ordered to keep edges short (a few barycentre sweeps). Pure function, no DOM.
+// are ordered to keep edges short (a few barycentre sweeps). Datasets and models are labelled
+// boxes whose names wrap at underscores; jobs are small dots, named on hover, focus or selection,
+// so the whole graph fits the page width. Pure function, no DOM.
 import type { Catalog, Lineage } from "./types";
 
 export type GNode = {
@@ -11,18 +13,42 @@ export type GNode = {
   x: number;
   y: number;
   w: number;
+  h: number;
+  dot: boolean; // a job: drawn as a dot
+  lines: string[]; // the id, wrapped (joined, the lines give back the id exactly)
   ups: number[]; // every ancestor (node indexes)
   downs: number[]; // every descendant
+  pre: number[]; // direct inputs
+  suc: number[]; // direct outputs
   cat: number; // index in catalog.datasets, or -1
   cols: number[]; // indexes in lineage.columns whose target column belongs to this node
 };
 export type GEdge = { from: number; to: number; e: number };
 export type Graph = { nodes: GNode[]; edges: GEdge[]; width: number; height: number };
 
-const ROW = 46;
-const GAP = 70;
-const CHAR = 7.4; // monospace label at 12px
-const PAD = 26;
+const GAP_X = 46;
+const GAP_Y = 14;
+const CHAR = 7.2; // monospace label at 12px
+const LINE = 14;
+const PAD_X = 18;
+const PAD_Y = 10;
+const DOT = 14;
+const WRAP = 15;
+
+// Break an id after "_", ":" or "." so no line is longer than WRAP characters where possible.
+export function wrapId(id: string): string[] {
+  const parts = id.split(/(?<=[_:.])/);
+  const lines: string[] = [];
+  let cur = "";
+  for (const p of parts) {
+    if (cur && (cur + p).length > WRAP) {
+      lines.push(cur);
+      cur = p;
+    } else cur += p;
+  }
+  if (cur) lines.push(cur);
+  return lines;
+}
 
 export function layoutLineage(l: Lineage, cat: Catalog | null): Graph {
   const index = new Map(l.nodes.map((n, i) => [n.id, i]));
@@ -69,9 +95,6 @@ export function layoutLineage(l: Lineage, cat: Catalog | null): Graph {
     place();
   }
 
-  const tallest = Math.max(...cols.map((c) => c.length));
-  const nodes: GNode[] = new Array(n);
-  let x = 0;
   const reach = (start: number, next: number[][]) => {
     const seen = new Set<number>();
     const stack = [...next[start]!];
@@ -84,27 +107,46 @@ export function layoutLineage(l: Lineage, cat: Catalog | null): Graph {
     return [...seen];
   };
   const datasets = new Map((cat?.datasets ?? []).map((d, i) => [d.name, i]));
-  for (const c of cols) {
-    const w = Math.max(...c.map((v) => l.nodes[v]!.id.length)) * CHAR + PAD;
-    const offset = ((tallest - c.length) * ROW) / 2;
-    c.forEach((v, r) => {
+  const size = (v: number) => {
+    const node = l.nodes[v]!;
+    if (node.kind === "job") return { w: DOT, h: DOT, lines: [node.id] };
+    const lines = wrapId(node.id);
+    return { w: Math.max(...lines.map((s) => s.length)) * CHAR + PAD_X, h: lines.length * LINE + PAD_Y, lines };
+  };
+  const sizes = Array.from({ length: n }, (_, v) => size(v));
+  const colH = cols.map((c) => c.reduce((s, v) => s + sizes[v]!.h, 0) + GAP_Y * (c.length - 1));
+  const tallest = Math.max(...colH);
+
+  const nodes: GNode[] = new Array(n);
+  let x = 0;
+  cols.forEach((c, ci) => {
+    const w = Math.max(...c.map((v) => sizes[v]!.w));
+    let y = (tallest - colH[ci]!) / 2;
+    for (const v of c) {
       const node = l.nodes[v]!;
+      const s = sizes[v]!;
       const name = node.id.replace(/^(job|dbt):/, "");
       nodes[v] = {
         i: v,
         id: node.id,
         kind: node.kind,
         layer: node.layer,
-        x,
-        y: offset + r * ROW,
-        w,
+        x: x + (w - s.w) / 2,
+        y,
+        w: s.w,
+        h: s.h,
+        dot: node.kind === "job",
+        lines: s.lines,
         ups: reach(v, preds),
         downs: reach(v, succs),
+        pre: preds[v]!,
+        suc: succs[v]!,
         cat: datasets.get(node.id) ?? datasets.get(name) ?? -1,
         cols: l.columns.flatMap((col, k) => (col.to.startsWith(`${node.id}.`) ? [k] : [])),
       };
-    });
-    x += w + GAP;
-  }
-  return { nodes, edges, width: Math.max(0, x - GAP), height: tallest * ROW };
+      y += s.h + GAP_Y;
+    }
+    x += w + GAP_X;
+  });
+  return { nodes, edges, width: Math.max(0, x - GAP_X), height: tallest };
 }

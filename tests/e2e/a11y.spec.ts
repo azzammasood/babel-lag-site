@@ -4,9 +4,12 @@ import { mainPages } from "./pages";
 
 const TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
 
-for (const scheme of ["light", "dark"] as const) {
-  test.describe(`${scheme} mode`, () => {
-    test.use({ colorScheme: scheme, reducedMotion: "reduce" });
+for (const theme of ["babel", "dark", "light"] as const) {
+  test.describe(`${theme} theme`, () => {
+    test.use({ reducedMotion: "reduce" });
+    test.beforeEach(async ({ page }) => {
+      await page.addInitScript((t) => localStorage.setItem("babel-mode", t), theme);
+    });
     for (const path of mainPages()) {
       test(`axe: /${path}`, async ({ page }) => {
         test.setTimeout(120_000); // the language index is a table of several hundred rows
@@ -26,13 +29,20 @@ test("the home page does not scroll sideways on a phone", async ({ page }) => {
   }
 });
 
-test("the colour mode toggle switches and is remembered", async ({ page }) => {
-  await page.emulateMedia({ colorScheme: "dark", reducedMotion: "reduce" });
+test("the theme button walks Babel, Dark, Light and is remembered", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("method/");
-  await page.getByRole("button", { name: "Switch colour mode" }).click();
-  await expect(page.locator("html")).toHaveAttribute("data-mode", "light");
+  const html = page.locator("html");
+  await expect(html).toHaveAttribute("data-mode", "babel");
+  const button = page.getByRole("button", { name: /^Colour theme/ });
+  await button.click();
+  await expect(html).toHaveAttribute("data-mode", "dark");
+  await button.click();
+  await expect(html).toHaveAttribute("data-mode", "light");
   await page.reload();
-  await expect(page.locator("html")).toHaveAttribute("data-mode", "light");
+  await expect(html).toHaveAttribute("data-mode", "light");
+  await page.getByRole("button", { name: /^Colour theme/ }).click();
+  await expect(html).toHaveAttribute("data-mode", "babel");
 });
 
 test("the landing intro steps through to the tower and is not shown again in the session", async ({ page }) => {

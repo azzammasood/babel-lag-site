@@ -38,7 +38,9 @@ committed snapshot of that release.
   pixel ratio at 2. Page changes and the colour mode switch animate with the View Transitions API
   (a CSS fade without it). Reduced motion turns all of it off. Nothing follows the cursor or the
   scroll position.
-- **Accessibility:** axe (WCAG 2.2 AA) on the main pages in light and dark; the tower has a text
+- **Three themes:** Babel (dark orange, the default), Dark and Light, chosen with the header button
+  and remembered; every token pair meets WCAG AA.
+- **Accessibility:** axe (WCAG 2.2 AA) on the main pages in all three themes; the tower has a text
   description and the same values as a list.
 
 ## Commands

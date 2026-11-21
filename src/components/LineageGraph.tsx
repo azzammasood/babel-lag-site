@@ -1,17 +1,20 @@
 "use client";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { Graph } from "@/lib/lineage";
+import type { Graph, GNode } from "@/lib/lineage";
 
-const H = 30; // node height
 const LF = "metadata_lineage.json";
 const CF = "metadata_catalog.json";
+const PAD = 28;
 
 type Detail = { description?: string; owner?: string; classification?: string; freshness?: string };
 type ColMap = { to: string; from: string[] };
+type Box = { x: number; y: number; w: number; h: number };
 
-// Lineage as an interactive graph: drag to pan, buttons or Ctrl+wheel to zoom, hover or focus a node
-// to light its upstream and downstream, click or Enter for details. Every node is a button in
-// reading order, and the same lineage is listed as tables below the graph.
+// Lineage as an interactive graph. The whole graph is shown first; hovering or focusing a node
+// lights its upstream (blue) and downstream (orange). Clicking a node (or Enter) moves the view to
+// that node and its neighbours and opens its details; Escape, the close button or a click on the
+// background goes back to the whole graph. Every node is a button in reading order, and the same
+// lineage is listed as tables below the graph.
 export function LineageGraph({
   graph,
   details,
@@ -22,19 +25,75 @@ export function LineageGraph({
   columns: ColMap[];
 }) {
   const { nodes, edges, width, height } = graph;
-  const M = 24;
-  const full = useMemo(() => ({ x: -M, y: -M, w: width + 2 * M, h: height + 2 * M }), [width, height]);
-  // Start readable: about four columns of nodes at once, beginning with the sources.
-  const start = useMemo(() => {
-    const w = Math.min(full.w, Math.max(900, (full.h * 16) / 9));
-    return { ...full, w, h: Math.max(full.h, (w * 9) / 16) };
-  }, [full]);
-  const [vb, setVb] = useState(start);
+  const full = useMemo<Box>(() => ({ x: -PAD, y: -PAD, w: width + 2 * PAD, h: height + 2 * PAD }), [width, height]);
+  const [vb, setVb] = useState<Box>(full);
   const [hover, setHover] = useState<number | null>(null);
   const [sel, setSel] = useState<number | null>(null);
-  const svg = useRef<SVGSVGElement>(null);
-  const drag = useRef<{ x: number; y: number; vb: typeof full; moved: boolean } | null>(null);
+  const anim = useRef(0);
+  const vbRef = useRef(vb);
+  useEffect(() => {
+    vbRef.current = vb;
+  }, [vb]);
   const focus = hover ?? sel;
+
+  // Animate the view box (instant under reduced motion).
+  const go = useCallback((to: Box) => {
+    cancelAnimationFrame(anim.current);
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return setVb(to);
+    const from = vbRef.current;
+    const t0 = performance.now();
+    const step = (now: number) => {
+      const k = Math.min(1, (now - t0) / 520);
+      const e = 1 - Math.pow(1 - k, 3);
+      setVb({
+        x: from.x + (to.x - from.x) * e,
+        y: from.y + (to.y - from.y) * e,
+        w: from.w + (to.w - from.w) * e,
+        h: from.h + (to.h - from.h) * e,
+      });
+      if (k < 1) anim.current = requestAnimationFrame(step);
+    };
+    anim.current = requestAnimationFrame(step);
+  }, []);
+  useEffect(() => () => cancelAnimationFrame(anim.current), []);
+
+  const select = useCallback(
+    (i: number | null) => {
+      setSel(i);
+      if (i === null) return go(full);
+      // the node and its direct neighbours, with the full graph's aspect ratio
+      const group = [nodes[i]!, ...nodes[i]!.pre.map((j) => nodes[j]!), ...nodes[i]!.suc.map((j) => nodes[j]!)];
+      const x0 = Math.min(...group.map((n) => n.x)) - 60;
+      const x1 = Math.max(...group.map((n) => n.x + n.w)) + 60;
+      const y0 = Math.min(...group.map((n) => n.y)) - 50;
+      const y1 = Math.max(...group.map((n) => n.y + n.h)) + 50;
+      let w = Math.max(x1 - x0, 420);
+      let h = Math.max(y1 - y0, 220);
+      const ratio = full.w / full.h;
+      if (w / h > ratio) h = w / ratio;
+      else w = h * ratio;
+      // On a wide screen the details card sits on the right: keep the group in the left part.
+      const wide = typeof window !== "undefined" && window.innerWidth > 760;
+      const left = (x0 + x1) / 2 - w / 2;
+      const cy = (y0 + y1) / 2;
+      if (wide) {
+        w *= 1.4;
+        h *= 1.4;
+      }
+      w = Math.min(w, full.w * 1.2);
+      h = Math.min(h, full.h * 1.2);
+      go({ x: wide ? left - 20 : (x0 + x1) / 2 - w / 2, y: cy - h / 2, w, h });
+    },
+    [nodes, full, go],
+  );
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && sel !== null) select(null);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [sel, select]);
 
   const lit = useMemo(() => {
     if (focus === null) return null;
@@ -42,61 +101,8 @@ export function LineageGraph({
     return { up: new Set(n.ups), down: new Set(n.downs) };
   }, [focus, nodes]);
 
-  const zoom = useCallback(
-    (f: number, cx?: number, cy?: number) =>
-      setVb((v) => {
-        const w = Math.min(full.w * 1.6, Math.max(160, v.w * f));
-        const h = (w / v.w) * v.h;
-        const px = cx ?? v.x + v.w / 2;
-        const py = cy ?? v.y + v.h / 2;
-        return { x: px - ((px - v.x) * w) / v.w, y: py - ((py - v.y) * h) / v.h, w, h };
-      }),
-    [full],
-  );
-
-  // Ctrl/Cmd + wheel zooms around the pointer; a plain wheel keeps scrolling the page.
-  useEffect(() => {
-    const el = svg.current;
-    if (!el) return;
-    const onWheel = (e: WheelEvent) => {
-      if (!e.ctrlKey && !e.metaKey) return;
-      e.preventDefault();
-      const r = el.getBoundingClientRect();
-      setVb((v) => {
-        const px = v.x + ((e.clientX - r.left) / r.width) * v.w;
-        const py = v.y + ((e.clientY - r.top) / r.height) * v.h;
-        const f = e.deltaY > 0 ? 1.12 : 1 / 1.12;
-        const w = Math.min(full.w * 1.6, Math.max(160, v.w * f));
-        const h = (w / v.w) * v.h;
-        return { x: px - ((px - v.x) * w) / v.w, y: py - ((py - v.y) * h) / v.h, w, h };
-      });
-    };
-    el.addEventListener("wheel", onWheel, { passive: false });
-    return () => el.removeEventListener("wheel", onWheel);
-  }, [full]);
-
-  const onDown = (e: React.PointerEvent) => {
-    if ((e.target as Element).closest("[data-node]")) return;
-    drag.current = { x: e.clientX, y: e.clientY, vb, moved: false };
-    (e.currentTarget as Element).setPointerCapture(e.pointerId);
-  };
-  const onMove = (e: React.PointerEvent) => {
-    const d = drag.current;
-    const el = svg.current;
-    if (!d || !el) return;
-    const r = el.getBoundingClientRect();
-    const k = Math.max(d.vb.w / r.width, d.vb.h / r.height);
-    if (Math.abs(e.clientX - d.x) + Math.abs(e.clientY - d.y) > 3) d.moved = true;
-    setVb({ ...d.vb, x: d.vb.x - (e.clientX - d.x) * k, y: d.vb.y - (e.clientY - d.y) * k });
-  };
-  const onUp = () => {
-    if (drag.current && !drag.current.moved) setSel(null);
-    drag.current = null;
-  };
-
   const edgeState = (a: number, b: number) => {
     if (!lit || focus === null) return "";
-    // a -> b lies on a path into the focus node, or on a path out of it
     if (lit.up.has(a) && (b === focus || lit.up.has(b))) return "up";
     if ((a === focus || lit.down.has(a)) && lit.down.has(b)) return "down";
     return "dim";
@@ -108,59 +114,41 @@ export function LineageGraph({
     if (lit.down.has(i)) return "down";
     return "dim";
   };
+  const anchorIn = (n: GNode) => ({ x: n.x, y: n.y + n.h / 2 });
+  const anchorOut = (n: GNode) => ({ x: n.x + n.w, y: n.y + n.h / 2 });
 
   const s = sel === null ? null : nodes[sel]!;
   const d = s ? details[s.i] : null;
 
   return (
-    <div className="lineage">
-      <div className="ctl" role="toolbar" aria-label="Graph view">
-        <button type="button" onClick={() => zoom(1 / 1.25)}>
-          Zoom in
-        </button>
-        <button type="button" onClick={() => zoom(1.25)}>
-          Zoom out
-        </button>
-        <button type="button" onClick={() => setVb(full)}>
-          Show all
-        </button>
-        <button type="button" onClick={() => setVb(start)}>
-          Reset
-        </button>
-        <span className="small muted">Drag to pan · Ctrl and wheel to zoom · Tab through the nodes, Enter for details</span>
-      </div>
+    <div className={`lineage${s ? " focused" : ""}`}>
       <div className="lineage-wrap">
         <svg
-          ref={svg}
           className="lineage-svg"
           viewBox={`${vb.x} ${vb.y} ${vb.w} ${vb.h}`}
-          preserveAspectRatio="xMinYMid meet"
+          style={{ aspectRatio: `${full.w} / ${full.h}` }}
+          preserveAspectRatio="xMidYMid meet"
           role="group"
-          aria-label="Lineage graph: datasets, jobs and models from the Wikimedia sources to the exports. Each node is a button."
-          onPointerDown={onDown}
-          onPointerMove={onMove}
-          onPointerUp={onUp}
-          onPointerCancel={onUp}
+          aria-label="Lineage graph: datasets, jobs and models from the Wikimedia sources to the exports. Each node is a button; Enter opens its details."
+          onClick={(e) => {
+            if (!(e.target as Element).closest("[data-node]") && sel !== null) select(null);
+          }}
         >
           <defs>
-            <marker id="arr" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto">
+            <marker id="arr" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto">
               <path d="M0,0 L8,4 L0,8 z" className="arrowhead" />
             </marker>
           </defs>
           <g className="edges" aria-hidden="true">
             {edges.map((e) => {
-              const a = nodes[e.from]!;
-              const b = nodes[e.to]!;
-              const x1 = a.x + a.w;
-              const y1 = a.y + H / 2;
-              const x2 = b.x - 4;
-              const y2 = b.y + H / 2;
-              const mx = (x1 + x2) / 2;
+              const a = anchorOut(nodes[e.from]!);
+              const b = anchorIn(nodes[e.to]!);
+              const mx = (a.x + b.x) / 2;
               return (
                 <path
                   key={e.e}
                   className={`edge ${edgeState(e.from, e.to)}`}
-                  d={`M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}`}
+                  d={`M${a.x},${a.y} C${mx},${a.y} ${mx},${b.y} ${b.x - 3},${b.y}`}
                   markerEnd="url(#arr)"
                 />
               );
@@ -170,7 +158,7 @@ export function LineageGraph({
             <g
               key={n.id}
               data-node=""
-              className={`node k-${n.kind} ${nodeState(n.i)}${sel === n.i ? " sel" : ""}`}
+              className={`node k-${n.kind} ${nodeState(n.i)}${sel === n.i ? " sel" : ""}${n.dot ? " dot" : ""}`}
               transform={`translate(${n.x},${n.y})`}
               tabIndex={0}
               role="button"
@@ -180,99 +168,108 @@ export function LineageGraph({
               onPointerLeave={() => setHover(null)}
               onFocus={() => setHover(n.i)}
               onBlur={() => setHover(null)}
-              onClick={() => setSel(sel === n.i ? null : n.i)}
+              onClick={() => select(sel === n.i ? null : n.i)}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") {
                   e.preventDefault();
-                  setSel(sel === n.i ? null : n.i);
+                  select(sel === n.i ? null : n.i);
                 }
-                if (e.key === "Escape") setSel(null);
               }}
             >
-              <rect width={n.w} height={H} rx={n.kind === "job" ? 15 : 5} />
-              <text x={12} y={H / 2 + 4} data-src={`${LF}#/nodes/${n.i}/id`} data-as="raw">
-                {n.id}
-              </text>
+              {n.dot ? (
+                <>
+                  <circle cx={n.w / 2} cy={n.h / 2} r={n.w / 2} />
+                  <text className="dot-label" x={n.w / 2} y={-6} textAnchor="middle" data-src={`${LF}#/nodes/${n.i}/id`} data-as="raw">
+                    {n.id}
+                  </text>
+                </>
+              ) : (
+                <>
+                  <rect width={n.w} height={n.h} rx={5} />
+                  <text x={9} y={5 + 12} data-src={`${LF}#/nodes/${n.i}/id`} data-as="raw">
+                    {n.lines.map((line, j) => (
+                      <tspan key={j} x={9} dy={j ? 14 : 0}>
+                        {line}
+                      </tspan>
+                    ))}
+                  </text>
+                </>
+              )}
             </g>
           ))}
         </svg>
-        <aside className="lineage-panel" aria-live="polite">
-          {s ? (
-            <>
-              <h3>
-                <span data-src={`${LF}#/nodes/${s.i}/id`} data-as="raw">
-                  {s.id}
-                </span>
-              </h3>
-              <p className="small muted">
-                <span data-src={`${LF}#/nodes/${s.i}/kind`} data-as="raw">
-                  {s.kind}
-                </span>{" "}
-                ·{" "}
-                <span data-src={`${LF}#/nodes/${s.i}/layer`} data-as="raw">
-                  {s.layer}
-                </span>{" "}
-                layer
-              </p>
-              {d?.description ? (
-                <p className="small">
-                  <span data-src={`${CF}#/datasets/${s.cat}/description`} data-as="raw">
-                    {d.description}
-                  </span>
-                </p>
-              ) : null}
-              {d?.owner ? (
-                <p className="small muted">
-                  Owner{" "}
-                  <span data-src={`${CF}#/datasets/${s.cat}/owner`} data-as="raw">
-                    {d.owner}
-                  </span>{" "}
-                  · freshness{" "}
-                  <span data-src={`${CF}#/datasets/${s.cat}/freshness_sla`} data-as="raw">
-                    {d.freshness}
-                  </span>
-                </p>
-              ) : null}
-              <NodeList title="Comes from" ids={s.ups} nodes={nodes} pick={setSel} />
-              <NodeList title="Feeds" ids={s.downs} nodes={nodes} pick={setSel} />
-              {s.cols.length ? (
-                <>
-                  <h4>Column lineage</h4>
-                  <ul className="small">
-                    {s.cols.map((k) => (
-                      <li key={k}>
-                        <code data-src={`${LF}#/columns/${k}/to`} data-as="raw">
-                          {columns[k]!.to}
-                        </code>{" "}
-                        from{" "}
-                        {columns[k]!.from.map((f, j) => (
-                          <span key={j}>
-                            {j ? ", " : ""}
-                            <code data-src={`${LF}#/columns/${k}/from/${j}`} data-as="raw">
-                              {f}
-                            </code>
-                          </span>
-                        ))}
-                      </li>
-                    ))}
-                  </ul>
-                </>
-              ) : null}
-              <button type="button" className="chip" onClick={() => setSel(null)}>
-                Close
-              </button>
-            </>
-          ) : (
-            <p className="small muted">
-              Select a node to see what it is, what it comes from and what it feeds. Hover or focus lights its
-              upstream in blue and its downstream in orange.
+
+        {s ? (
+          <aside className="lineage-card" aria-live="polite" aria-label="Node details">
+            <button type="button" className="card-close" onClick={() => select(null)} aria-label="Close details and show the whole graph">
+              ×
+            </button>
+            <p className="eyebrow">
+              <span data-src={`${LF}#/nodes/${s.i}/kind`} data-as="raw">
+                {s.kind}
+              </span>{" "}
+              ·{" "}
+              <span data-src={`${LF}#/nodes/${s.i}/layer`} data-as="raw">
+                {s.layer}
+              </span>
             </p>
-          )}
-        </aside>
+            <h3>
+              <span data-src={`${LF}#/nodes/${s.i}/id`} data-as="raw">
+                {s.id}
+              </span>
+            </h3>
+            {d?.description ? (
+              <p className="small">
+                <span data-src={`${CF}#/datasets/${s.cat}/description`} data-as="raw">
+                  {d.description}
+                </span>
+              </p>
+            ) : null}
+            {d?.owner ? (
+              <p className="small muted">
+                Owner{" "}
+                <span data-src={`${CF}#/datasets/${s.cat}/owner`} data-as="raw">
+                  {d.owner}
+                </span>{" "}
+                · freshness{" "}
+                <span data-src={`${CF}#/datasets/${s.cat}/freshness_sla`} data-as="raw">
+                  {d.freshness}
+                </span>
+              </p>
+            ) : null}
+            <NodeList title="Made from" ids={s.pre} nodes={nodes} pick={select} />
+            <NodeList title="Feeds" ids={s.suc} nodes={nodes} pick={select} />
+            {s.cols.length ? (
+              <details>
+                <summary className="small">Column lineage</summary>
+                <ul className="small">
+                  {s.cols.map((k) => (
+                    <li key={k}>
+                      <code data-src={`${LF}#/columns/${k}/to`} data-as="raw">
+                        {columns[k]!.to}
+                      </code>{" "}
+                      from{" "}
+                      {columns[k]!.from.map((f, j) => (
+                        <span key={j}>
+                          {j ? ", " : ""}
+                          <code data-src={`${LF}#/columns/${k}/from/${j}`} data-as="raw">
+                            {f}
+                          </code>
+                        </span>
+                      ))}
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            ) : null}
+            <p className="small muted">The full chain upstream is lit in blue, downstream in orange.</p>
+          </aside>
+        ) : null}
       </div>
       <p className="key legend">
-        <span className="lg k-dataset" /> dataset <span className="lg k-job" /> job <span className="lg k-dbt_model" /> dbt
-        model
+        <span className="lg k-dataset" /> dataset <span className="lg k-dbt_model" /> dbt model{" "}
+        <span className="lg k-job" /> job · Click a node to focus on it; Escape or the background returns to the whole
+        graph.
       </p>
     </div>
   );
