@@ -1,128 +1,94 @@
-import {
-  siApachekafka,
-  siApachespark,
-  siDatabricks,
-  siDuckdb,
-  siGithub,
-  siGithubactions,
-  siGithubpages,
-  siGrafana,
-  siJson,
-  siNextdotjs,
-  siOpenrouter,
-  siOpentelemetry,
-  siPrometheus,
-  siPython,
-  siWikidata,
-  siWikipedia,
-} from "simple-icons";
 import { S } from "@/components/V";
 
-// Logos are Simple Icons (CC0), bundled at build time; nothing is hot-linked. A tool without a
-// Simple Icons logo gets a lettered badge. Every tool here is one the pipeline recorded doing real
-// work (README "What produced the current data" and docs/claims-audit.md).
-type Icon = { path: string; hex: string };
-type Tool = {
-  name: string;
-  role: string;
-  icon?: Icon;
-  badge?: string;
-  lane: "free" | "full" | "both";
-  local?: boolean; // verified on the local Docker stack only
-};
+// Tool logos are bundled in public/logos (sources and licences in public/logos/CREDITS.txt);
+// nothing is hot-linked. Every tool here is one the pipeline recorded doing real work
+// (README "What produced the current data" and docs/claims-audit.md).
+const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+
+type Tool = { name: string; role: string; logo: string; wide?: boolean };
 type Stage = { title: string; tools: Tool[] };
 
 const STAGES: Stage[] = [
   {
     title: "Sources",
     tools: [
-      { name: "Wikimedia EventStreams", role: "every live change on every wiki", icon: siWikipedia, lane: "both" },
-      { name: "MediaWiki history dumps", role: "every revision of every article", icon: siWikipedia, lane: "both" },
-      { name: "Pageview dumps", role: "human views per article and day", icon: siWikipedia, lane: "both" },
-      { name: "Wikidata", role: "which article is which topic", icon: siWikidata, lane: "both" },
-      { name: "ftp.acc.umu.se mirror", role: "bulk downloads, two at a time", badge: "UMU", lane: "both" },
+      { name: "Wikimedia EventStreams", role: "every live change on every wiki", logo: "wikimedia.svg" },
+      { name: "MediaWiki history dumps", role: "every revision of every article", logo: "wikipedia.svg" },
+      { name: "Pageview dumps", role: "human views per article and day", logo: "wikipedia.svg" },
+      { name: "Wikidata", role: "which article is which topic", logo: "wikidata.svg" },
+      { name: "ftp.acc.umu.se mirror", role: "bulk downloads, two at a time", logo: "mirror.svg" },
     ],
   },
   {
     title: "Ingest",
     tools: [
-      { name: "Python SSE collector", role: "resumable, sanitizes names and IPs", icon: siPython, lane: "both" },
-      { name: "GitHub Actions", role: "scheduled runs and the all-language backfill", icon: siGithubactions, lane: "free" },
-      { name: "Apache Kafka", role: "KRaft, schema registry with Avro", icon: siApachekafka, lane: "full", local: true },
+      { name: "Python SSE collector", role: "resumable; drops names and IPs on arrival", logo: "python.svg" },
+      { name: "Apache Kafka", role: "KRaft and a schema registry with Avro", logo: "kafka.svg" },
+      { name: "GitHub Actions", role: "scheduled catch-up and the all-language backfill", logo: "github-actions.svg" },
     ],
   },
   {
-    title: "Lakehouse",
+    title: "Store",
     tools: [
-      { name: "delta-rs", role: "Delta tables, bronze to gold", badge: "Δ", lane: "free" },
-      { name: "DuckDB", role: "the core SQL, run on a laptop or a runner", icon: siDuckdb, lane: "free" },
-      { name: "Apache Spark", role: "the same SQL and Structured Streaming", icon: siApachespark, lane: "full", local: true },
-      { name: "Databricks", role: "Auto Loader, Lakeflow, Unity Catalog", icon: siDatabricks, lane: "full" },
+      { name: "Delta Lake (delta-rs)", role: "bronze, silver and gold Delta tables", logo: "delta-lake.svg" },
+      { name: "Databricks Unity Catalog", role: "volumes, Auto Loader, governed tables", logo: "databricks.svg" },
     ],
   },
   {
-    title: "Models and quality",
+    title: "Transform",
     tools: [
-      { name: "dbt", role: "marts and tests on DuckDB and Databricks", badge: "dbt", lane: "both" },
-      { name: "Soda Core", role: "data quality checks", badge: "So", lane: "both" },
-      { name: "ODCS contracts", role: "datacontract-cli lint", badge: "DC", lane: "both" },
+      { name: "DuckDB", role: "the core SQL: lag, depth, demand, live", logo: "duckdb.svg" },
+      { name: "Apache Spark", role: "the same SQL, and Structured Streaming", logo: "spark.svg" },
+      { name: "Databricks Lakeflow", role: "declarative pipeline with expectations", logo: "databricks.svg" },
+      { name: "dbt", role: "marts and tests on DuckDB and Databricks", logo: "dbt.svg" },
     ],
   },
   {
-    title: "Lineage and observability",
+    title: "Quality and lineage",
     tools: [
-      { name: "OpenLineage and Marquez", role: "job and dataset lineage", badge: "OL", lane: "full" },
-      { name: "OpenMetadata", role: "catalog, glossary, lineage", badge: "OM", lane: "full" },
-      { name: "OpenTelemetry", role: "pipeline traces and metrics", icon: siOpentelemetry, lane: "full", local: true },
-      { name: "Prometheus", role: "metrics store", icon: siPrometheus, lane: "full", local: true },
-      { name: "Grafana", role: "events per second, latency, lag", icon: siGrafana, lane: "full", local: true },
+      { name: "Soda Core", role: "data quality checks", logo: "soda.png" },
+      { name: "ODCS contracts", role: "checked with datacontract-cli", logo: "datacontract.svg" },
+      { name: "OpenLineage", role: "lineage events from every job", logo: "openlineage.svg", wide: true },
+      { name: "Marquez", role: "the lineage graph", logo: "marquez.svg" },
+      { name: "OpenMetadata", role: "catalog, glossary, lineage", logo: "openmetadata.svg" },
+    ],
+  },
+  {
+    title: "Observe",
+    tools: [
+      { name: "OpenTelemetry", role: "pipeline traces and metrics", logo: "opentelemetry.svg" },
+      { name: "Prometheus", role: "the metrics store", logo: "prometheus.svg" },
+      { name: "Grafana", role: "events per second, latency, lag", logo: "grafana.svg" },
     ],
   },
   {
     title: "Publish",
     tools: [
-      { name: "JSON exports", role: "versioned, schema-checked, every run", icon: siJson, lane: "both" },
-      { name: "GitHub release", role: "the site-data files this site reads", icon: siGithub, lane: "both" },
-      { name: "OpenRouter", role: "weekly report, free models, numbers checked", icon: siOpenrouter, lane: "free" },
-      { name: "Next.js", role: "this static site", icon: siNextdotjs, lane: "both" },
-      { name: "GitHub Pages", role: "hosting, rebuilt hourly", icon: siGithubpages, lane: "both" },
+      { name: "JSON exports", role: "versioned and schema-checked", logo: "json.svg" },
+      { name: "GitHub release", role: "the files this site reads", logo: "github.svg" },
+      { name: "OpenRouter", role: "the weekly report, numbers checked", logo: "openrouter.svg" },
+      { name: "Next.js", role: "this static site", logo: "nextjs.svg" },
+      { name: "GitHub Pages", role: "hosting, rebuilt every hour", logo: "github-pages.svg", wide: true },
     ],
   },
 ];
 
 const ORCHESTRATION: Tool[] = [
-  { name: "GitHub Actions", role: "production schedule", icon: siGithubactions, lane: "free" },
-  { name: "Databricks Jobs", role: "deployed by an Asset Bundle", icon: siDatabricks, lane: "full" },
-  { name: "Dagster", role: "the asset graph", badge: "Dg", lane: "full" },
+  { name: "GitHub Actions", role: "the production schedule", logo: "github-actions.svg" },
+  { name: "Databricks Jobs", role: "deployed by an Asset Bundle", logo: "databricks.svg" },
+  { name: "Dagster", role: "the asset graph", logo: "dagster.svg" },
 ];
-
-const LANE = { free: "free", full: "full", both: "free and full" } as const;
-
-function Logo({ t }: { t: Tool }) {
-  return (
-    <span className="tool-logo" style={{ "--brand": `#${t.icon?.hex ?? "888888"}` } as React.CSSProperties} aria-hidden="true">
-      {t.icon ? (
-        <svg viewBox="0 0 24 24" width="22" height="22">
-          <path d={t.icon.path} />
-        </svg>
-      ) : (
-        <b>{t.badge}</b>
-      )}
-    </span>
-  );
-}
 
 function Chip({ t }: { t: Tool }) {
   return (
-    <li className={`tool lane-${t.lane}`} tabIndex={0}>
-      <Logo t={t} />
+    <li className="tool" tabIndex={0}>
+      <span className={`tool-logo${t.wide ? " wide" : ""}`} aria-hidden="true">
+        {/* eslint-disable-next-line @next/next/no-img-element -- static export, small bundled logos */}
+        <img src={`${BASE}/logos/${t.logo}`} alt="" width={30} height={30} loading="lazy" decoding="async" />
+      </span>
       <span className="tool-text">
         <b>{t.name}</b>
         <span className="tool-role">{t.role}</span>
-        <span className="tool-tags">
-          <span className={`tag ${t.lane}`}>{LANE[t.lane]}</span>
-          {t.local ? <span className="tag local">local stack</span> : null}
-        </span>
       </span>
     </li>
   );
@@ -132,9 +98,14 @@ export function Architecture() {
   return (
     <figure className="arch" aria-labelledby="arch-cap">
       <ol className="arch-flow">
-        {STAGES.map((s) => (
+        {STAGES.map((s, i) => (
           <li className="arch-stage" key={s.title}>
-            <h3>{s.title}</h3>
+            <h3>
+              <span className="step" aria-hidden="true">
+                <S>{i + 1}</S>
+              </span>
+              {s.title}
+            </h3>
             <ul>
               {s.tools.map((t) => (
                 <Chip t={t} key={t.name} />
@@ -144,7 +115,7 @@ export function Architecture() {
         ))}
       </ol>
       <div className="arch-orch">
-        <h3>Orchestration</h3>
+        <h3>Orchestration, around every stage</h3>
         <ul>
           {ORCHESTRATION.map((t) => (
             <Chip t={t} key={t.name} />
@@ -152,11 +123,10 @@ export function Architecture() {
         </ul>
       </div>
       <figcaption id="arch-cap" className="key">
-        Data flows left to right (top to bottom on a phone). <span className="tag free">free</span> is the production
-        profile that runs on GitHub Actions at no cost; <span className="tag full">full</span> is the showcase profile
-        on Databricks and a self-hosted stack; both run the same SQL. <span className="tag local">local stack</span>{" "}
-        marks tools verified on the local Docker stack only. Logos: Simple Icons (CC<S>0</S>); lettered badges where no
-        logo is available.
+        Data flows left to right (top to bottom on a phone). The same SQL runs in two profiles: DuckDB and delta-rs on
+        GitHub Actions keep the site updating at no cost, and Spark, Kafka and Databricks show the same work at a
+        larger scale. Logos belong to their projects and are used only to name them; sources and licences are listed
+        in the site repository.
       </figcaption>
     </figure>
   );

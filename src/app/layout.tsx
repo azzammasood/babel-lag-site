@@ -18,8 +18,9 @@ export const metadata: Metadata = {
 export const viewport: Viewport = { width: "device-width", initialScale: 1 };
 
 // Applied before paint: the saved colour mode, and `vt` when the View Transitions API exists
-// (the CSS fallback entry animation is used only without it).
-const boot = `(function(d){try{var m=localStorage.getItem("babel-mode");if(m)d.dataset.mode=m}catch(e){}if(document.startViewTransition)d.classList.add("vt")})(document.documentElement)`;
+// (the CSS fallback entry animation is used only without it), and `intro` on a first visit to the
+// home page, which covers the page until the landing intro (components/Intro) takes over.
+const boot = `(function(d){try{var m=localStorage.getItem("babel-mode");if(m)d.dataset.mode=m}catch(e){}if(document.startViewTransition)d.classList.add("vt");try{var b=${JSON.stringify(process.env.NEXT_PUBLIC_BASE_PATH ?? "")},p=location.pathname;if((p===b+"/"||p===b||p===b+"/index.html")&&!sessionStorage.getItem("babel-intro-seen")&&!matchMedia("(prefers-reduced-motion: reduce)").matches)d.classList.add("intro")}catch(e){}})(document.documentElement)`;
 
 const FALLBACK_SOURCES = [
   { name: "Wikimedia EventStreams", url: "https://stream.wikimedia.org/v2/stream/" },

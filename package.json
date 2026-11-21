@@ -12,6 +12,7 @@
     "data": "node scripts/fetch-data.mjs",
     "dev": "next dev",
     "build": "next build",
+    "postbuild": "node scripts/flatten-segments.mjs",
     "serve": "node scripts/serve.mjs",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",

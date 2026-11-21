@@ -73,6 +73,7 @@ export function box(
   top: string,
   sideA: string,
   sideB: string,
+  stroke?: string,
 ) {
   const hw = w / 2;
   const hd = d / 2;
@@ -84,6 +85,11 @@ export function box(
   ];
   const sn = Math.sin(v.yaw);
   const co = Math.cos(v.yaw);
+  if (stroke) {
+    ctx.strokeStyle = stroke;
+    ctx.lineWidth = 1;
+    ctx.lineJoin = "round";
+  }
   for (const [a, b, nx, nz] of EDGES) {
     if (nx * sn + nz * co <= 0) continue;
     const [ax, az] = cs[a]!;
@@ -100,6 +106,7 @@ export function box(
     ctx.lineTo(p4[0], p4[1]);
     ctx.closePath();
     ctx.fill();
+    if (stroke) ctx.stroke();
   }
   ctx.fillStyle = top;
   ctx.beginPath();
@@ -110,6 +117,7 @@ export function box(
   });
   ctx.closePath();
   ctx.fill();
+  if (stroke) ctx.stroke();
 }
 
 // Size the canvas backing store to its CSS box, with the device pixel ratio capped at 2.

@@ -34,3 +34,25 @@ test("the colour mode toggle switches and is remembered", async ({ page }) => {
   await page.reload();
   await expect(page.locator("html")).toHaveAttribute("data-mode", "light");
 });
+
+test("the landing intro steps through to the tower and is not shown again in the session", async ({ page }) => {
+  await page.emulateMedia({ colorScheme: "dark", reducedMotion: "no-preference" });
+  await page.goto("");
+  const intro = page.locator("#intro");
+  await expect(intro).toBeVisible();
+  const r = await new AxeBuilder({ page }).withTags(TAGS).analyze();
+  expect(r.violations.map((v) => `${v.id}: ${v.nodes.length} nodes (${v.nodes[0]?.target})`)).toEqual([]);
+  for (let i = 0; i < 3; i++) await page.locator("#intro .next").click();
+  await expect(intro).toHaveCount(0, { timeout: 5000 });
+  await expect(page.locator("html")).not.toHaveClass(/(^|\s)intro(\s|$)/);
+  await page.reload();
+  await page.waitForTimeout(500);
+  await expect(page.locator("#intro")).toHaveCount(0);
+});
+
+test("reduced motion skips the intro and shows the finished tower", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("");
+  await expect(page.locator("#intro")).toHaveCount(0);
+  await expect(page.locator(".ctl output")).toHaveText(/^Year /);
+});

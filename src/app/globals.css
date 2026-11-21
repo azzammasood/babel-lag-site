@@ -563,11 +563,13 @@ details summary {
 .tower-hero h1 {
   font-size: clamp(32px, 4.2vw, 56px);
 }
+.stage-wrap {
+  position: sticky;
+  top: 12px;
+}
 .stage.tall {
   height: min(86vh, 820px);
   min-height: 520px;
-  position: sticky;
-  top: 12px;
 }
 .stage.low {
   height: min(56vh, 480px);
@@ -660,11 +662,20 @@ details summary {
   .tower-hero {
     grid-template-columns: 1fr;
   }
-  .stage.tall {
+  .stage-wrap {
     position: relative;
     top: 0;
+  }
+  .stage.tall {
     height: min(70vh, 560px);
     min-height: 380px;
+  }
+  .tower-pop {
+    right: auto !important;
+    left: 12px !important;
+  }
+  .tower-pop::after {
+    display: none;
   }
   .stage {
     height: 520px;
@@ -953,15 +964,31 @@ details.tables {
 
 /* architecture diagram */
 .arch {
-  margin: 18px 0 8px;
+  --arch-w: min(1400px, calc(100vw - 32px));
+  width: var(--arch-w);
+  margin: 18px 0 8px calc((100% - var(--arch-w)) / 2);
 }
 .arch h3 {
-  font-size: 13px;
+  font-size: 12.5px;
   font-family: var(--font-work), system-ui, sans-serif;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: var(--muted);
-  margin: 0 0 8px;
+  margin: 0 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.arch .step {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--bg);
+  font-size: 12px;
+  letter-spacing: 0;
 }
 .arch ul {
   list-style: none;
@@ -975,7 +1002,7 @@ details.tables {
   padding: 0;
   margin: 0;
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 26px;
 }
 .arch-stage {
@@ -994,12 +1021,11 @@ details.tables {
 }
 .tool {
   display: flex;
-  gap: 9px;
-  align-items: flex-start;
-  padding: 9px 10px;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 10px;
   border: 1px solid var(--dim);
-  border-left: 3px solid var(--brand-edge, var(--dim));
-  border-radius: 8px;
+  border-radius: 10px;
   background: var(--surface);
   transition:
     transform 0.2s,
@@ -1012,30 +1038,25 @@ details.tables {
   box-shadow: 0 8px 20px color-mix(in srgb, var(--text) 14%, transparent);
   border-color: var(--accent);
 }
-.tool.lane-free {
-  --brand-edge: var(--data);
-}
-.tool.lane-full {
-  --brand-edge: var(--accent);
-}
-.tool.lane-both {
-  --brand-edge: color-mix(in srgb, var(--data) 50%, var(--accent));
-}
 .tool-logo {
-  flex: 0 0 34px;
-  height: 34px;
-  border-radius: 8px;
+  flex: 0 0 40px;
+  height: 40px;
+  border-radius: 9px;
   display: grid;
   place-items: center;
-  background: color-mix(in srgb, var(--brand) 22%, var(--surface));
-  color: var(--text);
+  background: #fff;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, #000 10%, transparent);
 }
-.tool-logo svg {
-  fill: currentColor;
+.tool-logo.wide {
+  flex-basis: 58px;
 }
-.tool-logo b {
-  font-size: 12px;
-  letter-spacing: -0.02em;
+.tool-logo img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+.tool-logo.wide img {
+  width: 50px;
 }
 .tool-text {
   display: flex;
@@ -1048,36 +1069,14 @@ details.tables {
   font-size: 12px;
   color: var(--muted);
 }
-.tool-tags {
-  display: flex;
-  gap: 4px;
-  flex-wrap: wrap;
-  margin-top: 4px;
-}
-.tag {
-  font-size: 11px;
-  padding: 0 6px;
-  border-radius: 99px;
-  border: 1px solid var(--muted);
-  color: var(--muted);
-  white-space: nowrap;
-}
-.tag.free {
-  border-color: var(--data);
-  color: var(--data);
-}
-.tag.full {
-  border-color: var(--accent);
-  color: var(--accent);
-}
 .arch-orch {
-  margin-top: 18px;
+  margin-top: 20px;
   padding: 12px;
   border: 1.5px dashed var(--muted);
-  border-radius: 10px;
+  border-radius: 12px;
 }
 .arch-orch ul {
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
 }
 
 /* the maker */
@@ -1093,11 +1092,11 @@ details.tables {
   color: var(--accent);
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1240px) {
   .arch-flow {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
-  .arch-stage:nth-child(3)::after {
+  .arch-stage:nth-child(4n)::after {
     display: none;
   }
 }
@@ -1107,7 +1106,7 @@ details.tables {
     gap: 30px;
   }
   .arch-stage:not(:last-child)::after,
-  .arch-stage:nth-child(3)::after {
+  .arch-stage:nth-child(4n)::after {
     display: block;
     top: auto;
     bottom: -24px;
@@ -1134,5 +1133,196 @@ details.tables {
   ::view-transition-new(*) {
     animation: none !important;
     transition: none !important;
+  }
+}
+
+/* landing intro (components/Intro) */
+html.intro body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: var(--bg);
+}
+html.intro body {
+  overflow: hidden;
+}
+#intro {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  background: radial-gradient(ellipse at 50% 85%, color-mix(in srgb, var(--accent) 16%, var(--bg)), var(--bg) 65%);
+  color: var(--text);
+  transition:
+    opacity 0.6s ease,
+    filter 0.6s ease,
+    transform 0.6s ease;
+}
+#intro.done {
+  opacity: 0;
+  filter: blur(10px);
+  transform: scale(1.04);
+  pointer-events: none;
+}
+#intro canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+#intro .intro-text {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 12%;
+  padding: 0 24px;
+  text-align: center;
+  pointer-events: none;
+}
+#intro .st {
+  max-width: 720px;
+  margin: 0 auto;
+}
+#intro .st.on {
+  animation: intro-in 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+#intro .st p {
+  margin: 0;
+  font: 800 clamp(22px, 3.2vw, 40px) / 1.22 var(--font-fraunces), Georgia, serif;
+  letter-spacing: -0.01em;
+}
+#intro .st em {
+  font-style: normal;
+  color: var(--accent);
+}
+#intro .st small {
+  display: block;
+  margin-top: 14px;
+  font-size: 14px;
+  color: var(--muted);
+}
+@keyframes intro-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+    filter: blur(6px);
+  }
+}
+#intro .pager {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+#intro .dots {
+  display: flex;
+  gap: 8px;
+}
+#intro .dots i {
+  width: 26px;
+  height: 4px;
+  border-radius: 4px;
+  background: var(--dim);
+  transition: background-color 0.3s;
+}
+#intro .dots i.on {
+  background: var(--accent);
+}
+#intro .next {
+  font: inherit;
+  font-size: 14px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: var(--accent);
+  border: 0;
+  color: var(--bg);
+  border-radius: 999px;
+  padding: 11px 26px;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+#intro .next:hover {
+  transform: translateY(-2px);
+}
+#intro .skip {
+  font: inherit;
+  font-size: 13px;
+  background: none;
+  border: 0;
+  color: var(--muted);
+  text-decoration: underline;
+  cursor: pointer;
+}
+#intro button:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+
+/* the tower's explanation, beside the tower on hover or on request */
+.stage.tall {
+  cursor: help;
+}
+.tower-pop {
+  position: absolute;
+  right: calc(100% + 16px);
+  top: 48px;
+  z-index: 5;
+  width: min(320px, calc(100vw - 48px));
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--surface);
+  border: 1px solid var(--dim);
+  box-shadow: 0 12px 30px color-mix(in srgb, var(--text) 18%, transparent);
+  font-size: 13.5px;
+  line-height: 1.45;
+  opacity: 0;
+  transform: translateY(-6px);
+  pointer-events: none;
+  transition:
+    opacity 0.22s,
+    transform 0.22s;
+}
+.tower-pop.on {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+.tower-pop::after {
+  content: "";
+  position: absolute;
+  right: -7px;
+  top: 28px;
+  width: 12px;
+  height: 12px;
+  background: inherit;
+  border-top: 1px solid var(--dim);
+  border-right: 1px solid var(--dim);
+  transform: rotate(45deg);
+}
+.tower-pop p {
+  margin: 6px 0;
+}
+.pop-title {
+  display: block;
+  font-family: var(--font-fraunces), Georgia, serif;
+  font-size: 16px;
+}
+.pop-floor {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--dim);
+  min-height: 3.6em;
+}
+.pop-floor .pop-lang {
+  display: block;
+  font-size: 16px;
+}
+@media (prefers-reduced-motion: reduce) {
+  #intro {
+    display: none;
   }
 }
