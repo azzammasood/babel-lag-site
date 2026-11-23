@@ -893,23 +893,21 @@ html {
   fill: var(--text);
   pointer-events: none;
 }
-.lineage-svg .node .dot-label {
-  font-size: 11px;
-  paint-order: stroke;
-  stroke: var(--surface);
-  stroke-width: 4px;
-  opacity: 0;
-  transition: opacity 0.15s;
+.lineage-svg .job-labels {
+  pointer-events: none;
 }
-.lineage-svg .node.dot:hover .dot-label,
-.lineage-svg .node.dot:focus-visible .dot-label,
-.lineage-svg .node.dot.sel .dot-label,
-.lineage-svg .node.dot.focus .dot-label {
-  opacity: 1;
+.lineage-svg .job-label-bg {
+  fill: var(--surface);
+  stroke: var(--muted);
+  stroke-width: 1;
 }
-.lineage.focused .lineage-svg .node.dot.up .dot-label,
-.lineage.focused .lineage-svg .node.dot.down .dot-label {
-  opacity: 0.85;
+.lineage-svg .job-labels .sel .job-label-bg {
+  stroke: var(--text);
+  stroke-width: 1.6;
+}
+.lineage-svg .job-label {
+  font: 11px ui-monospace, Consolas, monospace;
+  fill: var(--text);
 }
 .lineage-svg .node.dim {
   opacity: 0.22;

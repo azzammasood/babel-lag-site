@@ -5,6 +5,7 @@ import type { Graph, GNode } from "@/lib/lineage";
 const LF = "metadata_lineage.json";
 const CF = "metadata_catalog.json";
 const PAD = 28;
+const LABEL_H = 19;
 
 type Detail = { description?: string; owner?: string; classification?: string; freshness?: string };
 type ColMap = { to: string; from: string[] };
@@ -117,6 +118,22 @@ export function LineageGraph({
   const anchorIn = (n: GNode) => ({ x: n.x, y: n.y + n.h / 2 });
   const anchorOut = (n: GNode) => ({ x: n.x + n.w, y: n.y + n.h / 2 });
 
+  // Job names: the selected job first, then the one pointed at. A label goes above its dot, or below
+  // when there is no room or it would cover the other label; if it still collides it is left out.
+  const jobLabels: { i: number; x: number; y: number; w: number }[] = [];
+  for (const i of [sel, hover]) {
+    if (i === null || !nodes[i]!.dot || jobLabels.some((l) => l.i === i)) continue;
+    const n = nodes[i]!;
+    const w = n.id.length * 6.7 + 14;
+    const x = Math.max(full.x + 4, Math.min(full.x + full.w - w - 4, n.x + n.w / 2 - w / 2));
+    const hits = (y: number) =>
+      y < full.y + 2 ||
+      y + LABEL_H > full.y + full.h - 2 ||
+      jobLabels.some((l) => x < l.x + l.w + 4 && x + w + 4 > l.x && y < l.y + LABEL_H + 4 && y + LABEL_H + 4 > l.y);
+    const y = [n.y - LABEL_H - 7, n.y + n.h + 7].find((c) => !hits(c));
+    if (y !== undefined) jobLabels.push({ i, x, y, w });
+  }
+
   const s = sel === null ? null : nodes[sel]!;
   const d = s ? details[s.i] : null;
 
@@ -177,12 +194,7 @@ export function LineageGraph({
               }}
             >
               {n.dot ? (
-                <>
-                  <circle cx={n.w / 2} cy={n.h / 2} r={n.w / 2} />
-                  <text className="dot-label" x={n.w / 2} y={-6} textAnchor="middle" data-src={`${LF}#/nodes/${n.i}/id`} data-as="raw">
-                    {n.id}
-                  </text>
-                </>
+                <circle cx={n.w / 2} cy={n.h / 2} r={n.w / 2} />
               ) : (
                 <>
                   <rect width={n.w} height={n.h} rx={5} />
@@ -197,6 +209,18 @@ export function LineageGraph({
               )}
             </g>
           ))}
+          {/* Job names, drawn last so nothing covers them: only the job pointed at and the selected one,
+              on a solid label, kept inside the graph. */}
+          <g className="job-labels" aria-hidden="true">
+            {jobLabels.map((l) => (
+              <g key={l.i} transform={`translate(${l.x},${l.y})`} className={l.i === sel ? "sel" : undefined}>
+                <rect width={l.w} height={LABEL_H} rx={5} className="job-label-bg" />
+                <text x={7} y={13.5} className="job-label" data-src={`${LF}#/nodes/${l.i}/id`} data-as="raw">
+                  {nodes[l.i]!.id}
+                </text>
+              </g>
+            ))}
+          </g>
         </svg>
 
         {s ? (
