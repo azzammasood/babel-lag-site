@@ -1,9 +1,8 @@
 @import "tailwindcss";
 
 /* Babel Tower design (docs/design/options.md, concept 1). Three themes, chosen with the header button
-   and remembered: Babel (dark orange, the default), Dark and Light. Every token pair meets WCAG AA on
+   and remembered: Dark (the default), Light and Babel (dark orange). Every token pair meets WCAG AA on
    both bg and surface. */
-:root,
 :root[data-mode="babel"] {
   --bg: #2a1207;
   --surface: #3a1a0b;
@@ -15,6 +14,7 @@
   --focus: #ffe49a;
   color-scheme: dark;
 }
+:root,
 :root[data-mode="dark"] {
   --bg: #120c1f;
   --surface: #1d1530;

@@ -20,7 +20,7 @@ const LINKS: [string, string][] = [
 type VT = { ready: Promise<void>; finished: Promise<void> };
 
 // Three themes, in the order the button walks through them.
-const NEXT: Record<string, string> = { babel: "dark", dark: "light", light: "babel" };
+const NEXT: Record<string, string> = { dark: "light", light: "babel", babel: "dark" };
 const LABEL: Record<string, string> = { babel: "Babel", dark: "Dark", light: "Light" };
 const ICON: Record<string, string> = { babel: "babel", dark: "moon", light: "sun" };
 type DocVT = Document & { startViewTransition?: (cb: () => void) => VT };
@@ -38,13 +38,13 @@ export function Nav() {
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- reads the theme the boot script applied
-    setMode(document.documentElement.dataset.mode ?? "babel");
+    setMode(document.documentElement.dataset.mode ?? "dark");
   }, []);
 
   // Theme switch: a circular reveal from the button through a view transition; a short colour
   // fade where view transitions are missing; instant under reduced motion.
   const toggle = (e: React.MouseEvent<HTMLButtonElement>) => {
-    const next = NEXT[mode ?? "babel"] ?? "dark";
+    const next = NEXT[mode ?? "dark"] ?? "light";
     const root = document.documentElement;
     const apply = () => {
       root.dataset.mode = next;
@@ -115,11 +115,11 @@ export function Nav() {
         type="button"
         className="mode"
         onClick={toggle}
-        aria-label={`Colour theme: ${LABEL[mode ?? "babel"]}. Switch to ${LABEL[NEXT[mode ?? "babel"] ?? "dark"]}`}
-        title="Switch theme: Babel, Dark, Light"
+        aria-label={`Colour theme: ${LABEL[mode ?? "dark"]}. Switch to ${LABEL[NEXT[mode ?? "dark"] ?? "light"]}`}
+        title="Switch theme: Dark, Light, Babel"
       >
-        <span className={`mode-icon ${ICON[mode ?? "babel"] ?? "babel"}`} aria-hidden="true" />
-        <span className="mode-label">{LABEL[mode ?? "babel"]}</span>
+        <span className={`mode-icon ${ICON[mode ?? "dark"] ?? "babel"}`} aria-hidden="true" />
+        <span className="mode-label">{LABEL[mode ?? "dark"]}</span>
       </button>
     </header>
   );

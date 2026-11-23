@@ -4,7 +4,7 @@ import { mainPages } from "./pages";
 
 const TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
 
-for (const theme of ["babel", "dark", "light"] as const) {
+for (const theme of ["dark", "light", "babel"] as const) {
   test.describe(`${theme} theme`, () => {
     test.use({ reducedMotion: "reduce" });
     test.beforeEach(async ({ page }) => {
@@ -29,20 +29,20 @@ test("the home page does not scroll sideways on a phone", async ({ page }) => {
   }
 });
 
-test("the theme button walks Babel, Dark, Light and is remembered", async ({ page }) => {
+test("the theme button walks Dark, Light, Babel and is remembered", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("method/");
   const html = page.locator("html");
-  await expect(html).toHaveAttribute("data-mode", "babel");
+  await expect(html).toHaveAttribute("data-mode", "dark");
   const button = page.getByRole("button", { name: /^Colour theme/ });
   await button.click();
-  await expect(html).toHaveAttribute("data-mode", "dark");
+  await expect(html).toHaveAttribute("data-mode", "light");
   await button.click();
-  await expect(html).toHaveAttribute("data-mode", "light");
-  await page.reload();
-  await expect(html).toHaveAttribute("data-mode", "light");
-  await page.getByRole("button", { name: /^Colour theme/ }).click();
   await expect(html).toHaveAttribute("data-mode", "babel");
+  await page.reload();
+  await expect(html).toHaveAttribute("data-mode", "babel");
+  await page.getByRole("button", { name: /^Colour theme/ }).click();
+  await expect(html).toHaveAttribute("data-mode", "dark");
 });
 
 test("the landing intro steps through to the tower and is not shown again in the session", async ({ page }) => {

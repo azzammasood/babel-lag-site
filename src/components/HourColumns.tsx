@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { box, depth, easeOut, fitCanvas, onTheme, prefersReducedMotion, readTokens, rgba, shade, tint, visibleLoop, type View } from "@/lib/iso";
 
 const STEP = 0.4; // seconds per measured hour
-const HOLD = 5;
+const SETTLE = 0.5; // seconds for the last column to finish growing before the replay stops
 const SPACING = 27;
 const SIDE = 20;
 const MAXH = 240;
@@ -17,6 +17,7 @@ export function HourColumns({ heights, labels, label }: { heights: number[]; lab
   const ctl = useRef({ playing: true, replay: () => {}, toggle: () => {} });
   const [paused, setPaused] = useState(false);
   const [moving, setMoving] = useState(false);
+  const [finished, setFinished] = useState(false);
 
   useEffect(() => {
     const c = canvas.current;
@@ -68,11 +69,6 @@ export function HourColumns({ heights, labels, label }: { heights: number[]; lab
       if (!ctl.current.playing) return false;
       clock += dt;
       e += dt;
-      if (e > n * STEP + HOLD) {
-        e = 0;
-        k = -1;
-        placed.fill(-1e9);
-      }
       const next = Math.min(n - 1, Math.floor(e / STEP));
       while (k < next) {
         k++;
@@ -80,6 +76,12 @@ export function HourColumns({ heights, labels, label }: { heights: number[]; lab
         if (out.current) out.current.textContent = labels[k] ?? "";
       }
       draw();
+      if (e > n * STEP + SETTLE) {
+        // played once: stop on the last hour; "Play again" starts over
+        ctl.current.playing = false;
+        setFinished(true);
+        return false;
+      }
       return true;
     };
 
@@ -104,6 +106,7 @@ export function HourColumns({ heights, labels, label }: { heights: number[]; lab
       k = -1;
       placed.fill(-1e9);
       ctl.current.playing = true;
+      setFinished(false);
       loop.start();
     };
     ctl.current.toggle = () => {
@@ -130,18 +133,20 @@ export function HourColumns({ heights, labels, label }: { heights: number[]; lab
                 setPaused(false);
               }}
             >
-              Replay
+              {finished ? "Play again" : "Replay"}
             </button>
-            <button
-              type="button"
-              aria-pressed={paused}
-              onClick={() => {
-                ctl.current.toggle();
-                setPaused(!ctl.current.playing);
-              }}
-            >
-              {paused ? "Play" : "Pause"}
-            </button>
+            {finished ? null : (
+              <button
+                type="button"
+                aria-pressed={paused}
+                onClick={() => {
+                  ctl.current.toggle();
+                  setPaused(!ctl.current.playing);
+                }}
+              >
+                {paused ? "Play" : "Pause"}
+              </button>
+            )}
           </>
         ) : null}
         <output ref={out}>{labels[n - 1]}</output>

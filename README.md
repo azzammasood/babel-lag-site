@@ -22,7 +22,7 @@ committed snapshot of that release.
 | Catalog | Every dataset, with search and layer filters | data |
 | How it's built | An architecture diagram of the tools that really ran (Simple Icons logos, bundled) | text |
 | Weekly report | The AI-written report, labelled, numbers traced to `report.json` | data |
-| Method and data, The maker, Corrections | Method, glossary; the maker's page in the first person, with marked placeholders | text and data |
+| Method and data, The maker, Corrections | Method, glossary; the maker's page in the first person | text and data |
 | Backtests, Topics, `/topics/<item>/` | The backtest topics and each one's spread by language, from `backtests.json` | data once published (empty state until then) |
 
 ## Rules the site keeps
@@ -38,7 +38,7 @@ committed snapshot of that release.
   pixel ratio at 2. Page changes and the colour mode switch animate with the View Transitions API
   (a CSS fade without it). Reduced motion turns all of it off. Nothing follows the cursor or the
   scroll position.
-- **Three themes:** Babel (dark orange, the default), Dark and Light, chosen with the header button
+- **Three themes:** Dark (the default), Light and Babel (dark orange), chosen with the header button
   and remembered; every token pair meets WCAG AA.
 - **Accessibility:** axe (WCAG 2.2 AA) on the main pages in all three themes; the tower has a text
   description and the same values as a list.
@@ -75,15 +75,14 @@ docs/screens/    screenshots of the built site
 
 ## Gaps (logged, not hidden)
 
-- `update_lag.json` and `spreading.json` were not in the release when the snapshot was taken, so
-  CI builds show their "not published" states. Both were verified against real local exports.
-- The weekly written report is not delivered by the pipeline.
 - The metadata exports (catalog, glossary, lineage) have no published JSON Schema; they are only
   checked to be valid JSON.
 - Language names come from the runtime (Unicode CLDR through `Intl`); a few Wikipedia-only codes
   are named by hand in `src/lib/names.ts`, and codes the runtime does not know show as the code.
   Native-script names use system fonts.
-- dbt docs and benchmarks are not linked until the pipeline publishes them.
+- dbt docs are not published by the pipeline, so they are not linked.
+- The static export writes per-segment prefetch files under nested folders while the router asks
+  for flat names; `scripts/flatten-segments.mjs` (postbuild) copies them until Next.js fixes it.
 
 Data: Wikimedia Foundation (EventStreams, MediaWiki history dumps, pageview dumps, Wikidata),
 CC0. Independent and non-commercial; not affiliated with the Wikimedia Foundation.
